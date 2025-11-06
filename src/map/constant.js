@@ -54,19 +54,31 @@ const MODEL_3DTILES_INFO_LIST = [
   },
   {
     name: "果木村",
-    center: [114.17699976999999, 25.743034721999994, 0],
+    center: [114.17722276999999, 25.743288721999994, 0],
     postion: [114.19409004855454, 25.744386604141457],
     flyToData: {
+      // destination: {
+      //   x: -2356023.0285521764,
+      //   y: 5242942.229759408,
+      //   z: 2756499.23604951,
+      // },
       destination: {
-        x: -2356023.0285521764,
-        y: 5242942.229759408,
-        z: 2756499.23604951,
+        x: -2356732.8605104457,
+        y: 5245571.909146348,
+        z: 2753726.9905538773,
       },
-      orientation: {
-        heading: 3.3726323967365204,
-        pitch: -0.21280825155238148,
-        roll: 6.283183829219863,
-      },
+
+      orientation: new Cesium.CallbackProperty(function () {
+        return Cesium.Transforms.headingPitchRollQuaternion(
+          viewer.camera.position,
+          new Cesium.HeadingPitchRoll(0.0, -Math.PI / 2, 0.0)
+        );
+      }, false),
+      // orientation: {
+      // heading: 3.3726323967365204,
+      // pitch: -0.21280825155238148,
+      // roll: 6.283183829219863,
+      // },
     },
   },
   {
@@ -157,16 +169,18 @@ const MODEL_3DTILES_INFO_LIST = [
 ];
 const EFFECT_WATER_LEVEL_COLOR_CONFIG_LSIT = [
   {
+    id: 1984,
     value: 198.4,
     color: "blue",
     alpha: 0.5,
     include: true,
     label: "正常蓄水位",
+    checked: true,
   },
-  { value: 199.1, color: "#FFFF00", alpha: 0.5, label: "199.1" },
-  { value: 199.6, color: "#FFBF00", alpha: 0.5, label: "199.6" },
-  { value: 200.1, color: "orange", alpha: 0.5, label: "200.1" },
-  { value: 200.6, color: "red", alpha: 0.5, label: "汛限水位" },
+  { id: 1990, value: 199.0, color: "#FFFF00", alpha: 0.5, label: "199.0" },
+  { id: 1995, value: 199.5, color: "#FFBF00", alpha: 0.5, label: "199.5" },
+  { id: 2000, value: 200.1, color: "orange", alpha: 0.5, label: "200.1" },
+  { id: 2006, value: 200.6, color: "red", alpha: 0.5, label: "汛限水位" },
 ];
 export {
   MODEL_3DTILES_INFO_LIST,

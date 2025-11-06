@@ -49,16 +49,16 @@ class MapBus extends BaseMapBus {
     // 默认显示水库点位图层
     layers.reservoirPoints.show();
     // 默认显示区域边界图层
-    layers.boundaryLayer.show();
+    // layers.boundaryLayer.show();
     layers.terrainLayer.show();
     // 默认显示河流图层
-    layers.riverLayer.show();
+    // layers.riverLayer.show();
     // layers.pipe.show();
     // layers.vehicle.show();
     // layers.waterLoggingPoint.show();
     // layers.echartsLayer.show();
     // layers.drainageZone.show();
-    layers.tilesetModelAccuracy.show();
+    // layers.tilesetModelAccuracy.show();
     // layers.waterLayer.show();
     // layers.floodRisk.show();
     // layers.administrativeLayer.show();

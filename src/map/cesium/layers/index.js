@@ -33,5 +33,7 @@ export { default as reservoirPoints } from "./reservoirPoints";
 export { default as boundaryLayer } from "./boundaryLayer";
 // 河流图层
 export { default as riverLayer } from "./riverLayer";
+
+export { default as waterLevelLayer } from "./waterLevelLayer";
 // //天气特效
 export {default as weather} from './weather'

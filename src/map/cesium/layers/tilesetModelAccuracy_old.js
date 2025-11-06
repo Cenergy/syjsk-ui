@@ -11,9 +11,9 @@ class TilesetModelAccuracy extends BaseLayer {
   // 默认3D Tiles配置常量
   static DEFAULT_TILESET_CONFIG = {
     enableCollision: true,
-    maximumMemoryUsage: 2048, // 最大内存使用量(MB)，防止浏览器卡顿
-    maximumScreenSpaceError: 16, // 屏幕空间错误，影响细节层级
-    maximumNumberOfLoadedTiles: 2048, // 最大加载瓦片数量
+    maximumMemoryUsage: 100, // 最大内存使用量(MB)，防止浏览器卡顿
+    maximumScreenSpaceError: 32, // 屏幕空间错误，影响细节层级
+    maximumNumberOfLoadedTiles: 1000, // 最大加载瓦片数量
     shadows: false, // 是否显示阴影
     skipLevelOfDetail: true, // 启用细节层级跳过优化
     baseScreenSpaceError: 1024, // 基础屏幕空间错误
@@ -22,14 +22,10 @@ class TilesetModelAccuracy extends BaseLayer {
     immediatelyLoadDesiredLevelOfDetail: false, // 是否立即加载所需细节层级
     loadSiblings: false, // 是否加载兄弟瓦片
     cullWithChildrenBounds: true, // 使用子边界体积剔除
-    dynamicScreenSpaceError: false, // 动态屏幕空间错误
+    dynamicScreenSpaceError: true, // 动态屏幕空间错误
     dynamicScreenSpaceErrorDensity: 0.00278, // 动态屏幕空间错误密度
     dynamicScreenSpaceErrorFactor: 4.0, // 动态屏幕空间错误因子
-    dynamicScreenSpaceErrorHeightFalloff: 0.25, // 动态屏幕空间错误高度衰减
-    // priority: {
-    //   height: 1000.0, // 高度优先级
-    //   distance: 500 // 距离优先级
-    // }
+    dynamicScreenSpaceErrorHeightFalloff: 0.25 // 动态屏幕空间错误高度衰减
   };
 
   // 默认可见性控制配置

@@ -44,7 +44,7 @@ import VueMeta from 'vue-meta'
 import DictData from '@/components/DictData'
 // 地图组件
 // import LMap from '@/components/LMap/index.vue'
-// import ZebraTitle from '@/components/ZebraTitle/index.vue'
+import ZebraTitle from '@/components/ZebraTitle/index.vue'
 import DarkCard from '@/components/DarkCard/index.vue'
 // import VueEcharts from '@/components/VueEcharts/index.vue'
 
@@ -71,7 +71,7 @@ Vue.prototype.$bus = eventBus
 // Vue.component('ImageUpload', ImageUpload)
 // Vue.component('ImagePreview', ImagePreview)
 // Vue.component('LMap', LMap)
-// Vue.component('ZebraTitle', ZebraTitle)
+Vue.component('ZebraTitle', ZebraTitle)
 Vue.component('DarkCard', DarkCard)
 // Vue.component('VueEcharts', VueEcharts)
 

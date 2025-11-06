@@ -56,21 +56,21 @@ export default {
             label: "河流水系",
             flag: false,
           },
-          {
-            value: "weather",
-            label: "降雨效果",
-            flag: false,
-          },
+          // {
+          //   value: "weather",
+          //   label: "降雨效果",
+          //   flag: false,
+          // },
           {
             value: "watershedLayer",
             label: "流域范围",
             flag: false,
           },
-          {
-            value: "waterLayer",
-            label: "模拟水位",
-            flag: false,
-          },
+          // {
+          //   value: "waterLayer",
+          //   label: "模拟水位",
+          //   flag: false,
+          // },
         ],
       },
     };
