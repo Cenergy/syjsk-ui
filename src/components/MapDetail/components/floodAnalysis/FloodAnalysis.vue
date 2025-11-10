@@ -176,7 +176,7 @@ export default {
       addWaterLevelList.forEach((item) => {
         const obj = EFFECT_WATER_LEVEL_COLOR_CONFIG_LSIT.find((i) => i.label === item);
         if (!obj) return;
-        waterLevelLayer.add(obj.id);
+        waterLevelLayer.add(obj.id, obj.zIndex);
       });
       removeWaterLevelList.forEach((item) => {
         const obj = EFFECT_WATER_LEVEL_COLOR_CONFIG_LSIT.find((i) => i.label === item);
@@ -258,7 +258,13 @@ export default {
   mounted() {
     // 默认加载正常蓄水位的影响范围线
     // this.loadEffectLayer("198.4");
-    waterLevelLayer.add(1984);
+    const selectedWaterLevelList = EFFECT_WATER_LEVEL_COLOR_CONFIG_LSIT.filter(
+      (item) => item.checked
+    ).map((item) => {
+      waterLevelLayer.add(item.id, item.zIndex);
+      return item.label
+    });
+ 
   },
   beforeDestroy() {
     // 组件销毁时移除图层

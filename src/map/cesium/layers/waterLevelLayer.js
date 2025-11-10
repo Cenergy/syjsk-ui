@@ -9,8 +9,7 @@ class WaterLevelLayer extends BaseLayer {
     this.dataSources = new Map();
   }
 
-  async add(id,zIndex=10) {
-    console.log("🚀 ~ WaterLevelLayer ~ add ~ zIndex:", zIndex);
+  async add(id, zIndex = 100) {
     if (this.dataSources.has(id)) {
       this.show(id);
       return;
@@ -25,9 +24,7 @@ class WaterLevelLayer extends BaseLayer {
     }
 
     try {
-      const response = await fetch(
-        `/datasets/effects/营前镇/${id}.geojson`
-      );
+      const response = await fetch(`/datasets/effects/营前镇/${id}.geojson`);
       const geoJsonData = await response.json();
 
       const dataSource = await window.Cesium.GeoJsonDataSource.load(
@@ -43,12 +40,18 @@ class WaterLevelLayer extends BaseLayer {
           clampToGround: true,
         }
       );
+      const entities = dataSource.entities.values;
+      entities.forEach(function (entity) {
+        if (entity && entity.polygon) {
+          entity.polygon.zIndex = zIndex; // 或者其他数字来调整层级
+        }
+      });
 
       dataSource.name = `water-level-${id}`;
       dataSource.zIndex = zIndex;
       await this.viewer.dataSources.add(dataSource);
       this.dataSources.set(id, dataSource);
-      this.viewer.dataSources._dataSources.sort((a, b) => a.zIndex - b.zIndex);
+      this.sortDataSourcesByZIndex();
     } catch (error) {
       console.error("加载影响范围线数据失败:", error);
     }
@@ -80,6 +83,15 @@ class WaterLevelLayer extends BaseLayer {
       const dataSource = this.dataSources.get(id);
       dataSource.show = false;
     }
+  }
+
+  sortDataSourcesByZIndex() {
+    const sortedDataSources = Array.from(this.dataSources.values()).sort(
+      (a, b) => (a.zIndex || 0) - (b.zIndex || 0)
+    );
+    sortedDataSources.forEach((dataSource) => {
+      this.viewer.dataSources.raiseToTop(dataSource);
+    });
   }
 }
 

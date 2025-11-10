@@ -11,6 +11,8 @@ const tflyToData = {
     roll: 0.00009946957517126265,
   },
 };
+// 基础数据zIndex
+const DEFAULT_GEOJSON_LAYER_Z_INDEX = 10000;
 // 二维视角
 const sflyToData = {
   destination: {
@@ -176,11 +178,12 @@ const EFFECT_WATER_LEVEL_COLOR_CONFIG_LSIT = [
     include: true,
     label: "正常蓄水位",
     checked: true,
+    zIndex: 105,
   },
-  { id: 1990, value: 199.0, color: "#FFFF00", alpha: 0.5, label: "199.0" },
-  { id: 1995, value: 199.5, color: "#FFBF00", alpha: 0.5, label: "199.5" },
-  { id: 2000, value: 200.1, color: "orange", alpha: 0.5, label: "200.1" },
-  { id: 2006, value: 200.6, color: "red", alpha: 0.5, label: "汛限水位" },
+  { id: 1990, value: 199.0, color: "#FFFF00", alpha: 0.5, label: "199.0",checked:true, zIndex: 104 },
+  { id: 1995, value: 199.5, color: "#FFBF00", alpha: 0.5, label: "199.5", zIndex: 103 },
+  { id: 2000, value: 200.1, color: "orange", alpha: 0.5, label: "200.1", zIndex: 102 },
+  { id: 2006, value: 200.6, color: "red", alpha: 0.5, label: "汛限水位", zIndex: 101 },
 ];
 export {
   MODEL_3DTILES_INFO_LIST,
