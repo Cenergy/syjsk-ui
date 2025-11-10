@@ -10,6 +10,7 @@ class WaterLevelLayer extends BaseLayer {
   }
 
   async add(id,zIndex=10) {
+    console.log("🚀 ~ WaterLevelLayer ~ add ~ zIndex:", zIndex);
     if (this.dataSources.has(id)) {
       this.show(id);
       return;
@@ -37,7 +38,7 @@ class WaterLevelLayer extends BaseLayer {
           ),
           fill: window.Cesium.Color.fromCssColorString(
             selectWaterLevelInfo.color
-          ).withAlpha(0.2),
+          ).withAlpha(0.8),
           strokeWidth: 10,
           clampToGround: true,
         }

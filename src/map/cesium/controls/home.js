@@ -58,7 +58,7 @@ class MapBus extends BaseMapBus {
     // layers.waterLoggingPoint.show();
     // layers.echartsLayer.show();
     // layers.drainageZone.show();
-    // layers.tilesetModelAccuracy.show();
+    layers.tilesetModelAccuracy.show();
     // layers.waterLayer.show();
     // layers.floodRisk.show();
     // layers.administrativeLayer.show();

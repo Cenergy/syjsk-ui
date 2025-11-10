@@ -21,11 +21,6 @@
       >
     </ZebraTitle>
     <el-form label-width="80px" label-position="right" size="mini">
-      <el-form-item label="是否单选" style="color: #fff !important">
-        <div style="display: flex; align-items: center">
-          <el-checkbox v-model="singleCheck" label="1">是</el-checkbox>
-        </div>
-      </el-form-item>
       <el-form-item label="典型水位" style="color: #fff !important">
         <div style="display: flex; align-items: center">
           <el-checkbox-group
@@ -42,6 +37,11 @@
             </el-checkbox-button>
           </el-checkbox-group>
           <span style="color: #fff; margin-left: 8px">米</span>
+        </div>
+      </el-form-item>
+      <el-form-item label="是否单选" style="color: #fff !important">
+        <div style="display: flex; align-items: center">
+          <el-checkbox v-model="singleCheck" label="1">是</el-checkbox>
         </div>
       </el-form-item>
     </el-form>
@@ -169,7 +169,6 @@ export default {
       const addWaterLevelList = this.selectedWaterLevelList.filter(
         (item) => !this.previousWaterLevelList.includes(item)
       );
-      console.log("🚀 ~ addWaterLevelList:", addWaterLevelList);
       // 判断减少的数据有哪些
       const removeWaterLevelList = this.previousWaterLevelList.filter(
         (item) => !this.selectedWaterLevelList.includes(item)
