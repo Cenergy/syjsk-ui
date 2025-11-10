@@ -105,9 +105,6 @@ const { EFFECT_WATER_LEVEL_COLOR_CONFIG_LSIT } = constant;
 const effectWaterLevelList = EFFECT_WATER_LEVEL_COLOR_CONFIG_LSIT.map(
   (item) => item.label
 );
-const selectedWaterLevelList = EFFECT_WATER_LEVEL_COLOR_CONFIG_LSIT.filter(
-  (item) => item.checked
-).map((item) => item.label);
 
 export default {
   components: {
@@ -115,8 +112,8 @@ export default {
   },
   data() {
     return {
-      selectedWaterLevelList,
-      previousWaterLevelList: selectedWaterLevelList,
+      selectedWaterLevelList:[],
+      previousWaterLevelList: [],
       effectWaterLevelList: effectWaterLevelList,
       singleCheck: false,
       query: {
@@ -185,11 +182,6 @@ export default {
       });
       this.previousWaterLevelList = this.selectedWaterLevelList;
     },
-    // 处理水位选择变化
-    handleWaterLevelChange(value) {
-      console.log("水位选择变化:", value, typeof value);
-      this.loadEffectLayer(value);
-    },
     handleRowClick(row) {
       // const row = this.data[idx]
       this.$bus.emit("mapLocate", {
@@ -203,54 +195,7 @@ export default {
         data: row,
       });
     },
-
-    // 加载影响范围线图层
-    async loadEffectLayer(waterLevel) {
-      const selectWaterLevelInfo = EFFECT_WATER_LEVEL_COLOR_CONFIG_LSIT.find((item) => {
-        return item.value === Number(waterLevel) && !item.exclude;
-      });
-      if (!selectWaterLevelInfo) {
-        if (this.currentEffectLayer) {
-          this.$bus.emit("removeMapLayer", {
-            layerId: "effect-layer",
-          });
-        }
-        return;
-      }
-      try {
-        // 移除当前图层
-        if (this.currentEffectLayer) {
-          this.$bus.emit("removeMapLayer", {
-            layerId: "effect-layer",
-          });
-        }
-
-        // 加载新的GeoJSON数据
-        const response = await fetch(
-          `/datasets/effects/营前镇/${Number(waterLevel) * 10}.geojson`
-        );
-        const geoJsonData = await response.json();
-        console.log("🚀 ~ geoJsonData:", geoJsonData);
-
-        // 添加到地图
-        this.$bus.emit("addGeoJsonLayer", {
-          layerId: "effect-layer",
-          data: geoJsonData,
-          style: {
-            color: selectWaterLevelInfo.color,
-            weight: 10,
-            opacity: 0.8,
-            fillColor: selectWaterLevelInfo.color,
-            fillOpacity: 0.2,
-          },
-        });
-
-        this.currentEffectLayer = waterLevel;
-      } catch (error) {
-        console.error("加载影响范围线数据失败:", error);
-        this.$message.error("加载影响范围线数据失败");
-      }
-    },
+ 
   },
   created() {
     this.getData();
@@ -264,15 +209,11 @@ export default {
       waterLevelLayer.add(item.id, item.zIndex);
       return item.label
     });
- 
+    this.selectedWaterLevelList = selectedWaterLevelList;
+    this.previousWaterLevelList = selectedWaterLevelList;
   },
   beforeDestroy() {
-    // 组件销毁时移除图层
-    if (this.currentEffectLayer) {
-      this.$bus.emit("removeMapLayer", {
-        layerId: "effect-layer",
-      });
-    }
+    waterLevelLayer.removeAll();
   },
 };
 </script>
