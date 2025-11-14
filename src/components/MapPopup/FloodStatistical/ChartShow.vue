@@ -121,115 +121,150 @@ export default {
       }
       if (!this.chart) return;
 
-      const categories = this.waterLevelNames;
-      // 使用 mockData 中的数值序列（基于有效标签）
-      const dataInundationArea = this.effectiveLabels.map((label) => {
+      const isSingle = this.effectiveLabels.length === 1;
+      let option;
+      if (isSingle) {
+        // 单水位：使用饼图展示各指标的占比
+        const label = this.effectiveLabels[0];
+        const showName = this.waterLevelNames[0] || label;
         const row = this.mockData[label] || {};
-        const v = Number(row.inundationArea || 0);
-        return Number.isFinite(v) ? v : 0;
-      });
-      const dataSubmergedCivilLandArea = this.effectiveLabels.map((label) => {
-        const row = this.mockData[label] || {};
-        const v = Number(row.submergedCivilLandArea || 0);
-        return Number.isFinite(v) ? v : 0;
-      });
-      const dataSubmergedArableLandArea = this.effectiveLabels.map((label) => {
-        const row = this.mockData[label] || {};
-        const v = Number(row.submergedArableLandArea || 0);
-        return Number.isFinite(v) ? v : 0;
-      });
-      const dataAffectedRoadLength = this.effectiveLabels.map((label) => {
-        const row = this.mockData[label] || {};
-        const v = Number(row.affectedRoadLength || 0);
-        return Number.isFinite(v) ? v : 0;
-      });
-      const dataSubmergedCivilHousingCount = this.effectiveLabels.map((label) => {
-        const row = this.mockData[label] || {};
-        const v = Number(row.submergedCivilHousingCount || 0);
-        return Number.isFinite(v) ? v : 0;
-      });
+        const pieData = [
+          { name: '淹没面积(亩)', value: Number(row.inundationArea || 0) },
+          { name: '淹没农用地面积（亩）', value: Number(row.submergedCivilLandArea || 0) },
+          { name: '淹没耕地（亩）', value: Number(row.submergedArableLandArea || 0) },
+          { name: '受影响道路长度(米)', value: Number(row.affectedRoadLength || 0) },
+          { name: '淹没民房数(栋)', value: Number(row.submergedCivilHousingCount || 0) },
+        ].map(d => ({ ...d, value: Number.isFinite(d.value) ? d.value : 0 }));
 
-      const option = {
-        backgroundColor: 'transparent',
-        tooltip: { trigger: 'axis' },
-        legend: {
-          data: ['淹没面积(亩)', '淹没农用地面积（亩）', '淹没耕地（亩）', '受影响道路长度(米)', '淹没民房数(栋)'],
-          textStyle: { color: '#fff' }
-        },
-        grid: { left: 40, right: 40, top: 40, bottom: 40, containLabel: true },
-        xAxis: {
-          type: 'category',
-          data: categories,
-          axisLabel: { color: '#fff' },
-          nameTextStyle: { color: '#fff' },
-          axisLine: { lineStyle: { color: 'rgba(255,255,255,0.3)' } }
-        },
-        yAxis: [
-          {
-            type: 'value',
-            name: '面积(亩)',
-            splitLine: { show: true },
+        option = {
+          backgroundColor: 'transparent',
+          color: ['#73C0DE', '#91CC75', '#FAC858', '#EE6666', '#3BA272'],
+          tooltip: { trigger: 'item', formatter: '{b}: {c} ({d}%)' },
+          legend: { top: 10, textStyle: { color: '#fff' } },
+          series: [
+            {
+              name: `${showName} 指标分布`,
+              type: 'pie',
+              radius: ['30%', '60%'],
+              center: ['50%', '55%'],
+              avoidLabelOverlap: true,
+              label: { color: '#fff' },
+              labelLine: { lineStyle: { color: 'rgba(255,255,255,0.6)' } },
+              data: pieData
+            }
+          ]
+        };
+      } else {
+        const categories = this.waterLevelNames;
+        // 使用 mockData 中的数值序列（基于有效标签）
+        const dataInundationArea = this.effectiveLabels.map((label) => {
+          const row = this.mockData[label] || {};
+          const v = Number(row.inundationArea || 0);
+          return Number.isFinite(v) ? v : 0;
+        });
+        const dataSubmergedCivilLandArea = this.effectiveLabels.map((label) => {
+          const row = this.mockData[label] || {};
+          const v = Number(row.submergedCivilLandArea || 0);
+          return Number.isFinite(v) ? v : 0;
+        });
+        const dataSubmergedArableLandArea = this.effectiveLabels.map((label) => {
+          const row = this.mockData[label] || {};
+          const v = Number(row.submergedArableLandArea || 0);
+          return Number.isFinite(v) ? v : 0;
+        });
+        const dataAffectedRoadLength = this.effectiveLabels.map((label) => {
+          const row = this.mockData[label] || {};
+          const v = Number(row.affectedRoadLength || 0);
+          return Number.isFinite(v) ? v : 0;
+        });
+        const dataSubmergedCivilHousingCount = this.effectiveLabels.map((label) => {
+          const row = this.mockData[label] || {};
+          const v = Number(row.submergedCivilHousingCount || 0);
+          return Number.isFinite(v) ? v : 0;
+        });
+
+        option = {
+          backgroundColor: 'transparent',
+          tooltip: { trigger: 'axis' },
+          legend: {
+            data: ['淹没面积(亩)', '淹没农用地面积（亩）', '淹没耕地（亩）', '受影响道路长度(米)', '淹没民房数(栋)'],
+            textStyle: { color: '#fff' }
+          },
+          grid: { left: 40, right: 40, top: 40, bottom: 40, containLabel: true },
+          xAxis: {
+            type: 'category',
+            data: categories,
             axisLabel: { color: '#fff' },
             nameTextStyle: { color: '#fff' },
             axisLine: { lineStyle: { color: 'rgba(255,255,255,0.3)' } }
           },
-          {
-            type: 'value',
-            name: '长度(米)',
-            position: 'right',
-            splitLine: { show: false },
-            axisLabel: { color: '#fff' },
-            nameTextStyle: { color: '#fff' },
-            axisLine: { lineStyle: { color: 'rgba(255,255,255,0.3)' } }
-          },
-          {
-            type: 'value',
-            name: '数量(栋)',
-            position: 'right',
-            offset: 60,
-            splitLine: { show: false },
-            axisLabel: { color: '#fff' },
-            nameTextStyle: { color: '#fff' },
-            axisLine: { lineStyle: { color: 'rgba(255,255,255,0.3)' } }
-          }
-        ],
-        series: [
-          {
-            name: '淹没面积(亩)',
-            type: 'bar',
-            data: dataInundationArea,
-            itemStyle: { color: '#73C0DE' }
-          },
-          {
-            name: '淹没农用地面积（亩）',
-            type: 'bar',
-            data: dataSubmergedCivilLandArea,
-            itemStyle: { color: '#91CC75' }
-          },
-          {
-            name: '淹没耕地（亩）',
-            type: 'bar',
-            data: dataSubmergedArableLandArea,
-            itemStyle: { color: '#FAC858' }
-          },
-          {
-            name: '受影响道路长度(米)',
-            type: 'line',
-            yAxisIndex: 1,
-            smooth: true,
-            data: dataAffectedRoadLength,
-            itemStyle: { color: '#EE6666' }
-          },
-          {
-            name: '淹没民房数(栋)',
-            type: 'line',
-            yAxisIndex: 2,
-            smooth: true,
-            data: dataSubmergedCivilHousingCount,
-            itemStyle: { color: '#3BA272' }
-          }
-        ]
-      };
+          yAxis: [
+            {
+              type: 'value',
+              name: '面积(亩)',
+              splitLine: { show: true },
+              axisLabel: { color: '#fff' },
+              nameTextStyle: { color: '#fff' },
+              axisLine: { lineStyle: { color: 'rgba(255,255,255,0.3)' } }
+            },
+            {
+              type: 'value',
+              name: '长度(米)',
+              position: 'right',
+              splitLine: { show: false },
+              axisLabel: { color: '#fff' },
+              nameTextStyle: { color: '#fff' },
+              axisLine: { lineStyle: { color: 'rgba(255,255,255,0.3)' } }
+            },
+            {
+              type: 'value',
+              name: '数量(栋)',
+              position: 'right',
+              offset: 60,
+              splitLine: { show: false },
+              axisLabel: { color: '#fff' },
+              nameTextStyle: { color: '#fff' },
+              axisLine: { lineStyle: { color: 'rgba(255,255,255,0.3)' } }
+            }
+          ],
+          series: [
+            {
+              name: '淹没面积(亩)',
+              type: 'bar',
+              data: dataInundationArea,
+              itemStyle: { color: '#73C0DE' }
+            },
+            {
+              name: '淹没农用地面积（亩）',
+              type: 'bar',
+              data: dataSubmergedCivilLandArea,
+              itemStyle: { color: '#91CC75' }
+            },
+            {
+              name: '淹没耕地（亩）',
+              type: 'bar',
+              data: dataSubmergedArableLandArea,
+              itemStyle: { color: '#FAC858' }
+            },
+            {
+              name: '受影响道路长度(米)',
+              type: 'line',
+              yAxisIndex: 1,
+              smooth: true,
+              data: dataAffectedRoadLength,
+              itemStyle: { color: '#EE6666' }
+            },
+            {
+              name: '淹没民房数(栋)',
+              type: 'line',
+              yAxisIndex: 2,
+              smooth: true,
+              data: dataSubmergedCivilHousingCount,
+              itemStyle: { color: '#3BA272' }
+            }
+          ]
+        };
+      }
       this.chart.setOption(option, true);
       // 轻微延迟后再次 resize，适配 el-tabs 动画后的最终尺寸
       setTimeout(() => { if (this.chart) this.chart.resize(); }, 200);
