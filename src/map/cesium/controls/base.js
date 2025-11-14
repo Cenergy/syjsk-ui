@@ -69,7 +69,7 @@ export default class BaseMapBus {
     scene.camera.setView({
       //将经度、纬度、高度的坐标转换为笛卡尔坐标
       destination: destination||Cesium.Cartesian3.fromDegrees(...center),
-      // orientation,
+      orientation,
     });
 
     let handler = new Cesium.ScreenSpaceEventHandler(viewer.scene.canvas);

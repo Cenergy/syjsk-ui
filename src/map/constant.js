@@ -59,28 +59,16 @@ const MODEL_3DTILES_INFO_LIST = [
     center: [114.17722276999999, 25.743288721999994, 0],
     postion: [114.19409004855454, 25.744386604141457],
     flyToData: {
-      // destination: {
-      //   x: -2356023.0285521764,
-      //   y: 5242942.229759408,
-      //   z: 2756499.23604951,
-      // },
       destination: {
-        x: -2356732.8605104457,
-        y: 5245571.909146348,
-        z: 2753726.9905538773,
+        x: -2356023.0285521764,
+        y: 5242942.229759408,
+        z: 2756499.23604951,
       },
-
-      orientation: new Cesium.CallbackProperty(function () {
-        return Cesium.Transforms.headingPitchRollQuaternion(
-          viewer.camera.position,
-          new Cesium.HeadingPitchRoll(0.0, -Math.PI / 2, 0.0)
-        );
-      }, false),
-      // orientation: {
-      // heading: 3.3726323967365204,
-      // pitch: -0.21280825155238148,
-      // roll: 6.283183829219863,
-      // },
+      orientation: {
+      heading: 3.3726323967365204,
+      pitch: -0.21280825155238148,
+      roll: 6.283183829219863,
+      },
     },
   },
   {
