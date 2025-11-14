@@ -5,6 +5,7 @@ export default {
         "openPopup",
         "closePopup",
         "togglePopup",
+        "getPopupData",
         "setWidth"
     ],
     data() {

@@ -12,7 +12,7 @@
           justify-content: space-between;
         "
       >
-        <div style="display: flex; flex-direction: row; align-items: center;">
+        <div style="display: flex; flex-direction: row; align-items: center">
           <span style="color: #fff; font-size: 16px; font-weight: bold">典型水位:</span>
           <el-checkbox-group
             v-model="selectedWaterLevelList2"
@@ -40,10 +40,10 @@
       <EffectAll v-if="viewMode === 'list'"/>
       <ChartShow v-else />
     </el-tab-pane> -->
-    <el-tab-pane v-for="(item, index) in showTabs" :key="index" :label="item">
+    <el-tab-pane v-for="(item, index) in showTabs" :key="index" :label="item" :name="item">
       <!-- <EffectSta :name="item" /> -->
-      <EffectAll :areaName="isFirstTab(item)?null:item" v-if="viewMode === 'list'" />
-      <ChartShow :areaName="isFirstTab(item)?null:item" v-else />
+      <EffectAll :areaName="isFirstTab(item) ? null : item" v-if="viewMode === 'list'" />
+      <ChartShow :areaName="isFirstTab(item) ? null : item" v-else />
       <div v-show="!isFirstTab(item)">
         <div class="section-title">{{ name }}重点防护对象</div>
         <!-- 是個列表，有名稱和聯係人 -->
@@ -131,20 +131,26 @@ import { mapState } from "vuex";
 
 const { EFFECT_WATER_LEVEL_COLOR_CONFIG_LSIT, MODEL_3DTILES_INFO_LIST } = constant;
 
-
 const effectWaterLevelList = EFFECT_WATER_LEVEL_COLOR_CONFIG_LSIT.map(
   (item) => item.label
 );
 
-const firstName="淹没统计";
-const showTabs = [firstName,...MODEL_3DTILES_INFO_LIST.map((item) => item.name)];
+const firstName = "淹没统计";
+const showTabs = [firstName, ...MODEL_3DTILES_INFO_LIST.map((item) => item.name)];
 
 export default {
+  inject: ["getPopupData"],
   mixins: [popupMixin],
   components: {
     EffectSta,
     EffectAll,
     ChartShow,
+  },
+  props: {
+    popupData: {
+      type: Object,
+      default: {},
+    },
   },
   computed: {
     ...mapState(["selectedWaterLevelList"]),
@@ -154,6 +160,7 @@ export default {
       viewMode: "list",
       type: "Reservoir",
       id: null,
+      activeName:firstName,
       selectedWaterLevelList2: [],
       previousWaterLevelList: [],
       effectWaterLevelList: EFFECT_WATER_LEVEL_COLOR_CONFIG_LSIT,
@@ -219,8 +226,7 @@ export default {
     },
   },
   methods: {
-
-    handleViewModeChange(){
+    handleViewModeChange() {
       console.log("🚀 ~ this.viewMode:", this.viewMode);
     },
     isFirstTab(tab) {
@@ -275,6 +281,10 @@ export default {
     },
   },
   mounted() {
+    const popupData=this.getPopupData();
+    const {name}=popupData;
+    this.activeName=name||firstName;
+    console.log("🚀 ~ name:", name);
     this.selectedWaterLevelList2 = this.$store.getters.selectedWaterLevelList || [];
   },
   created() {

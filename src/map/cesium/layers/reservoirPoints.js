@@ -12,6 +12,14 @@ const sss = showList.map((item, index) => {
     capacity: item.capacity || "",
     type: item.type || "",
     fontSize: item.fontSize || 40,
+    event: {
+      click: (e) => {
+        eventBus.emit("openMapDialog", {
+          type: "FloodStatistical",
+          data: {name: item.name},
+        });
+      },
+    },
   };
 });
 
@@ -101,21 +109,21 @@ class ReservoirPointsLayer extends BaseLayer {
       this.viewer.cesiumWidget.screenSpaceEventHandler.setInputAction(
         (event) => {
           const pickedObject = this.viewer.scene.pick(event.endPosition);
-          
+
           if (Cesium.defined(pickedObject) && Cesium.defined(pickedObject.id)) {
             const entity = pickedObject.id;
-            
+
             // 检查是否是水库点位实体
             if (this.entities.includes(entity)) {
               // 设置鼠标样式为手指
-              this.viewer.canvas.style.cursor = 'pointer';
+              this.viewer.canvas.style.cursor = "pointer";
             } else {
               // 恢复默认鼠标样式
-              this.viewer.canvas.style.cursor = 'default';
+              this.viewer.canvas.style.cursor = "default";
             }
           } else {
             // 恢复默认鼠标样式
-            this.viewer.canvas.style.cursor = 'default';
+            this.viewer.canvas.style.cursor = "default";
           }
         },
         Cesium.ScreenSpaceEventType.MOUSE_MOVE
@@ -304,9 +312,9 @@ class ReservoirPointsLayer extends BaseLayer {
     // 目前使用一个通用的水库图标，您可以根据需要添加不同的图标
     switch (type) {
       case "1":
-        return require(`@/assets/map/icons/1.png`)
+        return require(`@/assets/map/icons/1.png`);
       default:
-        return require(`@/assets/map/icons/2.png`)
+        return require(`@/assets/map/icons/2.png`);
     }
   }
 
@@ -329,7 +337,7 @@ class ReservoirPointsLayer extends BaseLayer {
 
       // 恢复默认鼠标样式
       if (this.viewer && this.viewer.canvas) {
-        this.viewer.canvas.style.cursor = 'default';
+        this.viewer.canvas.style.cursor = "default";
       }
 
       // 移除鼠标移动事件监听器
@@ -337,7 +345,7 @@ class ReservoirPointsLayer extends BaseLayer {
 
       // 恢复默认鼠标样式
       if (this.viewer && this.viewer.canvas) {
-        this.viewer.canvas.style.cursor = 'default';
+        this.viewer.canvas.style.cursor = "default";
       }
 
       this.isVisible = false;

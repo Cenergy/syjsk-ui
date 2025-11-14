@@ -124,26 +124,28 @@ export default {
       const isSingle = this.effectiveLabels.length === 1;
       let option;
       if (isSingle) {
-        // 单水位：使用饼图展示各指标的占比
+        // 单水位：仅比较面积类指标（不含长度与数量）
         const label = this.effectiveLabels[0];
         const showName = this.waterLevelNames[0] || label;
         const row = this.mockData[label] || {};
         const pieData = [
           { name: '淹没面积(亩)', value: Number(row.inundationArea || 0) },
           { name: '淹没农用地面积（亩）', value: Number(row.submergedCivilLandArea || 0) },
-          { name: '淹没耕地（亩）', value: Number(row.submergedArableLandArea || 0) },
-          { name: '受影响道路长度(米)', value: Number(row.affectedRoadLength || 0) },
-          { name: '淹没民房数(栋)', value: Number(row.submergedCivilHousingCount || 0) },
+          { name: '淹没耕地（亩）', value: Number(row.submergedArableLandArea || 0) }
         ].map(d => ({ ...d, value: Number.isFinite(d.value) ? d.value : 0 }));
 
         option = {
           backgroundColor: 'transparent',
-          color: ['#73C0DE', '#91CC75', '#FAC858', '#EE6666', '#3BA272'],
+          color: ['#73C0DE', '#91CC75', '#FAC858'],
           tooltip: { trigger: 'item', formatter: '{b}: {c} ({d}%)' },
-          legend: { top: 10, textStyle: { color: '#fff' } },
+          legend: {
+            top: 10,
+            textStyle: { color: '#fff' },
+            data: pieData.map(d => d.name)
+          },
           series: [
             {
-              name: `${showName} 指标分布`,
+              name: `${showName} 面积分布`,
               type: 'pie',
               radius: ['30%', '60%'],
               center: ['50%', '55%'],

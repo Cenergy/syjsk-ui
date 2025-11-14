@@ -15,7 +15,7 @@
     @closed="handleClose"
   >
     <div class="el-dialog-div">
-      <component :is="popup"></component>
+      <component :is="popup" :popupData="popupData"></component>
     </div>
   </el-dialog>
 </template>
@@ -38,6 +38,7 @@ export default {
       stcd: "",
       width: "1000px",
       scale: 1,
+      popupData: {},
     };
   },
   methods: {
@@ -61,9 +62,10 @@ export default {
       // })
     },
     handleOpen(eventData) {
-      console.log(eventData);
+      console.log("🚀 ~ eventData:", eventData);
       const { handleField = "stcd", titleField = "stnm", type, data } = eventData;
       this.stcd = data[handleField];
+      this.popupData = data;
       this.title = data[titleField];
       this.popup = tp2Popup[type];
       this.open();
@@ -76,6 +78,9 @@ export default {
     getStcd() {
       return this.stcd;
     },
+    getPopupData() {
+      return this.popupData;
+    },
   },
   provide() {
     return {
@@ -84,6 +89,7 @@ export default {
       togglePopup: this.toggle,
       setTitle: this.setTitle,
       getStcd: this.getStcd,
+      getPopupData: this.getPopupData,
       setWidth: this.setWidth,
     };
   },
