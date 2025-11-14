@@ -9,31 +9,42 @@
           display: flex;
           flex-direction: row;
           align-items: center;
+          justify-content: space-between;
         "
       >
-        <span style="color: #fff; font-size: 16px; font-weight: bold">典型水位:</span>
-        <el-checkbox-group
-          v-model="selectedWaterLevelList2"
-          @change="handleWaterLevelList"
-        >
-          <el-checkbox-button
-            v-for="waterLevel in effectWaterLevelList"
-            :label="waterLevel.label"
-            :key="waterLevel.id"
+        <div style="display: flex; flex-direction: row; align-items: center;">
+          <span style="color: #fff; font-size: 16px; font-weight: bold">典型水位:</span>
+          <el-checkbox-group
+            v-model="selectedWaterLevelList2"
+            @change="handleWaterLevelList"
           >
-            {{ waterLevel.name }}
-          </el-checkbox-button>
-        </el-checkbox-group>
+            <el-checkbox-button
+              v-for="waterLevel in effectWaterLevelList"
+              :label="waterLevel.label"
+              :key="waterLevel.id"
+            >
+              {{ waterLevel.name }}
+            </el-checkbox-button>
+          </el-checkbox-group>
+        </div>
+        <div class="view-toggle">
+          <el-radio-group v-model="viewMode" size="mini" @input="handleViewModeChange">
+            <el-radio-button label="list" icon="el-icon-menu">列表展示</el-radio-button>
+            <el-radio-button label="chart" icon="el-icon-chart">图表展示</el-radio-button>
+          </el-radio-group>
+        </div>
       </div>
     </template>
 
-    <el-tab-pane label="淹没统计" lazy>
-      <EffectAll />
-    </el-tab-pane>
+    <!-- <el-tab-pane label="淹没统计" lazy>
+      <EffectAll v-if="viewMode === 'list'"/>
+      <ChartShow v-else />
+    </el-tab-pane> -->
     <el-tab-pane v-for="(item, index) in showTabs" :key="index" :label="item">
       <!-- <EffectSta :name="item" /> -->
-      <EffectAll :areaName="item" />
-      <div>
+      <EffectAll :areaName="isFirstTab(item)?null:item" v-if="viewMode === 'list'" />
+      <ChartShow :areaName="isFirstTab(item)?null:item" v-else />
+      <div v-show="!isFirstTab(item)">
         <div class="section-title">{{ name }}重点防护对象</div>
         <!-- 是個列表，有名稱和聯係人 -->
         <div class="table-container">
@@ -115,26 +126,32 @@ import { constant } from "@/map";
 import popupMixin from "../popupMixin";
 import EffectSta from "@/components/MapDetail/components/floodAnalysis/EffectSta.vue";
 import EffectAll from "./EffectAll.vue";
+import ChartShow from "./ChartShow.vue";
 import { mapState } from "vuex";
 
 const { EFFECT_WATER_LEVEL_COLOR_CONFIG_LSIT, MODEL_3DTILES_INFO_LIST } = constant;
-const showTabs = MODEL_3DTILES_INFO_LIST.map((item) => item.name);
+
 
 const effectWaterLevelList = EFFECT_WATER_LEVEL_COLOR_CONFIG_LSIT.map(
   (item) => item.label
 );
+
+const firstName="淹没统计";
+const showTabs = [firstName,...MODEL_3DTILES_INFO_LIST.map((item) => item.name)];
 
 export default {
   mixins: [popupMixin],
   components: {
     EffectSta,
     EffectAll,
+    ChartShow,
   },
   computed: {
     ...mapState(["selectedWaterLevelList"]),
   },
   data() {
     return {
+      viewMode: "list",
       type: "Reservoir",
       id: null,
       selectedWaterLevelList2: [],
@@ -202,7 +219,21 @@ export default {
     },
   },
   methods: {
+
+    handleViewModeChange(){
+      console.log("🚀 ~ this.viewMode:", this.viewMode);
+    },
+    isFirstTab(tab) {
+      return tab === firstName;
+    },
     getData() {},
+    // 新增视图切换方法
+    switchToList() {
+      this.viewMode = "list";
+    },
+    switchToMap() {
+      this.viewMode = "map";
+    },
     handleWaterLevelList() {
       // 保存到store里面
       const labelOrder = EFFECT_WATER_LEVEL_COLOR_CONFIG_LSIT.map((i) => i.label);
@@ -245,7 +276,6 @@ export default {
   },
   mounted() {
     this.selectedWaterLevelList2 = this.$store.getters.selectedWaterLevelList || [];
-    // });
   },
   created() {
     this.getData();
@@ -267,6 +297,9 @@ export default {
 }
 
 ::v-deep .is-checked .el-checkbox-button__inner {
+  background-color: #1890ff !important;
+}
+::v-deep .el-radio-group .is-active .el-radio-button__inner {
   background-color: #1890ff !important;
 }
 </style>

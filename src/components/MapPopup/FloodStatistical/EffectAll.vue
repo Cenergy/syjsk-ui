@@ -121,4 +121,11 @@ export default {
 .stat-container {
   padding: 10px;
 }
+
+::v-deep .el-table__row .el-table_2_column_4 .cell{
+  text-wrap: wrap;
+  font-weight: bold;
+  word-break: break-all; 
+  text-align: center;
+}
 </style>
