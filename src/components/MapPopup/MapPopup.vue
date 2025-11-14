@@ -28,6 +28,7 @@ const tp2Popup = {
 };
 
 export default {
+  name: "MapPopup",
   components: Popups,
   data() {
     return {

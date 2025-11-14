@@ -20,23 +20,23 @@
         >查询条件</span
       >
     </ZebraTitle>
-    <el-form label-width="80px" label-position="right" size="mini">
+    <el-form label-width="80px" label-position="right" size="medium">
       <el-form-item label="典型水位" style="color: #fff !important">
         <div style="display: flex; align-items: center">
           <el-checkbox-group
             v-model="selectedWaterLevelList"
-            size="mini"
+            size="medium"
             @change="handleWaterLevelList"
           >
             <el-checkbox-button
               v-for="waterLevel in effectWaterLevelList"
-              :label="waterLevel"
-              :key="waterLevel"
+              :label="waterLevel.label"
+              :key="waterLevel.id"
             >
-              {{ waterLevel }}
+              {{ waterLevel.name }}
             </el-checkbox-button>
           </el-checkbox-group>
-          <span style="color: #fff; margin-left: 8px">米</span>
+          <!-- <span style="color: #fff; margin-left: 8px">米</span> -->
         </div>
       </el-form-item>
       <el-form-item label="是否单选" style="color: #fff !important">
@@ -112,9 +112,9 @@ export default {
   },
   data() {
     return {
-      selectedWaterLevelList:[],
+      selectedWaterLevelList: [],
       previousWaterLevelList: [],
-      effectWaterLevelList: effectWaterLevelList,
+      effectWaterLevelList: EFFECT_WATER_LEVEL_COLOR_CONFIG_LSIT,
       singleCheck: false,
       query: {
         hdnm: "",
@@ -180,7 +180,15 @@ export default {
         if (!obj) return;
         waterLevelLayer.hide(obj.id);
       });
-      this.previousWaterLevelList = this.selectedWaterLevelList;
+      const labelOrder = EFFECT_WATER_LEVEL_COLOR_CONFIG_LSIT.map((i) => i.label);
+      this.selectedWaterLevelList = labelOrder.filter((label) =>
+        this.selectedWaterLevelList.includes(label)
+      );
+      this.previousWaterLevelList = [...this.selectedWaterLevelList];
+      this.$bus.emit("waterLevelChanged", this.selectedWaterLevelList);
+      // 保存到store里面
+      this.$store.commit("selectedWaterLevelList", this.selectedWaterLevelList);
+      console.log("🚀 ~ this.selectedWaterLevelList:", this.selectedWaterLevelList);
     },
     handleRowClick(row) {
       // const row = this.data[idx]
@@ -195,7 +203,6 @@ export default {
         data: row,
       });
     },
- 
   },
   created() {
     this.getData();
@@ -207,10 +214,12 @@ export default {
       (item) => item.checked
     ).map((item) => {
       waterLevelLayer.add(item.id, item.zIndex);
-      return item.label
+      waterLevelLayer.add("sk");
+      return item.label;
     });
     this.selectedWaterLevelList = selectedWaterLevelList;
     this.previousWaterLevelList = selectedWaterLevelList;
+    this.$store.commit("selectedWaterLevelList", this.selectedWaterLevelList);
   },
   beforeDestroy() {
     waterLevelLayer.removeAll();
@@ -323,7 +332,11 @@ export default {
   text-align: center;
 }
 
+::v-deep .el-checkbox-button {
+  margin: 5px;
+}
 ::v-deep .el-checkbox-button__inner {
-  padding: 5px;
+  padding: 5px 8px;
+  border-radius: 5px !important;
 }
 </style>

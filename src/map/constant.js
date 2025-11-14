@@ -39,7 +39,7 @@ const DEFAULT_VIEW_INFO = tflyToData;
 const MODEL_3DTILES_INFO_LIST = [
   {
     name: "营前镇",
-    center: [114.28588725407956, 25.922805302869802, 150], // 模型纠偏位置
+    center: [114.28575725407956, 25.922855302869802, 150], // 模型纠偏位置
     postion: [114.28946781265908, 25.926791091608518], // 点位标注中心
     flyToData: {
       destination: {
@@ -85,7 +85,7 @@ const MODEL_3DTILES_INFO_LIST = [
   },
   {
     name: "过埠镇",
-    center: [114.199969495, 25.765205621000003, 0],
+    center: [114.199969495, 25.765400621000003, 0],
     postion: [114.21800744628167, 25.754925269539907],
     flyToData: {
       destination: {
@@ -102,7 +102,7 @@ const MODEL_3DTILES_INFO_LIST = [
   },
   {
     name: "河梅村",
-    center: [114.22888187572039, 25.793636250885837, 0],
+    center: [114.22885087572039, 25.793495950885837, 0],
     postion: [114.22888187572039, 25.793636250885837],
     flyToData: {
       destination: {
@@ -136,7 +136,7 @@ const MODEL_3DTILES_INFO_LIST = [
   },
   {
     name: "龙下村",
-    center: [114.312820103, 25.914877946999997, 0],
+    center: [114.312820103, 25.914897946999997, 0],
     postion: [114.31602079387898, 25.911017756752823],
     flyToData: {
       destination: {
@@ -153,7 +153,7 @@ const MODEL_3DTILES_INFO_LIST = [
   },
   {
     name: "水岩乡",
-    center: [114.347821896, 25.948270538, 0],
+    center: [114.347670096, 25.948298538, 0],
     postion: [114.3334155036952, 25.967414295877674],
     flyToData: {
       destination: {
@@ -172,22 +172,68 @@ const MODEL_3DTILES_INFO_LIST = [
 const EFFECT_WATER_LEVEL_COLOR_CONFIG_LSIT = [
   {
     id: 1984,
-    value: 198.4,
+    value: "198.4",
     color: "blue",
     alpha: 0.5,
     include: true,
-    label: "正常蓄水位",
+    label: "正常蓄水位(198.4米)",
+    name: "正常蓄水位(198.4米)",
     checked: true,
     zIndex: 105,
   },
-  { id: 1990, value: 199.0, color: "#FFFF00", alpha: 0.5, label: "199.0",checked:true, zIndex: 104 },
-  { id: 1995, value: 199.5, color: "#FFBF00", alpha: 0.5, label: "199.5", zIndex: 103 },
-  { id: 2000, value: 200.1, color: "orange", alpha: 0.5, label: "200.1", zIndex: 102 },
-  { id: 2006, value: 200.6, color: "red", alpha: 0.5, label: "汛限水位", zIndex: 101 },
+  {
+    id: 1990,
+    value: "199.0",
+    color: "#FFFF00",
+    alpha: 0.5,
+    label: "199.0米",
+    name: "199.0米",
+    zIndex: 104,
+  },
+  {
+    id: 1995,
+    value: "199.5",
+    color: "#FFBF00",
+    alpha: 0.5,
+    label: "199.5米",
+    name: "199.5米",
+    zIndex: 103,
+  },
+  {
+    id: 2000,
+    value: "200.0",
+    color: "orange",
+    alpha: 0.5,
+    label: "200.0米",
+    name: "200.0米",
+    zIndex: 102,
+  },
+  {
+    id: 2006,
+    value: "200.6",
+    color: "red",
+    alpha: 0.5,
+    label: "校核洪水位(200.6米)",
+    name: "校核洪水位(200.6米)",
+    zIndex: 101,
+  },
 ];
+const DEFAULT_WATER_LEVEL_COLOR = {
+  id: "sk",
+  value: "sk",
+  color: "blue",
+  alpha: 0.5,
+  include: true,
+  label: "sk",
+  name: "sk",
+  checked: true,
+  zIndex: 100,
+};
+
 export {
   MODEL_3DTILES_INFO_LIST,
   VIEW_SETTINGS_MAP,
   DEFAULT_VIEW_INFO,
   EFFECT_WATER_LEVEL_COLOR_CONFIG_LSIT,
+  DEFAULT_WATER_LEVEL_COLOR,
 };

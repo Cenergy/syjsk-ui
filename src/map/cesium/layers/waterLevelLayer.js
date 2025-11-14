@@ -1,7 +1,7 @@
 import { constant } from "@/map";
 import BaseLayer from "./baseLayer";
 
-const { EFFECT_WATER_LEVEL_COLOR_CONFIG_LSIT } = constant;
+const { EFFECT_WATER_LEVEL_COLOR_CONFIG_LSIT, DEFAULT_WATER_LEVEL_COLOR } = constant;
 
 class WaterLevelLayer extends BaseLayer {
   constructor(options) {
@@ -15,7 +15,7 @@ class WaterLevelLayer extends BaseLayer {
       return;
     }
 
-    const selectWaterLevelInfo = EFFECT_WATER_LEVEL_COLOR_CONFIG_LSIT.find(
+    const selectWaterLevelInfo = [DEFAULT_WATER_LEVEL_COLOR, ...EFFECT_WATER_LEVEL_COLOR_CONFIG_LSIT].find(
       (item) => item.id === id
     );
 
@@ -24,7 +24,7 @@ class WaterLevelLayer extends BaseLayer {
     }
 
     try {
-      const response = await fetch(`/datasets/effects/营前镇/${id}.geojson`);
+      const response = await fetch(`/datasets/effects/${id}.geojson`);
       const geoJsonData = await response.json();
 
       const dataSource = await window.Cesium.GeoJsonDataSource.load(

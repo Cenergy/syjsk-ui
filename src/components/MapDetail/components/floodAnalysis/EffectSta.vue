@@ -44,6 +44,7 @@
 <script>
 
 export default {
+  name: "EffectSta",
   data() {
     return {
       // 基本信息统计数据
