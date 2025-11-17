@@ -4,14 +4,22 @@
     <el-row type="flex" style="height: 100%; pointer-events: none">
       <el-col :span="6">
         <div class="leftPanel">
-          <div :class="['toggle', isShowLeft && 'expand']" @click="handleSwitch">
-            {{ isShowLeft ? "⟨" : "⟩" }}
-          </div>
-          <div class="mask left" v-show="isShowLeft"></div>
-          <div class="leftPanelContent" v-show="isShowLeft">
-            <FirstContent />
-            <SecondContent style="flex: 1" />
-            <ThirdContent style="flex: 1" />
+          <div style="height: 100%; width: 100%; display: flex; flex-direction: row">
+            <div style="height: 100%; width: 100%">
+              <div class="mask left" v-show="isShowLeft"></div>
+              <div class="leftPanelContent" v-show="isShowLeft">
+                <FirstContent />
+                <SecondContent style="flex: 1" />
+                <ThirdContent style="flex: 1" />
+              </div>
+            </div>
+            <div>
+              <div :class="['toggle', isShowLeft && 'expand']" @click="handleSwitch">
+                {{ isShowLeft ? "⟨" : "⟩" }}
+              </div>
+              <LayerControl style="top: -5px; pointer-events: all;margin-left: 10px" />
+              <layerLegend style="bottom: 40px;margin-left: 10px" />
+            </div>
           </div>
         </div>
       </el-col>
@@ -25,8 +33,6 @@
             title.native="alarm.str"
           />
         </div>
-        <LayerControl style="top: 10px; left: 0px; pointer-events: all" />
-        <layerLegend style="bottom: 10px; left: 0px" />
         <MapDetail style="pointer-events: all" />
         <!-- <waterSummary style="position: absolute; top: 10px; left: 250px;" /> -->
         <MapPopup></MapPopup>
@@ -49,7 +55,6 @@ import { getWeatherAlarm } from "../../api/nljc";
 import waterSummary from "@/components/summary/index.vue";
 import LayerLegend from "@/components/layerLegend/index.vue";
 import FlashNews from "./FlashNews.vue";
-
 
 import FirstContent from "./FirstContent.vue";
 import SecondContent from "./SecondContent.vue";
@@ -84,7 +89,7 @@ export default {
     FullscreenIframe,
     waterSummary,
     FooterBar,
-    MapPopup
+    MapPopup,
   },
   data() {
     return {

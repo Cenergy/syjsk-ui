@@ -1,4 +1,5 @@
 import { constant } from "@/map";
+import eventBus from "@/utils/EventBus";
 import BaseLayer from "./baseLayer";
 
 const { EFFECT_WATER_LEVEL_COLOR_CONFIG_LSIT, DEFAULT_WATER_LEVEL_COLOR } = constant;
@@ -7,6 +8,14 @@ class WaterLevelLayer extends BaseLayer {
   constructor(options) {
     super(options);
     this.dataSources = new Map();
+    // 组装图例项：使用常量中的水位颜色配置
+    const items = [
+      ...EFFECT_WATER_LEVEL_COLOR_CONFIG_LSIT,
+    ].map((item) => ({ label: item.label, color: item.color }));
+    this.legend = {
+      label: "水位影响范围图例",
+      items,
+    };
   }
 
   async add(id, zIndex = 100) {
@@ -52,6 +61,9 @@ class WaterLevelLayer extends BaseLayer {
       await this.viewer.dataSources.add(dataSource);
       this.dataSources.set(id, dataSource);
       this.sortDataSourcesByZIndex();
+
+      // 展示图例
+      this.setLegend();
     } catch (error) {
       console.error("加载影响范围线数据失败:", error);
     }
@@ -62,6 +74,10 @@ class WaterLevelLayer extends BaseLayer {
       const dataSource = this.dataSources.get(id);
       this.viewer.dataSources.remove(dataSource, true);
       this.dataSources.delete(id);
+      // 若全部移除则关闭图例
+      if (this.dataSources.size === 0) {
+        this.delLegend();
+      }
     }
   }
 
@@ -69,6 +85,8 @@ class WaterLevelLayer extends BaseLayer {
     for (const id of this.dataSources.keys()) {
       this.remove(id);
     }
+    // 兜底关闭图例
+    this.delLegend();
   }
 
   show(id) {
@@ -91,6 +109,20 @@ class WaterLevelLayer extends BaseLayer {
     );
     sortedDataSources.forEach((dataSource) => {
       this.viewer.dataSources.raiseToTop(dataSource);
+    });
+  }
+
+  setLegend() {
+    eventBus.emit("setLegend", {
+      type: "waterLevel",
+      data: this.legend,
+    });
+  }
+
+  delLegend() {
+    eventBus.emit("closeLegend", {
+      type: "waterLevel",
+      data: this.legend,
     });
   }
 }
