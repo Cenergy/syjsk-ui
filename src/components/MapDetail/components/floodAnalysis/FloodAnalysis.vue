@@ -41,7 +41,7 @@
       </el-form-item>
       <el-form-item label="是否单选" style="color: #fff !important">
         <div style="display: flex; align-items: center">
-          <el-checkbox v-model="singleCheck" label="1">是</el-checkbox>
+          <el-checkbox v-model="singleCheck" label="1"><span style="color: #fff">是</span></el-checkbox>
         </div>
       </el-form-item>
     </el-form>
@@ -56,7 +56,7 @@
             letter-spacing: 0%;
             color: #fff;
           "
-          >影响区域列表(共{{ data.length }}条记录)</span
+          >影响区域列表</span
         >
         <el-button type="primary" size="mini" @click="handleRowDblClick"
           >查看详情</el-button
@@ -67,30 +67,14 @@
       class="tableContainer"
       style="flex: 1; overflow: hidden; display: flex; flex-direction: column"
     >
-      <el-table :data="data" size="mini" height="60%" @row-click="handleRowClick">
-        <el-table-column
-          align="center"
-          width="150"
-          label="名称"
-          prop="name"
-        ></el-table-column>
-        <el-table-column
-          align="center"
-          width="150"
-          label="影响区域"
-          prop="area"
-        ></el-table-column>
-        <el-table-column
-          align="center"
-          width="150"
-          label="最大积水深度(m)"
-          prop="depth"
-        ></el-table-column>
-      </el-table>
-      <div class="flood-analysis-info" style="flex: 0; overflow: hidden">
-        <div id="dat-gui-container"></div>
-      </div>
-      <EffectSta style="flex: 1"></EffectSta>
+      <!-- <div style="display: flex; justify-content: flex-end; margin-bottom: 8px">
+        <el-radio-group v-model="viewMode" size="mini">
+          <el-radio-button label="list">列表展示</el-radio-button>
+          <el-radio-button label="chart">图表展示</el-radio-button>
+        </el-radio-group>
+      </div> -->
+      <EffectAll v-if="viewMode === 'list'" />
+      <!-- <ChartShow v-else /> -->
     </div>
   </div>
 </template>
@@ -98,6 +82,8 @@
 <script>
 import { constant } from "@/map";
 import EffectSta from "./EffectSta";
+import EffectAll from "./EffectAll.vue";
+import ChartShow from "@/components/MapPopup/FloodStatistical/ChartShow.vue";
 import waterLevelLayer from "@/map/cesium/layers/waterLevelLayer";
 
 const { EFFECT_WATER_LEVEL_COLOR_CONFIG_LSIT } = constant;
@@ -109,9 +95,12 @@ const effectWaterLevelList = EFFECT_WATER_LEVEL_COLOR_CONFIG_LSIT.map(
 export default {
   components: {
     EffectSta,
+    EffectAll,
+    ChartShow,
   },
   data() {
     return {
+      viewMode: "list",
       selectedWaterLevelList: [],
       previousWaterLevelList: [],
       effectWaterLevelList: EFFECT_WATER_LEVEL_COLOR_CONFIG_LSIT,

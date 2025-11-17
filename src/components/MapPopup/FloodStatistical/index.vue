@@ -110,11 +110,11 @@
               >紧急状态: {{ urgentCount }} 个</span
             >
           </div>
-          <div class="legend">
+          <!-- <div class="legend">
             <span class="legend-item"> <i class="legend-icon level-高"></i>高风险 </span>
             <span class="legend-item"> <i class="legend-icon level-中"></i>中风险 </span>
             <span class="legend-item"> <i class="legend-icon level-低"></i>低风险 </span>
-          </div>
+          </div> -->
         </div>
       </div>
     </el-tab-pane>
@@ -168,54 +168,54 @@ export default {
       hasCamera: false,
       showTabs: showTabs,
       protectionObjects: [
-        {
-          name: "XX小学",
-          contact: "张校长",
-          phone: "13800138001",
-          type: "school",
-          level: "高",
-          status: "正常",
-        },
-        {
-          name: "XX医院",
-          contact: "李院长",
-          phone: "13800138002",
-          type: "hospital",
-          level: "高",
-          status: "紧急",
-        },
-        {
-          name: "XX养老院",
-          contact: "王主任",
-          phone: "13800138003",
-          type: "elderly",
-          level: "中",
-          status: "正常",
-        },
-        {
-          name: "XX幼儿园",
-          contact: "陈园长",
-          phone: "13800138004",
-          type: "kindergarten",
-          level: "高",
-          status: "警告",
-        },
-        {
-          name: "XX服务中心",
-          contact: "刘主任",
-          phone: "13800138005",
-          type: "community",
-          level: "中",
-          status: "正常",
-        },
-        {
-          name: "XX农贸市场",
-          contact: "赵经理",
-          phone: "13800138006",
-          type: "commercial",
-          level: "低",
-          status: "正常",
-        },
+        // {
+        //   name: "XX小学",
+        //   contact: "张校长",
+        //   phone: "13800138001",
+        //   type: "school",
+        //   level: "高",
+        //   status: "正常",
+        // },
+        // {
+        //   name: "XX医院",
+        //   contact: "李院长",
+        //   phone: "13800138002",
+        //   type: "hospital",
+        //   level: "高",
+        //   status: "紧急",
+        // },
+        // {
+        //   name: "XX养老院",
+        //   contact: "王主任",
+        //   phone: "13800138003",
+        //   type: "elderly",
+        //   level: "中",
+        //   status: "正常",
+        // },
+        // {
+        //   name: "XX幼儿园",
+        //   contact: "陈园长",
+        //   phone: "13800138004",
+        //   type: "kindergarten",
+        //   level: "高",
+        //   status: "警告",
+        // },
+        // {
+        //   name: "XX服务中心",
+        //   contact: "刘主任",
+        //   phone: "13800138005",
+        //   type: "community",
+        //   level: "中",
+        //   status: "正常",
+        // },
+        // {
+        //   name: "XX农贸市场",
+        //   contact: "赵经理",
+        //   phone: "13800138006",
+        //   type: "commercial",
+        //   level: "低",
+        //   status: "正常",
+        // },
       ],
     };
   },

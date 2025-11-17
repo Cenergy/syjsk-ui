@@ -18,7 +18,7 @@
                 {{ isShowLeft ? "⟨" : "⟩" }}
               </div>
               <LayerControl style="top: -5px; pointer-events: all;margin-left: 10px" />
-              <layerLegend style="bottom: 40px;margin-left: 10px" />
+              <layerLegend style="bottom: 0px;margin-left: 10px" />
             </div>
           </div>
         </div>

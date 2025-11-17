@@ -73,6 +73,7 @@ export default {
       hasData: false,
       chart: null,
       labelChart: null,
+      resizeObserver: null,
     };
   },
   watch: {
@@ -96,10 +97,25 @@ export default {
       this.loadWaterData();
       // 添加窗口大小变化监听
       window.addEventListener("resize", this.handleResize);
+      // 监听容器尺寸变化，确保在卡片或布局尺寸变化时自适应
+      if (window.ResizeObserver) {
+        this.resizeObserver = new ResizeObserver(() => {
+          // 使用 rAF，避免布局抖动时的多次触发
+          requestAnimationFrame(() => {
+            this.handleResize();
+          });
+        });
+        // 观察组件根元素尺寸变化
+        this.resizeObserver.observe(this.$el);
+      }
     }
   },
   beforeDestroy() {
     window.removeEventListener("resize", this.handleResize);
+    if (this.resizeObserver) {
+      try { this.resizeObserver.disconnect(); } catch (e) {}
+      this.resizeObserver = null;
+    }
     if (this.chart) {
       this.chart.dispose();
       this.chart = null;
