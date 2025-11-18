@@ -11,21 +11,23 @@ class TilesetModelAccuracy extends BaseLayer {
   // 默认3D Tiles配置常量
   static DEFAULT_TILESET_CONFIG = {
     enableCollision: true,
-    maximumMemoryUsage: 2048, // 最大内存使用量(MB)，防止浏览器卡顿
-    maximumScreenSpaceError: 16, // 屏幕空间错误，影响细节层级
-    maximumNumberOfLoadedTiles: 2048, // 最大加载瓦片数量
+    // 限制内存与已加载瓦片数，减少大范围查看时的压力
+    maximumMemoryUsage: 1024,
+    maximumScreenSpaceError: 48,
+    maximumNumberOfLoadedTiles: 512,
     shadows: false, // 是否显示阴影
     skipLevelOfDetail: true, // 启用细节层级跳过优化
-    baseScreenSpaceError: 1024, // 基础屏幕空间错误
-    skipScreenSpaceErrorFactor: 16, // 跳过屏幕空间错误因子
+    baseScreenSpaceError: 2048, // 基础屏幕空间错误（抬高以降低细节）
+    skipScreenSpaceErrorFactor: 18, // 跳过屏幕空间错误因子
     skipLevels: 1, // 跳过的最小级别数
     immediatelyLoadDesiredLevelOfDetail: false, // 是否立即加载所需细节层级
     loadSiblings: false, // 是否加载兄弟瓦片
     cullWithChildrenBounds: true, // 使用子边界体积剔除
-    dynamicScreenSpaceError: false, // 动态屏幕空间错误
-    dynamicScreenSpaceErrorDensity: 0.00278, // 动态屏幕空间错误密度
-    dynamicScreenSpaceErrorFactor: 4.0, // 动态屏幕空间错误因子
-    dynamicScreenSpaceErrorHeightFalloff: 0.25, // 动态屏幕空间错误高度衰减
+    // 开启动态屏幕空间错误：远距离时自动降低细节
+    dynamicScreenSpaceError: true,
+    dynamicScreenSpaceErrorDensity: 0.0025,
+    dynamicScreenSpaceErrorFactor: 4.5,
+    dynamicScreenSpaceErrorHeightFalloff: 0.3,
     // priority: {
     //   height: 1000.0, // 高度优先级
     //   distance: 500 // 距离优先级
@@ -36,7 +38,11 @@ class TilesetModelAccuracy extends BaseLayer {
   static DEFAULT_VISIBILITY_CONFIG = {
     minCameraHeight: 0, // 最小相机高度（米）
     maxCameraHeight: 10000, // 最大相机高度（米）
-    viewDistanceThreshold: 8000 // 视图距离阈值（米）
+    viewDistanceThreshold: 5000, // 视图距离阈值（米）
+    // 内存优化：不可见时延迟卸载、可见时按需加载
+    unloadWhenHidden: true,
+    hiddenUnloadDelayMs: 3000,
+    reloadDebounceMs: 300
   };
 
   /**
@@ -72,6 +78,15 @@ class TilesetModelAccuracy extends BaseLayer {
     this.cameraChangeListener = null;
     this.isVisibilityControlEnabled = true;
     this.hasLoaded = false;
+    this.renderModeConfigured = false;
+
+    // 使用 rAF 节流相机变化响应，避免高频触发造成抖动
+    this.updateVisibilityThrottled = this.throttleRAF(() => this.updateTilesetVisibility());
+
+    // 内存优化定时器与模型缓存
+    this.unloadTimers = [];
+    this.reloadTimers = [];
+    this.modelListCache = null;
   }
   /**
    * 检查3D Tiles是否应该可见
@@ -113,17 +128,67 @@ class TilesetModelAccuracy extends BaseLayer {
    * 根据当前相机状态更新所有模型的显示状态
    */
   updateTilesetVisibility() {
-    if (!this.tilesetFlags || this.tilesetFlags.length === 0) {
-      return;
-    }
+    const { viewer } = this;
+    if (!viewer || !this.modelListCache || !this.tilesetFlags) return;
 
-    const shouldBeVisible = this.checkTilesetVisibility();
-    
-    this.tilesetFlags.forEach(tileset => {
-      if (tileset) {
-        tileset.show = shouldBeVisible;
+    const camera = viewer.camera;
+    const cameraPosition = camera.position;
+    const cameraHeight = viewer.scene.globe.ellipsoid.cartesianToCartographic(cameraPosition).height;
+    const {
+      minCameraHeight,
+      maxCameraHeight,
+      viewDistanceThreshold,
+      unloadWhenHidden,
+      hiddenUnloadDelayMs,
+      reloadDebounceMs
+    } = this.visibilityConfig;
+
+    const heightOk = cameraHeight >= minCameraHeight && cameraHeight <= maxCameraHeight;
+
+    this.modelListCache.forEach((modelInfo, index) => {
+      const tileset = this.tilesetFlags[index];
+
+      // 计算目标可见性（基于相机高度与距离）
+      let desiredVisible = heightOk;
+      if (desiredVisible) {
+        if (tileset && tileset.boundingSphere) {
+          const distance = Cesium.Cartesian3.distance(cameraPosition, tileset.boundingSphere.center);
+          desiredVisible = distance <= viewDistanceThreshold;
+        } else if (modelInfo && modelInfo.center && modelInfo.center.length >= 2) {
+          // 未加载时用经纬度近似距离判断是否需要加载
+          const centerCart = Cesium.Cartesian3.fromDegrees(modelInfo.center[0], modelInfo.center[1], 0);
+          const distance = Cesium.Cartesian3.distance(cameraPosition, centerCart);
+          desiredVisible = distance <= viewDistanceThreshold;
+        }
+      }
+
+      if (desiredVisible) {
+        // 需要可见：取消卸载并展示，未加载则触发按需加载
+        this.cancelUnload(index);
+        this.cancelReload(index);
+
+        if (tileset) {
+          tileset.show = true;
+        } else {
+          // 按需加载（防抖）
+          this.scheduleReload(index, reloadDebounceMs);
+        }
+      } else {
+        // 不可见：隐藏并延迟卸载以释放内存
+        if (tileset) {
+          tileset.show = false;
+          if (unloadWhenHidden) {
+            this.scheduleUnload(index, hiddenUnloadDelayMs);
+          }
+        } else {
+          // 已卸载，确保不误触发加载
+          this.cancelReload(index);
+        }
       }
     });
+
+    // 请求一次重绘（按需渲染模式下）
+    try { viewer.scene.requestRender(); } catch (e) {}
   }
 
   /**
@@ -141,7 +206,7 @@ class TilesetModelAccuracy extends BaseLayer {
 
     // 添加新的监听器
     this.cameraChangeListener = viewer.camera.changed.addEventListener(() => {
-      this.updateTilesetVisibility();
+      this.updateVisibilityThrottled();
     });
   }
 
@@ -189,14 +254,47 @@ class TilesetModelAccuracy extends BaseLayer {
   handleTilesetLoaded(tileset, modelInfo) {
     const { viewer } = this;
     
+    // 绑定到对应索引，避免重复加载时打乱顺序
+    try {
+      const index = constant.MODEL_3DTILES_INFO_LIST.findIndex(m => m.name === modelInfo.name);
+      if (index >= 0) {
+        this.tilesetFlags[index] = tileset;
+        this.cancelReload(index);
+      } else {
+        this.tilesetFlags.push(tileset);
+      }
+    } catch (e) {
+      this.tilesetFlags.push(tileset);
+    }
+
     // 添加到场景
-    this.tilesetFlags.push(tileset);
     viewer.scene.primitives.add(tileset);
-    
+
     // 设置模型位置
     const modelMatrix = moveModel(tileset, modelInfo.center[0], modelInfo.center[1], -10);
     tileset.modelMatrix = modelMatrix;
-    
+
+    // 降低移动时的网络与队列压力
+    try {
+      tileset.cullRequestsWhileMoving = true;
+      tileset.cullRequestsWhileMovingMultiplier = 80;
+      tileset.backFaceCulling = true;
+      // 应用更保守的细节策略（有些属性已通过 fromUrl 传递，再次设置保证生效）
+      tileset.maximumNumberOfLoadedTiles = this.tilesetConfig.maximumNumberOfLoadedTiles;
+      tileset.maximumMemoryUsage = this.tilesetConfig.maximumMemoryUsage;
+      tileset.maximumScreenSpaceError = this.tilesetConfig.maximumScreenSpaceError;
+      tileset.skipLevelOfDetail = this.tilesetConfig.skipLevelOfDetail;
+      tileset.baseScreenSpaceError = this.tilesetConfig.baseScreenSpaceError;
+      tileset.skipScreenSpaceErrorFactor = this.tilesetConfig.skipScreenSpaceErrorFactor;
+      tileset.skipLevels = this.tilesetConfig.skipLevels;
+      tileset.dynamicScreenSpaceError = this.tilesetConfig.dynamicScreenSpaceError;
+      tileset.dynamicScreenSpaceErrorDensity = this.tilesetConfig.dynamicScreenSpaceErrorDensity;
+      tileset.dynamicScreenSpaceErrorFactor = this.tilesetConfig.dynamicScreenSpaceErrorFactor;
+      tileset.dynamicScreenSpaceErrorHeightFalloff = this.tilesetConfig.dynamicScreenSpaceErrorHeightFalloff;
+    } catch (e) {
+      // 某些版本属性可能不存在，忽略异常
+    }
+
     // 初始化可见性控制
     this.updateTilesetVisibility();
   }
@@ -250,14 +348,22 @@ class TilesetModelAccuracy extends BaseLayer {
     // 重置状态
     this.tilesetModels = [];
     this.tilesetFlags = [];
+    this.unloadTimers = [];
+    this.reloadTimers = [];
     
     const timestamp = new Date().getTime();
     const modelList = constant.MODEL_3DTILES_INFO_LIST;
+    this.modelListCache = modelList || [];
     
     if (!modelList || modelList.length === 0) {
       console.warn('No 3D Tiles models configured');
       return;
     }
+
+    // 预置索引数组，便于按索引写入/卸载
+    this.tilesetFlags = new Array(modelList.length).fill(null);
+    this.unloadTimers = new Array(modelList.length).fill(null);
+    this.reloadTimers = new Array(modelList.length).fill(null);
 
     // 并行加载所有模型
     const loadPromises = modelList.map(modelInfo => 
@@ -273,7 +379,17 @@ class TilesetModelAccuracy extends BaseLayer {
       
       // 设置相机监听器
       this.setupCameraListener();
-      
+
+      // 开启按需渲染模式，减少无变化时的绘制
+      if (!this.renderModeConfigured && viewer && viewer.scene) {
+        try {
+          viewer.scene.requestRenderMode = true;
+          // 降低相机微小变化触发的重绘频率
+          viewer.scene.maximumRenderTimeChange = 0.5; // 秒
+          this.renderModeConfigured = true;
+        } catch (e) {}
+      }
+
       console.log(`✅ 3D Tiles loading completed. ${this.tilesetFlags.length}/${modelList.length} models loaded successfully.`);
     } catch (error) {
       console.error('❌ Error during 3D Tiles loading:', error);
@@ -402,6 +518,8 @@ class TilesetModelAccuracy extends BaseLayer {
         this.cameraChangeListener();
         this.cameraChangeListener = null;
       }
+      // 取消所有定时器，避免误卸载
+      this.cancelAllTimers();
     }
   }
 
@@ -410,6 +528,91 @@ class TilesetModelAccuracy extends BaseLayer {
     this.visibilityConfig = { ...this.visibilityConfig, ...config };
     if (this.isVisibilityControlEnabled) {
       this.updateTilesetVisibility();
+    }
+  }
+
+  // 使用 requestAnimationFrame 节流回调
+  throttleRAF(handler) {
+    let scheduled = false;
+    return (...args) => {
+      if (scheduled) return;
+      scheduled = true;
+      const run = () => {
+        scheduled = false;
+        try {
+          handler.apply(this, args);
+        } catch (e) {}
+      };
+      if (typeof requestAnimationFrame === 'function') {
+        requestAnimationFrame(run);
+      } else {
+        setTimeout(run, 16);
+      }
+    };
+  }
+
+  // ---------- 内存优化：卸载/重新加载逻辑 ----------
+  scheduleUnload(index, delayMs = 3000) {
+    // 若已有定时器，不重复设置
+    if (this.unloadTimers[index]) return;
+    const { viewer } = this;
+    this.unloadTimers[index] = setTimeout(() => {
+      this.unloadTimers[index] = null;
+      const tileset = this.tilesetFlags[index];
+      if (tileset && !tileset.isDestroyed()) {
+        try {
+          viewer.scene.primitives.remove(tileset);
+          tileset.destroy();
+        } catch (e) {}
+        this.tilesetFlags[index] = null;
+        try { viewer.scene.requestRender(); } catch (e) {}
+      }
+    }, delayMs);
+  }
+
+  cancelUnload(index) {
+    const t = this.unloadTimers[index];
+    if (t) {
+      clearTimeout(t);
+      this.unloadTimers[index] = null;
+    }
+  }
+
+  scheduleReload(index, delayMs = 300) {
+    if (this.reloadTimers[index]) return;
+    const modelInfo = this.modelListCache && this.modelListCache[index];
+    if (!modelInfo) return;
+    this.reloadTimers[index] = setTimeout(() => {
+      this.reloadTimers[index] = null;
+      // 若仍未加载，触发加载
+      if (!this.tilesetFlags[index]) {
+        try {
+          this.loadSingleTileset(modelInfo, new Date().getTime());
+        } catch (e) {}
+      }
+    }, delayMs);
+  }
+
+  cancelReload(index) {
+    const t = this.reloadTimers[index];
+    if (t) {
+      clearTimeout(t);
+      this.reloadTimers[index] = null;
+    }
+  }
+
+  cancelAllTimers() {
+    if (this.unloadTimers) {
+      this.unloadTimers.forEach((t, i) => {
+        if (t) clearTimeout(t);
+        this.unloadTimers[i] = null;
+      });
+    }
+    if (this.reloadTimers) {
+      this.reloadTimers.forEach((t, i) => {
+        if (t) clearTimeout(t);
+        this.reloadTimers[i] = null;
+      });
     }
   }
 }
