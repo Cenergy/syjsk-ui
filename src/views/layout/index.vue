@@ -2,55 +2,37 @@
   <el-container style="height: 100vh; min-width: 1600px; min-height: 900px" class="mainContainer">
     <el-header class="header" height="80px">
       <div class="navbar" style="justify-content: flex-end">
-        <router-link to="/index" custom v-slot="{ navigate, isActive }">
+        <!-- <router-link to="/index" custom v-slot="{ navigate, isActive }">
           <div :class="['nav-item2', isActive && 'active']" @click="navigate">首页</div>
-        </router-link>
-        <router-link to="/four-quan" custom v-slot="{ navigate, isActive }">
+        </router-link> -->
+        <!-- <router-link to="/four-quan" custom v-slot="{ navigate, isActive }">
           <div :class="['nav-item-dark', isActive && 'active']" @click="navigate">
             四全
-            <!-- <ul class="submenu">
-                    <li class="submenu-item">全覆盖</li>
-                    <li class="submenu-item">全要素</li>
-                    <li class="submenu-item">全天候</li>
-                    <li class="submenu-item">全周期</li>
-                </ul> -->
           </div>
         </router-link>
         <router-link to="/four-zhi" custom v-slot="{ navigate, isActive }">
           <div :class="['nav-item-dark', isActive && 'active']" @click="navigate">四制</div>
-        </router-link>
+        </router-link> -->
       </div>
       <div class="title-container">
         <strong class="title">上犹江水库一张图(上游淹没部分)</strong>
       </div>
       <div class="navbar" style="justify-content: flex-start">
-        <router-link to="/four-yu" custom v-slot="{ navigate, isActive }">
+        <!-- <router-link to="/four-yu" custom v-slot="{ navigate, isActive }">
           <div :class="['nav-item-dark', 'right', isActive && 'active']" @click="navigate">
             四预
-            <!-- <ul class="submenu">
-                    <li class="submenu-item">预报</li>
-                    <li class="submenu-item">预警</li>
-                    <li class="submenu-item">预演</li>
-                    <li class="submenu-item">预案</li>
-                </ul> -->
           </div>
         </router-link>
         <router-link to="/four-guan" custom v-slot="{ navigate, isActive }">
           <div :class="['nav-item-dark', 'right', isActive && 'active']" @click="navigate">
             四管
-            <!-- <ul class="submenu">
-                    <li class="submenu-item">水库除险</li>
-                    <li class="submenu-item">安全体检</li>
-                    <li class="submenu-item">维修养护</li>
-                    <li class="submenu-item">安全保障</li>
-                </ul> -->
           </div>
         </router-link>
         <router-link to="/data-mgn" custom v-slot="{ navigate, isActive }">
           <div :class="['nav-item-dark', 'right', isActive && 'active']" @click="navigate">
             数据管理
           </div>
-        </router-link>
+        </router-link> -->
       </div>
       <!-- <strong class="title">公明水库数字孪生平台</strong> -->
       <!-- <div class="navbar">

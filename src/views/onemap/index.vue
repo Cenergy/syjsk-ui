@@ -93,7 +93,7 @@ export default {
   },
   data() {
     return {
-      isShowLeft: true,
+      isShowLeft: false,
       isShowIframe: false,
       iframeUrl: "",
       alarmList: [],

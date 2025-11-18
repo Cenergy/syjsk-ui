@@ -20,7 +20,7 @@
         >查询条件</span
       >
     </ZebraTitle>
-    <el-form label-width="80px" label-position="right" size="medium">
+    <el-form label-width="75px" label-position="right" size="medium">
       <el-form-item label="典型水位" style="color: #fff !important">
         <div style="display: flex; align-items: center">
           <el-checkbox-group
