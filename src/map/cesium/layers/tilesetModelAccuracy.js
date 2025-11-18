@@ -37,8 +37,8 @@ class TilesetModelAccuracy extends BaseLayer {
   // 默认可见性控制配置
   static DEFAULT_VISIBILITY_CONFIG = {
     minCameraHeight: 0, // 最小相机高度（米）
-    maxCameraHeight: 10000, // 最大相机高度（米）
-    viewDistanceThreshold: 5000, // 视图距离阈值（米）
+    maxCameraHeight: 8000, // 最大相机高度（米）
+    viewDistanceThreshold: 4000, // 视图距离阈值（米）
     // 内存优化：不可见时延迟卸载、可见时按需加载
     unloadWhenHidden: true,
     hiddenUnloadDelayMs: 3000,
