@@ -166,6 +166,7 @@ const EFFECT_WATER_LEVEL_COLOR_CONFIG_LSIT = [
     include: true,
     label: "正常蓄水位(198.4米)",
     name: "正常蓄水位(198.4米)",
+    height: 178,
     checked: true,
     zIndex: 105,
   },
@@ -176,6 +177,7 @@ const EFFECT_WATER_LEVEL_COLOR_CONFIG_LSIT = [
     alpha: 0.5,
     label: "设计洪水位(199.0米)",
     name: "设计洪水位(199.0米)",
+    height: 192.1,
     zIndex: 104,
   },
   {
@@ -185,6 +187,7 @@ const EFFECT_WATER_LEVEL_COLOR_CONFIG_LSIT = [
     alpha: 0.5,
     label: "199.5米",
     name: "199.5米",
+    height: 192.2,
     zIndex: 103,
   },
   {
@@ -194,6 +197,7 @@ const EFFECT_WATER_LEVEL_COLOR_CONFIG_LSIT = [
     alpha: 0.5,
     label: "200.0米",
     name: "200.0米",
+    height: 192.3,
     zIndex: 102,
   },
   {
@@ -203,6 +207,7 @@ const EFFECT_WATER_LEVEL_COLOR_CONFIG_LSIT = [
     alpha: 0.5,
     label: "校核洪水位(200.6米)",
     name: "校核洪水位(200.6米)",
+    height: 192.4,
     zIndex: 101,
   },
 ];

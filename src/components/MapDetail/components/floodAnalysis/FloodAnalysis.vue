@@ -162,7 +162,7 @@ export default {
       addWaterLevelList.forEach((item) => {
         const obj = EFFECT_WATER_LEVEL_COLOR_CONFIG_LSIT.find((i) => i.label === item);
         if (!obj) return;
-        waterLevelLayer.add(obj.id, obj.zIndex);
+        waterLevelLayer.add(obj);
       });
       removeWaterLevelList.forEach((item) => {
         const obj = EFFECT_WATER_LEVEL_COLOR_CONFIG_LSIT.find((i) => i.label === item);
@@ -202,8 +202,11 @@ export default {
     const selectedWaterLevelList = EFFECT_WATER_LEVEL_COLOR_CONFIG_LSIT.filter(
       (item) => item.checked
     ).map((item) => {
-      waterLevelLayer.add(item.id, item.zIndex);
-      waterLevelLayer.add("sk");
+      waterLevelLayer.add(item);
+      waterLevelLayer.add({
+        id:"sk",
+        height: 190,
+      });
       return item.label;
     });
     this.selectedWaterLevelList = selectedWaterLevelList;

@@ -18,7 +18,9 @@ class WaterLevelLayer extends BaseLayer {
     };
   }
 
-  async add(id, zIndex = 100) {
+  async add(options = {}) {
+    console.log("🚀 ~ WaterLevelLayer ~ add ~ options:", options);
+    const { id, zIndex = 100,height = 175 } = options;
     if (this.dataSources.has(id)) {
       this.show(id);
       return;
@@ -53,6 +55,7 @@ class WaterLevelLayer extends BaseLayer {
       entities.forEach(function (entity) {
         if (entity && entity.polygon) {
           entity.polygon.zIndex = zIndex; // 或者其他数字来调整层级
+          // entity.polygon.height = height;
         }
       });
 
