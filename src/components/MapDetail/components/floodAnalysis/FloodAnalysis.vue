@@ -205,7 +205,6 @@ export default {
       waterLevelLayer.add(item);
       waterLevelLayer.add({
         id:"sk",
-        height: 190,
       });
       return item.label;
     });
