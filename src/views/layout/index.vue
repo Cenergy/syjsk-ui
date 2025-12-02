@@ -244,7 +244,7 @@ export default {
 
 .title {
   color: white;
-  font-size: 28px;
+  font-size: 1.8rem;
   font-weight: bold;
   text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
   letter-spacing: 2px;

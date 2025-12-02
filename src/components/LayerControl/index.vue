@@ -68,7 +68,7 @@ export default {
           },
           {
             value: "extractionPointsLayer",
-            label: "撤离点位",
+            label: "安置点位",
             flag: false,
           },
           // {

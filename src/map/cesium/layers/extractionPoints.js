@@ -7,7 +7,7 @@ const showList = [
         type: "Feature",
         properties: {
           id: null,
-          Name: "撤离点",
+          Name: "安置点",
           description: null,
           timestamp: null,
           begin: null,
@@ -25,7 +25,7 @@ const showList = [
         type: "Feature",
         properties: {
           id: null,
-          Name: "撤离点",
+          Name: "安置点",
           description: null,
           timestamp: null,
           begin: null,
@@ -43,7 +43,7 @@ const showList = [
         type: "Feature",
         properties: {
           id: null,
-          Name: "撤离点",
+          Name: "安置点",
           description: null,
           timestamp: null,
           begin: null,
@@ -61,7 +61,7 @@ const showList = [
         type: "Feature",
         properties: {
           id: null,
-          Name: "撤离点",
+          Name: "安置点",
           description: null,
           timestamp: null,
           begin: null,
@@ -79,7 +79,7 @@ const showList = [
         type: "Feature",
         properties: {
           id: null,
-          Name: "撤离点",
+          Name: "安置点",
           description: null,
           timestamp: null,
           begin: null,
@@ -97,7 +97,7 @@ const showList = [
         type: "Feature",
         properties: {
           id: null,
-          Name: "撤离点",
+          Name: "安置点",
           description: null,
           timestamp: null,
           begin: null,
@@ -115,7 +115,7 @@ const showList = [
         type: "Feature",
         properties: {
           id: null,
-          Name: "撤离点",
+          Name: "安置点",
           description: null,
           timestamp: null,
           begin: null,
@@ -133,7 +133,7 @@ const showList = [
         type: "Feature",
         properties: {
           id: null,
-          Name: "撤离点",
+          Name: "安置点",
           description: null,
           timestamp: null,
           begin: null,
@@ -151,7 +151,7 @@ const showList = [
         type: "Feature",
         properties: {
           id: null,
-          Name: "撤离点",
+          Name: "安置点",
           description: null,
           timestamp: null,
           begin: null,
@@ -169,7 +169,7 @@ const showList = [
         type: "Feature",
         properties: {
           id: null,
-          Name: "撤离点",
+          Name: "安置点",
           description: null,
           timestamp: null,
           begin: null,
@@ -187,7 +187,7 @@ const showList = [
         type: "Feature",
         properties: {
           id: null,
-          Name: "撤离点",
+          Name: "安置点",
           description: null,
           timestamp: null,
           begin: null,
@@ -205,7 +205,7 @@ const showList = [
         type: "Feature",
         properties: {
           id: null,
-          Name: "撤离点",
+          Name: "安置点",
           description: null,
           timestamp: null,
           begin: null,
@@ -223,7 +223,7 @@ const showList = [
         type: "Feature",
         properties: {
           id: null,
-          Name: "撤离点",
+          Name: "安置点",
           description: null,
           timestamp: null,
           begin: null,
@@ -241,7 +241,7 @@ const showList = [
         type: "Feature",
         properties: {
           id: null,
-          Name: "撤离点",
+          Name: "安置点",
           description: null,
           timestamp: null,
           begin: null,
@@ -259,7 +259,7 @@ const showList = [
         type: "Feature",
         properties: {
           id: null,
-          Name: "撤离点",
+          Name: "安置点",
           description: null,
           timestamp: null,
           begin: null,
@@ -277,7 +277,7 @@ const showList = [
         type: "Feature",
         properties: {
           id: null,
-          Name: "撤离点",
+          Name: "安置点",
           description: null,
           timestamp: null,
           begin: null,
@@ -295,7 +295,7 @@ const showList = [
         type: "Feature",
         properties: {
           id: null,
-          Name: "撤离点",
+          Name: "安置点",
           description: null,
           timestamp: null,
           begin: null,
@@ -313,7 +313,7 @@ const showList = [
         type: "Feature",
         properties: {
           id: null,
-          Name: "撤离点",
+          Name: "安置点",
           description: null,
           timestamp: null,
           begin: null,
@@ -331,7 +331,7 @@ const showList = [
         type: "Feature",
         properties: {
           id: null,
-          Name: "撤离点",
+          Name: "安置点",
           description: null,
           timestamp: null,
           begin: null,
@@ -349,7 +349,7 @@ const showList = [
         type: "Feature",
         properties: {
           id: null,
-          Name: "撤离点",
+          Name: "安置点",
           description: null,
           timestamp: null,
           begin: null,
@@ -367,7 +367,7 @@ const showList = [
         type: "Feature",
         properties: {
           id: null,
-          Name: "撤离点",
+          Name: "安置点",
           description: null,
           timestamp: null,
           begin: null,
@@ -385,7 +385,7 @@ const showList = [
         type: "Feature",
         properties: {
           id: null,
-          Name: "撤离点",
+          Name: "安置点",
           description: null,
           timestamp: null,
           begin: null,
@@ -403,7 +403,7 @@ const showList = [
         type: "Feature",
         properties: {
           id: null,
-          Name: "撤离点",
+          Name: "安置点",
           description: null,
           timestamp: null,
           begin: null,
@@ -421,7 +421,7 @@ const showList = [
         type: "Feature",
         properties: {
           id: null,
-          Name: "撤离点",
+          Name: "安置点",
           description: null,
           timestamp: null,
           begin: null,
@@ -439,7 +439,7 @@ const showList = [
         type: "Feature",
         properties: {
           id: null,
-          Name: "撤离点",
+          Name: "安置点",
           description: null,
           timestamp: null,
           begin: null,
@@ -460,7 +460,7 @@ function extractionPointFactory(list) {
     return {
       ...item.properties,
       id: item.id || `extractionPoint_${index + 2}`,
-      name: "撤离点",
+      name: "安置点",
       longitude: item.geometry.coordinates[0] || 0,
       latitude: item.geometry.coordinates[1] || 0,
       capacity: item.capacity || "",
@@ -617,9 +617,9 @@ class ExtractionPointsLayer extends BaseLayer {
     // 目前使用一个通用的水库图标，您可以根据需要添加不同的图标
     switch (type) {
       case "1":
-        return require(`@/assets/map/icons/撤离点1.png`);
+        return require(`@/assets/map/icons/安置点1.png`);
       default:
-        return require(`@/assets/map/icons/撤离点2.png`);
+        return require(`@/assets/map/icons/安置点2.png`);
     }
   }
 
