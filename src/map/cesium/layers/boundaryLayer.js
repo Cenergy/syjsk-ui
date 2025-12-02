@@ -10,7 +10,7 @@ class BoundaryLayer extends BaseLayer {
     super(options);
     this.dataSource = null;
     this.entities = [];
-    this.geoJsonUrl = options?.geoJsonUrl || "/datasets/geojson/fwx.geojson";
+    this.geoJsonUrl = options?.geoJsonUrl || "/geodata/geojson/fwx.geojson";
     this.config = {
       // 边界线样式配置
       stroke: {

@@ -35,7 +35,7 @@ class WaterLevelLayer extends BaseLayer {
     }
 
     try {
-      const response = await fetch(`/datasets/effects/${id}.geojson`);
+      const response = await fetch(`/geodata/effects/${id}.geojson`);
       const geoJsonData = await response.json();
 
       const dataSource = await window.Cesium.GeoJsonDataSource.load(
@@ -46,7 +46,7 @@ class WaterLevelLayer extends BaseLayer {
           ),
           fill: window.Cesium.Color.fromCssColorString(
             selectWaterLevelInfo.color
-          ).withAlpha(0.8),
+          ).withAlpha(selectWaterLevelInfo.alpha||0.3),
           strokeWidth: 10,
           clampToGround: true,
         }

@@ -10,7 +10,7 @@ class RiverLayer extends BaseLayer {
     super(options);
     this.dataSource = null;
     this.entities = [];
-    this.geoJsonUrl = options?.geoJsonUrl || "/datasets/geojson/sx1.geojson";
+    this.geoJsonUrl = options?.geoJsonUrl || "/geodata/geojson/sx1.geojson";
     this.config = {
       // 河流线样式配置
       stroke: {

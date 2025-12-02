@@ -26,7 +26,7 @@ class WaterLevelLayer extends BaseLayer {
 
     try {
       const response = await fetch(
-        `/datasets/effects/${id}.geojson`
+        `/geodata/effects/${id}.geojson`
       );
       const geoJsonData = await response.json();
 

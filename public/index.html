@@ -7,11 +7,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
     <link rel="icon" href="<%= BASE_URL %>favicon.ico">
     <!-- Cesium 依赖-->
-    <link href="/cesium/Widgets/widgets.css" rel="stylesheet">
-    <link rel="stylesheet" href="/pannellum.css">
-    <script src="/cesium/Cesium.js"></script>
-    <script src="/EasyPlayer-lib.min.js"></script>
-    <script src="/pannellum.js"></script>
+    <link href="<%= BASE_URL %>cesium/Widgets/widgets.css" rel="stylesheet">
+    <link rel="stylesheet" href="<%= BASE_URL %>pannellum.css">
+    <script>window.CESIUM_BASE_URL = '<%= BASE_URL %>cesium/';</script>
+    <script src="<%= BASE_URL %>cesium/Cesium.js"></script>
+    <script src="<%= BASE_URL %>EasyPlayer-lib.min.js"></script>
+    <script src="<%= BASE_URL %>pannellum.js"></script>
     <title><%= webpackConfig.name %></title>
     <!--[if lt IE 11]><script>window.location.href='/html/ie.html';</script><![endif]-->
 	  <style>

@@ -35,5 +35,6 @@ export { default as boundaryLayer } from "./boundaryLayer";
 export { default as riverLayer } from "./riverLayer";
 
 export { default as waterLevelLayer } from "./waterLevelLayer";
+export { default as extractionPointsLayer } from "./extractionPoints";
 // //天气特效
 export {default as weather} from './weather'

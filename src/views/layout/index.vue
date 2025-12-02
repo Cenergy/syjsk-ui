@@ -1,5 +1,5 @@
 <template>
-  <el-container style="height: 100vh; min-width: 1600px; min-height: 900px" class="mainContainer">
+  <el-container style="height: 100vh; width: 100%" class="mainContainer">
     <el-header class="header" height="80px">
       <div class="navbar" style="justify-content: flex-end">
         <!-- <router-link to="/index" custom v-slot="{ navigate, isActive }">

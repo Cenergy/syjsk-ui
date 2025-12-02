@@ -628,7 +628,7 @@ export default {
 
         // 加载新的GeoJSON数据
         const response = await fetch(
-          `/datasets/effects/${Number(waterLevel) * 10}.geojson`
+          `/geodata/effects/${Number(waterLevel) * 10}.geojson`
         );
         const geoJsonData = await response.json();
 

@@ -27,7 +27,7 @@ class WatershedLayer extends BaseLayer {
     try {
       // 加载流域GeoJSON数据
       const watershedDataSource = await Cesium.GeoJsonDataSource.load(
-        "/datasets/geojson/liuyu.geojson",
+        "/geodata/geojson/liuyu.geojson",
         {
           stroke: Cesium.Color.BLUE.withAlpha(0.8),
           strokeWidth: 3,

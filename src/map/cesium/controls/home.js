@@ -30,6 +30,7 @@ const layerMap = new Map([
   ["boundaryLayer", layers.boundaryLayer],
   ["riverLayer", layers.riverLayer],
   ["waterLayer", layers.waterLayer],
+  ["extractionPointsLayer", layers.extractionPointsLayer],
 ]);
 /**
  * 首页中的地图业务类

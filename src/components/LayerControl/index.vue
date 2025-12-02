@@ -51,11 +51,11 @@ export default {
             label: "倾斜摄影",
             flag: true,
           },
-          {
-            value: "riverLayer",
-            label: "河流水系",
-            flag: false,
-          },
+          // {
+          //   value: "riverLayer",
+          //   label: "河流水系",
+          //   flag: false,
+          // },
           // {
           //   value: "weather",
           //   label: "降雨效果",
@@ -64,6 +64,11 @@ export default {
           {
             value: "watershedLayer",
             label: "流域范围",
+            flag: false,
+          },
+          {
+            value: "extractionPointsLayer",
+            label: "撤离点位",
             flag: false,
           },
           // {
