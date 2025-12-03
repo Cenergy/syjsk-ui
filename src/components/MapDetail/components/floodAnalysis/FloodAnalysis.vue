@@ -95,6 +95,7 @@ const effectWaterLevelList = EFFECT_WATER_LEVEL_COLOR_CONFIG_LSIT.map(
 );
 const areaNameList = MODEL_3DTILES_INFO_LIST.map((item) => item.name);
 
+
 export default {
   components: {
     EffectSta,

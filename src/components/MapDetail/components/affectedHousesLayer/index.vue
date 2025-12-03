@@ -1,128 +1,236 @@
 <template>
-  <div style="display: flex;
-    flex-direction: column;
-    height: calc(100vh - 165px);">
-    <ZebraTitle style="margin-bottom: 15px;">
-      <span style="color: #000;">查询条件</span>
+  <div style="display: flex; flex-direction: column; height: calc(100vh - 165px)">
+    <!-- 增加区域下拉，默认和左侧保持一致 -->
+    <el-form label-width="75px" label-position="right" size="medium">
+      <el-form-item label="影响区域" style="color: #fff !important">
+        <el-select
+          v-model="selectedName"
+          placeholder="请选择区域"
+          @change="selectAreaName"
+        >
+          <el-option
+            v-for="item in showWaterNameList"
+            :key="item"
+            :label="item"
+            :value="item"
+          />
+        </el-select>
+      </el-form-item>
+    </el-form>
+    <!-- 增加水位滑动块-->
+    <el-form label-width="75px" label-position="right" size="medium">
+      <el-form-item label="典型水位" style="color: #fff !important">
+        <div style="display: flex; align-items: center">
+          <el-checkbox-group
+            v-model="selectedWaterLevelList"
+            size="medium"
+            
+          >
+            <el-checkbox-button
+              v-for="waterLevel in effectWaterLevelList"
+              :label="waterLevel.label"
+              :key="waterLevel.id"
+            >
+              {{ waterLevel.name }}
+            </el-checkbox-button>
+          </el-checkbox-group>
+          <!-- <span style="color: #fff; margin-left: 12px">当前水位：{{ displayWaterLevel }}</span> -->
+          <!-- <span style="color: #fff; margin-left: 8px">米</span> -->
+        </div>
+      </el-form-item>
+    </el-form>
+
+    <ZebraTitle style="margin-bottom: 15px">
+      <span style="color: #000">查询条件</span>
     </ZebraTitle>
-    <div class="tableContainer" style="flex: 1;overflow: hidden;display: flex;flex-direction: column;" >
-      <el-table ref="table" :data="tableData" highlight-current-row size="mini" class="dark" height="100%" @row-click="handleRowClick">
-      <el-table-column align="center" label="类型" prop="lx"></el-table-column>
-      <el-table-column align="center" label="类别" prop="lb"></el-table-column>
-      <el-table-column align="center" label="暴雨边界" prop="bybj"></el-table-column>
-      <el-table-column align="center" label="潮位边界" prop="cwbj"></el-table-column>
-    </el-table>
+    <div
+      class="tableContainer"
+      style="flex: 1; overflow: hidden; display: flex; flex-direction: column"
+    >
+      <el-table
+        ref="table"
+        :data="tableData"
+        highlight-current-row
+        size="mini"
+        class="dark"
+        height="100%"
+        @row-click="handleRowClick"
+      >
+        <el-table-column align="center" label="所属村镇" prop="tsmc"></el-table-column>
+        <el-table-column align="center" label="所属小组" prop="xmmc"></el-table-column>
+        <el-table-column align="center" label="影响水深" prop="bybj"></el-table-column>
+        <el-table-column align="center" label="户主名称" prop="cwbj"></el-table-column>
+      </el-table>
     </div>
-    
   </div>
 </template>
 <script>
-export default {
+import { constant } from "@/map";
+import waterLevelLayer from "@/map/cesium/layers/waterLevelLayer";
 
-  name: 'floodRisk',
+const { EFFECT_WATER_LEVEL_COLOR_CONFIG_LSIT, MODEL_3DTILES_INFO_LIST } = constant;
+
+const selectedName = "全部";
+const showWaterNameList = [
+  selectedName,
+  ...MODEL_3DTILES_INFO_LIST.map((item) => item.name),
+];
+
+export default {
+  name: "floodRisk",
 
   components: {},
 
-  props: {},
+  props: {
+    waterLevelKey: {
+      type: String,
+      default: "",
+    },
+  },
 
   data() {
-
     return {
-      tableData: [{
-        lx: "长历时",
-        lb: "暴雨为主",
-        bybj: "50年一遇",
-        cwbj: "5年一遇",
-        jysc: "24",
-        imageName: "4",
-      },
-      {
-        lx: "长历时",
-        lb: "暴雨为主",
-        bybj: "100年一遇",
-        cwbj: "5年一遇",
-        jysc: "24",
-        imageName: "5",
-      },
-      {
-        lx: "长历时",
-        lb: "暴雨为主",
-        bybj: "500年一遇",
-        cwbj: "5年一遇",
-        jysc: "24",
-        imageName: "7",
-      },
-      {
-        lx: "长历时",
-        lb: "极端条件",
-        bybj: "500年一遇",
-        cwbj: "200年一遇",
-        jysc: "24",
-        imageName: "12",
-      },
-      {
-        lx: "短历时",
-        lb: "暴雨为主",
-        bybj: "20年一遇",
-        cwbj: "5年一遇",
-        jysc: "1",
-        imageName: "16",
-      },
-      {
-        lx: "短历时",
-        lb: "暴雨为主",
-        bybj: "50年一遇",
-        cwbj: "5年一遇",
-        jysc: "1",
-        imageName: "17",
-      },
-      {
-        lx: "短历时",
-        lb: "暴雨为主",
-        bybj: "100年一遇",
-        cwbj: "5年一遇",
-        jysc: "1",
-        imageName: "18",
-      },
-      {
-        lx: "短历时",
-        lb: "暴雨为主",
-        bybj: "200年一遇",
-        cwbj: "5年一遇",
-        jysc: "1",
-        imageName: "19",
-      },
-      {
-        lx: "短历时",
-        lb: "极端条件",
-        bybj: "200年一遇",
-        cwbj: "200年一遇",
-        jysc: "1",
-        imageName: "25",
-      }]
-    }
+      showWaterNameList,
+      selectedName,
+      tableData: [],
+      selectedWaterLevelList: [],
+      previousWaterLevelList: [],
+      effectWaterLevelList: EFFECT_WATER_LEVEL_COLOR_CONFIG_LSIT,
+      singleCheck: true,
+    };
+  },
 
+  computed: {
+    displayWaterLevel() {
+      return this.waterLevelKey || (this.selectedWaterLevelList[0] || "未选择");
+    },
   },
 
   methods: {
     handleRowClick(row, column, event) {
-    this.$bus.emit("changeFloodRiskImage",row.imageName)
-    }
+      this.$bus.emit("changeFloodRiskImage", row.imageName);
+    },
+    selectAreaName(name) {
+      let selectedName = name;
+      if (name === "全部") {
+        selectedName = "整体影响";
+      }
+      if (name !== "全部") {
+        this.$bus.emit("changeSelectedAreaName", name);
+      }
+      this.$bus.emit("mapLocate", {
+        type: "FlyToLocal",
+        data: selectedName,
+      });
+    },
+    handleWaterLevelList() {
+      const addWaterLevelList = this.selectedWaterLevelList.filter(
+        (item) => !this.previousWaterLevelList.includes(item)
+      );
+      const removeWaterLevelList = this.previousWaterLevelList.filter(
+        (item) => !this.selectedWaterLevelList.includes(item)
+      );
+      addWaterLevelList.forEach((item) => {
+        const obj = EFFECT_WATER_LEVEL_COLOR_CONFIG_LSIT.find((i) => i.label === item);
+        if (!obj) return;
+        waterLevelLayer.add(obj);
+      });
+      removeWaterLevelList.forEach((item) => {
+        const obj = EFFECT_WATER_LEVEL_COLOR_CONFIG_LSIT.find((i) => i.label === item);
+        if (!obj) return;
+        waterLevelLayer.hide(obj.id);
+      });
+      const labelOrder = EFFECT_WATER_LEVEL_COLOR_CONFIG_LSIT.map((i) => i.label);
+      this.selectedWaterLevelList = labelOrder.filter((label) =>
+        this.selectedWaterLevelList.includes(label)
+      );
+      console.log("🚀 ~ this.selectedWaterLevelList:", this.selectedWaterLevelList);
+      this.previousWaterLevelList = [...this.selectedWaterLevelList];
+      this.$bus.emit("waterLevelChanged", this.selectedWaterLevelList);
+      this.$store.commit("selectedWaterLevelList", this.selectedWaterLevelList);
+    },
   },
 
   mounted() {
-     this.$nextTick(() => {
+    const selectedWaterLevelList = EFFECT_WATER_LEVEL_COLOR_CONFIG_LSIT.filter(
+      (item) => item.checked
+    ).map((item) => {
+      waterLevelLayer.add(item);
+      waterLevelLayer.add({ id: "sk" });
+      return item.label;
+    });
+    this.selectedWaterLevelList = selectedWaterLevelList;
+    this.previousWaterLevelList = selectedWaterLevelList;
+    this.$store.commit("selectedWaterLevelList", this.selectedWaterLevelList);
+    // 若通过 props 传入 waterLevelKey，则选中对应水位
+    if (this.waterLevelKey) {
+      this.selectedWaterLevelList = [this.waterLevelKey];
+      this.previousWaterLevelList = [this.waterLevelKey];
+      this.$store.commit("selectedWaterLevelList", this.selectedWaterLevelList);
+    }
+    this.$nextTick(() => {
       if (this.tableData.length > 0) {
         this.$refs.table.setCurrentRow(this.tableData[0]);
       }
     });
   },
+  created() {
+    this.$bus.on("changeSelectedAreaName", (name) => {
+      if (this.showWaterNameList.includes(name)) {
+        this.selectedName = name;
+      }else{
+        this.selectedName = '全部';
+      }
+    });
+    this.$bus.on("changeWaterLevelType", (data) => {
+      console.log("🚀 ~ data:", data);
+      const {waterLevelKey} = data;
+      this.selectedWaterLevelList = [waterLevelKey];
+      console.log("🚀 ~ this.selectedWaterLevelList:", this.selectedWaterLevelList);
+    });
+  },
 
   watch: {
+    // 当 props 中的 waterLevelKey 变化时，同步选中状态
+    waterLevelKey(newVal) {
+      if (newVal) {
+        this.selectedWaterLevelList = [newVal];
+        this.previousWaterLevelList = [newVal];
+        this.$store.commit("selectedWaterLevelList", this.selectedWaterLevelList);
+      }
+    },
+    selectedWaterLevelList(newValue, oldValue) {
+      if (this.singleCheck) {
+        if (newValue.length > 1) {
+          this.selectedWaterLevelList = [newValue[newValue.length - 1]];
+          this.handleWaterLevelList(newValue, oldValue);
+        }
+      }
+    },
+    singleCheck(newValue, oldValue) {
+      if (newValue) {
+        if (this.selectedWaterLevelList.length > 1) {
+          this.selectedWaterLevelList = [
+            this.selectedWaterLevelList[this.selectedWaterLevelList.length - 1],
+          ];
+          this.handleWaterLevelList(newValue, oldValue);
+        }
+      }
+    },
+  },
 
-  }
-
-}
-
+  beforeDestroy() {
+    this.$bus.off("changeSelectedAreaName");
+    waterLevelLayer.removeAll();
+  },
+};
 </script>
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+::v-deep .el-checkbox-button {
+  margin: 5px;
+}
+::v-deep .el-checkbox-button__inner {
+  padding: 5px 8px;
+  border-radius: 5px !important;
+}
+</style>

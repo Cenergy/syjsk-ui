@@ -10,7 +10,16 @@
       >
       <!-- 设置第一列的宽度 -->
       <template slot-scope="scope">
-        {{ formatValue(scope.row[normalizeKey(key)]) }}
+        <span
+          v-if="scope.row.name === '影响民房数(栋)'"
+          class="cell-clickable" style="cursor: pointer;"
+          @click="handleHousingCountClick(scope, normalizeKey(key))"
+        >
+          {{ formatValue(scope.row[normalizeKey(key)]) }}
+        </span>
+        <span v-else>
+          {{ formatValue(scope.row[normalizeKey(key)]) }}
+        </span>
       </template>
       </el-table-column>
     </el-table>
@@ -22,6 +31,10 @@ import { mapGetters } from "vuex";
 import { getStatisticalData, tables } from "@/components/MapPopup/FloodStatistical/mockData";
 import { constant } from "@/map";
 const { EFFECT_WATER_LEVEL_COLOR_CONFIG_LSIT,MODEL_3DTILES_INFO_LIST } = constant;
+
+import layerGroup from '@/components/LayerControl/layerGroup';
+
+const houseLayer=layerGroup.layerGuideLine.find((item) => item.value === 'affectedHousesLayer');
 
 export default {
   name: "EffectAll",
@@ -72,6 +85,10 @@ export default {
     normalizeKey(key) {
       return String(key).replace(/\./g, "_");
     },
+    // 转回正常的 key
+    denormalizeKey(key) {
+      return String(key).replace(/_/g, ".");
+    },
     // 数值格式化：整数不带小数，非整数保留两位小数
     formatValue(val) {
       const num = Number(val);
@@ -114,6 +131,29 @@ export default {
       });
       return result;
     },
+    handleHousingCountClick(scope, waterLevelKey) {
+      console.log("🚀 ~ waterLevelKey:", waterLevelKey);
+      console.log("🚀 ~ scope:", scope);
+      const value = scope.row[waterLevelKey];
+      console.log("🚀 ~ value:", value);
+      const rowName = scope.row.name;
+      // 向父组件派发事件，传递当前水位列与该行数据值
+      this.$emit('click-housing', { waterLevelKey, value, rowName, row: scope.row });
+      // 可选：向全局总线广播，便于其他模块监听
+      this.$bus && this.$bus.emit('clickSubmergedCivilHousingCount', { waterLevelKey, value, rowName });
+      this.$bus.emit("addMapDetail", {
+        ...houseLayer,
+        props: {
+          waterLevelKey:this.denormalizeKey(waterLevelKey),
+        }
+      });
+      // 发布水位类型事件
+      this.$bus.emit("changeWaterLevelType", {
+        waterLevelKey:this.denormalizeKey(waterLevelKey),
+        value,
+        rowName,
+      });
+    }
   },
   mounted() {
     this.mockData = this.buildMockData(this.selectedWaterLevelList);

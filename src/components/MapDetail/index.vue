@@ -38,7 +38,13 @@
           :label="item.label"
           style="padding: 0px 10px"
         >
-          <component :is="item.value"></component>
+          <component
+            :is="item.value"
+            :tab-label="item.label"
+            :tab-value="item.value"
+            v-bind="item.props || {}"
+            :data="item.data"
+          ></component>
         </el-tab-pane>
       </el-tabs>
     </div>
@@ -48,6 +54,8 @@
 import * as components from "./components";
 import { constant } from "@/map";
 // import Waterlogging from './components/Waterlogging.vue'
+
+const areaNameList = constant.MODEL_3DTILES_INFO_LIST.map((item) => item.name);
 
 export default {
   components,
@@ -77,6 +85,13 @@ export default {
         type: "FlyToLocal",
         data: item,
       });
+     this.$bus.emit("changeSelectedAreaName", item);
+    },
+    handleExternalAreaSelect(name) {
+      const idx = this.layerList.findIndex((i) => i === name);
+      if (idx !== -1) {
+        this.activeIdx = idx;
+      }
     },
     handleAddPanel(data) {
       //可显示弹窗的类型
@@ -109,10 +124,12 @@ export default {
   created() {
     this.$bus.on("addMapDetail", this.handleAddPanel);
     this.$bus.on("removeMapDetail", this.handleRemovePanel);
+    this.$bus.on("changeSelectedAreaName", this.handleExternalAreaSelect);
   },
   destroyed() {
     this.$bus.off("addMapDetail", this.handleAddPanel);
     this.$bus.off("removeMapDetail", this.handleRemovePanel);
+    this.$bus.off("changeSelectedAreaName", this.handleExternalAreaSelect);
   },
 };
 </script>
