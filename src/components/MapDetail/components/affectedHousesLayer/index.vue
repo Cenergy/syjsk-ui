@@ -24,7 +24,7 @@
           <el-checkbox-group
             v-model="selectedWaterLevelList"
             size="medium"
-            
+            @change="handleWaterLevelList"
           >
             <el-checkbox-button
               v-for="waterLevel in effectWaterLevelList"
@@ -146,8 +146,8 @@ export default {
       );
       console.log("🚀 ~ this.selectedWaterLevelList:", this.selectedWaterLevelList);
       this.previousWaterLevelList = [...this.selectedWaterLevelList];
-      this.$bus.emit("waterLevelChanged", this.selectedWaterLevelList);
-      this.$store.commit("selectedWaterLevelList", this.selectedWaterLevelList);
+      // this.$bus.emit("waterLevelChanged", this.selectedWaterLevelList);
+      // this.$store.commit("selectedWaterLevelList", this.selectedWaterLevelList);
     },
   },
 
@@ -161,12 +161,12 @@ export default {
     });
     this.selectedWaterLevelList = selectedWaterLevelList;
     this.previousWaterLevelList = selectedWaterLevelList;
-    this.$store.commit("selectedWaterLevelList", this.selectedWaterLevelList);
+    // this.$store.commit("selectedWaterLevelList", this.selectedWaterLevelList);
     // 若通过 props 传入 waterLevelKey，则选中对应水位
     if (this.waterLevelKey) {
       this.selectedWaterLevelList = [this.waterLevelKey];
       this.previousWaterLevelList = [this.waterLevelKey];
-      this.$store.commit("selectedWaterLevelList", this.selectedWaterLevelList);
+      // this.$store.commit("selectedWaterLevelList", this.selectedWaterLevelList);
     }
     this.$nextTick(() => {
       if (this.tableData.length > 0) {
