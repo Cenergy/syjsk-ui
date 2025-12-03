@@ -36,5 +36,7 @@ export { default as riverLayer } from "./riverLayer";
 
 export { default as waterLevelLayer } from "./waterLevelLayer";
 export { default as extractionPointsLayer } from "./extractionPoints";
+// 房屋影响图层
+export { default as affectedHousesLayer } from "./affectedHousesLayer";
 // //天气特效
 export {default as weather} from './weather'
