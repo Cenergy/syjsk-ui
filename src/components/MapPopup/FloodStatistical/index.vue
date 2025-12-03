@@ -45,7 +45,7 @@
       <EffectAll :areaName="isFirstTab(item) ? null : item" v-if="viewMode === 'list'" />
       <ChartShow :areaName="isFirstTab(item) ? null : item" v-else />
       <div v-show="!isFirstTab(item)">
-        <div class="section-title">{{ name }}重点防护对象</div>
+        <div class="section-title">{{ item }}重点防护对象</div>
         <!-- 是個列表，有名稱和聯係人 -->
         <div class="table-container">
           <table class="rain-table">

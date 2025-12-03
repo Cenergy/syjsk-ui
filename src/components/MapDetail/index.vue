@@ -105,7 +105,6 @@ export default {
     },
   },
   mounted() { 
-    console.log("map-detail-wrapper mounted",this.layerList);
   },
   created() {
     this.$bus.on("addMapDetail", this.handleAddPanel);

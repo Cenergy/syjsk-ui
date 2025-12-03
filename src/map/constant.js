@@ -29,7 +29,7 @@ const sflyToData = {
 // 视角map
 const VIEW_SETTINGS_MAP = new Map([
   ["三维全景", tflyToData],
-  ["二维全域", sflyToData],
+  ["整体影响", sflyToData],
 ]);
 
 // 默认视角

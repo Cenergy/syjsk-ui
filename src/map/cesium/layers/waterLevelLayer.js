@@ -19,7 +19,6 @@ class WaterLevelLayer extends BaseLayer {
   }
 
   async add(options = {}) {
-    console.log("🚀 ~ WaterLevelLayer ~ add ~ options:", options);
     const { id, zIndex = 100,height = 175 } = options;
     if (this.dataSources.has(id)) {
       this.show(id);

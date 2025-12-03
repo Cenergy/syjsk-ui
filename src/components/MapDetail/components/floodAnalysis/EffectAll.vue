@@ -21,7 +21,7 @@
 import { mapGetters } from "vuex";
 import { getStatisticalData, tables } from "@/components/MapPopup/FloodStatistical/mockData";
 import { constant } from "@/map";
-const { EFFECT_WATER_LEVEL_COLOR_CONFIG_LSIT } = constant;
+const { EFFECT_WATER_LEVEL_COLOR_CONFIG_LSIT,MODEL_3DTILES_INFO_LIST } = constant;
 
 export default {
   name: "EffectAll",
@@ -33,6 +33,7 @@ export default {
   },
   data() {
     return {
+      currentAreaName: this.areaName || "",
 
       statisticalItems: [
         { key: "affectedRoadLength", name: "淹没公路（米）" },
@@ -61,6 +62,9 @@ export default {
     selectedWaterLevelList(newValue) {
       this.mockData = this.buildMockData(newValue);
     },
+    areaName(newVal) {
+      this.currentAreaName = newVal || "";
+    },
   },
   methods: {
     // el-table 的 prop 使用点号表示嵌套路径，
@@ -81,8 +85,8 @@ export default {
       // 使用聚合统计数据（按水位分组求和）
       // 假如this.areaName有值，则统计这个areaName的值
        let aggregatedMap;
-      if (this.areaName) {
-        const areaRows = (tables && tables.get(this.areaName)) || [];
+      if (this.currentAreaName) {
+        const areaRows = (tables && tables.get(this.currentAreaName)) || [];
         // 转换为 Map<waterLevel, number[]> 以与聚合模式一致
         aggregatedMap = new Map(
           areaRows.map((row) => [row[0], row.slice(1)])
@@ -113,6 +117,16 @@ export default {
   },
   mounted() {
     this.mockData = this.buildMockData(this.selectedWaterLevelList);
+    const areaNameList = MODEL_3DTILES_INFO_LIST.map(item => item.name);
+    this.$bus.on("mapLocate", (evt) => {
+      const name =evt.data;
+      if (areaNameList.includes(name)) {
+        this.currentAreaName = name;
+      } else {
+        this.currentAreaName = "";
+      }
+      this.mockData = this.buildMockData(this.selectedWaterLevelList);
+    });
   },
 };
 </script>

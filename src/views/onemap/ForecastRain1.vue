@@ -114,7 +114,6 @@ export default {
         });
       }
       
-      console.log('预报数据（过去12小时+未来12小时）:', this.forecastData);
       resolve();
     }).then(() => {
       this.draw();

@@ -41,7 +41,9 @@
       </el-form-item>
       <el-form-item label="是否单选" style="color: #fff !important">
         <div style="display: flex; align-items: center">
-          <el-checkbox v-model="singleCheck" label="1"><span style="color: #fff">是</span></el-checkbox>
+          <el-checkbox v-model="singleCheck" label="1"
+            ><span style="color: #fff">是</span></el-checkbox
+          >
         </div>
       </el-form-item>
     </el-form>
@@ -56,7 +58,7 @@
             letter-spacing: 0%;
             color: #fff;
           "
-          >影响区域列表</span
+          >{{ statisticName }}影响区域列表</span
         >
         <el-button type="primary" size="mini" @click="handleRowDblClick"
           >查看详情</el-button
@@ -86,11 +88,12 @@ import EffectAll from "./EffectAll.vue";
 import ChartShow from "@/components/MapPopup/FloodStatistical/ChartShow.vue";
 import waterLevelLayer from "@/map/cesium/layers/waterLevelLayer";
 
-const { EFFECT_WATER_LEVEL_COLOR_CONFIG_LSIT } = constant;
+const { EFFECT_WATER_LEVEL_COLOR_CONFIG_LSIT, MODEL_3DTILES_INFO_LIST } = constant;
 
 const effectWaterLevelList = EFFECT_WATER_LEVEL_COLOR_CONFIG_LSIT.map(
   (item) => item.label
 );
+const areaNameList = MODEL_3DTILES_INFO_LIST.map((item) => item.name);
 
 export default {
   components: {
@@ -113,6 +116,7 @@ export default {
         sw: 30,
       },
       data: [],
+      statisticName: "整体-",
       rawData: [],
       currentEffectLayer: null, // 当前影响范围线图层
     };
@@ -177,7 +181,6 @@ export default {
       this.$bus.emit("waterLevelChanged", this.selectedWaterLevelList);
       // 保存到store里面
       this.$store.commit("selectedWaterLevelList", this.selectedWaterLevelList);
-      console.log("🚀 ~ this.selectedWaterLevelList:", this.selectedWaterLevelList);
     },
     handleRowClick(row) {
       // const row = this.data[idx]
@@ -204,13 +207,21 @@ export default {
     ).map((item) => {
       waterLevelLayer.add(item);
       waterLevelLayer.add({
-        id:"sk",
+        id: "sk",
       });
       return item.label;
     });
     this.selectedWaterLevelList = selectedWaterLevelList;
     this.previousWaterLevelList = selectedWaterLevelList;
     this.$store.commit("selectedWaterLevelList", this.selectedWaterLevelList);
+    this.$bus.on("mapLocate", (evt) => {
+      const name = evt.data;
+      if (areaNameList.includes(name)) {
+        this.statisticName = `${name}-`;
+      } else {
+        this.statisticName = "整体-";
+      }
+    });
   },
   beforeDestroy() {
     waterLevelLayer.removeAll();
