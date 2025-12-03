@@ -36,11 +36,11 @@ export default {
       currentAreaName: this.areaName || "",
 
       statisticalItems: [
-        { key: "affectedRoadLength", name: "淹没公路（米）" },
-        { key: "submergedCivilHousingCount", name: "淹没民房数(栋)" },
-        { key: "inundationArea", name: "淹没面积(亩)" },
-        { key: "submergedCivilLandArea", name: "淹没农用地面积（亩）" },
-        { key: "submergedArableLandArea", name: "淹没耕地（亩）" },
+        { key: "affectedRoadLength", name: "影响公路（米）" },
+        { key: "submergedCivilHousingCount", name: "影响民房数(栋)" },
+        { key: "inundationArea", name: "影响面积(亩)" },
+        { key: "submergedCivilLandArea", name: "影响农用地面积（亩）" },
+        { key: "submergedArableLandArea", name: "影响耕地（亩）" },
       ],
       mockData: {},
     };
