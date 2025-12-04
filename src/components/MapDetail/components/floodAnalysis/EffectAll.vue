@@ -145,6 +145,8 @@ export default {
         ...houseLayer,
         props: {
           waterLevelKey:this.denormalizeKey(waterLevelKey),
+          housesCount: value,
+          currentAreaName: this.currentAreaName,
         }
       });
       // 发布水位类型事件

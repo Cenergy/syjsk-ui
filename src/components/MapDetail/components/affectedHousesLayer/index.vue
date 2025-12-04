@@ -47,6 +47,10 @@
       class="tableContainer"
       style="flex: 1; overflow: hidden; display: flex; flex-direction: column"
     >
+      <div>
+        <span style="color: #FFF;">{{ housesCountText }}</span>
+      </div>
+
       <el-table
         ref="table"
         :data="tableData"
@@ -86,6 +90,14 @@ export default {
       type: String,
       default: "",
     },
+    housesCount: {
+      type: Number,
+      default: 0,
+    },
+    currentAreaName: {
+      type: String,
+      default: "全部",
+    },
   },
 
   data() {
@@ -103,6 +115,19 @@ export default {
   computed: {
     displayWaterLevel() {
       return this.waterLevelKey || (this.selectedWaterLevelList[0] || "未选择");
+    },
+    housesCountText() {
+      // 生成mock的this.housesCount条数的tableData
+      this.tableData = [];
+      for (let i = 0; i < this.housesCount; i++) {
+        this.tableData.push({
+          tsmc: `村镇${i}`,
+          xmmc: `小组${i}`,
+          bybj: `${i}米`,
+          cwbj: `户主${i}`,
+        });
+      }
+      return this.housesCount ? `共${this.housesCount}户受影响` : "";
     },
   },
 
@@ -173,6 +198,10 @@ export default {
         this.$refs.table.setCurrentRow(this.tableData[0]);
       }
     });
+    // 若通过 props 传入 currentAreaName，则选中对应区域
+    if (this.currentAreaName) {
+      this.selectedName = this.currentAreaName;
+    }
   },
   created() {
     this.$bus.on("changeSelectedAreaName", (name) => {
@@ -196,7 +225,7 @@ export default {
       if (newVal) {
         this.selectedWaterLevelList = [newVal];
         this.previousWaterLevelList = [newVal];
-        this.$store.commit("selectedWaterLevelList", this.selectedWaterLevelList);
+        // this.$store.commit("selectedWaterLevelList", this.selectedWaterLevelList);
       }
     },
     selectedWaterLevelList(newValue, oldValue) {
