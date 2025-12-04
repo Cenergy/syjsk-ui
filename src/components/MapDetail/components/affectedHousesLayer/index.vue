@@ -17,28 +17,14 @@
         </el-select>
       </el-form-item>
     </el-form>
-    <!-- 增加水位滑动块-->
-    <el-form label-width="75px" label-position="right" size="medium">
-      <el-form-item label="典型水位" style="color: #fff !important">
-        <div style="display: flex; align-items: center">
-          <el-checkbox-group
-            v-model="selectedWaterLevelList"
-            size="medium"
-            @change="handleWaterLevelList"
-          >
-            <el-checkbox-button
-              v-for="waterLevel in effectWaterLevelList"
-              :label="waterLevel.label"
-              :key="waterLevel.id"
-            >
-              {{ waterLevel.name }}
-            </el-checkbox-button>
-          </el-checkbox-group>
-          <!-- <span style="color: #fff; margin-left: 12px">当前水位：{{ displayWaterLevel }}</span> -->
-          <!-- <span style="color: #fff; margin-left: 8px">米</span> -->
-        </div>
-      </el-form-item>
-    </el-form>
+    <!-- 典型水位选择组件 -->
+    <WaterLevelSelector
+      :effectWaterLevelList="effectWaterLevelList"
+      v-model="selectedWaterLevelList"
+      :singleCheck.sync="singleCheck"
+      :showSingleCheck="false"
+      @change="handleWaterLevelList"
+    />
 
     <ZebraTitle style="margin-bottom: 15px">
       <span style="color: #000">查询条件</span>
@@ -71,6 +57,7 @@
 <script>
 import { constant } from "@/map";
 import waterLevelLayer from "@/map/cesium/layers/waterLevelLayer";
+import WaterLevelSelector from "@/components/MapDetail/components/common/WaterLevelSelector.vue";
 
 const { EFFECT_WATER_LEVEL_COLOR_CONFIG_LSIT, MODEL_3DTILES_INFO_LIST } = constant;
 
@@ -83,7 +70,7 @@ const showWaterNameList = [
 export default {
   name: "floodRisk",
 
-  components: {},
+  components: { WaterLevelSelector },
 
   props: {
     waterLevelKey: {
