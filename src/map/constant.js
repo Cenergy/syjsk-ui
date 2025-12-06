@@ -73,7 +73,7 @@ const MODEL_3DTILES_INFO_LIST = [
   },
   {
     name: "过埠镇",
-    center: [114.199969495, 25.765400621000003, 0],
+    center: [114.199929495, 25.765400621000003, 0],
     postion: [114.21800744628167, 25.754925269539907],
     flyToData: {
       destination: {

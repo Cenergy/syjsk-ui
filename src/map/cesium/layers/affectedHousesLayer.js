@@ -1,715 +1,453 @@
-import eventBus from "@/utils/EventBus";
 import BaseLayer from "./baseLayer";
-import { constant } from "@/map";
+import eventBus from "@/utils/EventBus";
+import houseData from "@/api/map/getHouses";
 
-const showList = [
-      {
-        type: "Feature",
-        properties: {
-          id: null,
-          Name: "安置点",
-          description: null,
-          timestamp: null,
-          begin: null,
-          end: null,
-          altitudeMode: null,
-          tessellate: -1,
-          extrude: 0,
-          visibility: -1,
-          drawOrder: null,
-          icon: null,
-        },
-        geometry: { type: "Point", coordinates: [114.18645769, 25.73707167] },
-      },
-      {
-        type: "Feature",
-        properties: {
-          id: null,
-          Name: "安置点",
-          description: null,
-          timestamp: null,
-          begin: null,
-          end: null,
-          altitudeMode: null,
-          tessellate: -1,
-          extrude: 0,
-          visibility: -1,
-          drawOrder: null,
-          icon: null,
-        },
-        geometry: { type: "Point", coordinates: [114.19071436, 25.74736633] },
-      },
-      {
-        type: "Feature",
-        properties: {
-          id: null,
-          Name: "安置点",
-          description: null,
-          timestamp: null,
-          begin: null,
-          end: null,
-          altitudeMode: null,
-          tessellate: -1,
-          extrude: 0,
-          visibility: -1,
-          drawOrder: null,
-          icon: null,
-        },
-        geometry: { type: "Point", coordinates: [114.19340864, 25.75648243] },
-      },
-      {
-        type: "Feature",
-        properties: {
-          id: null,
-          Name: "安置点",
-          description: null,
-          timestamp: null,
-          begin: null,
-          end: null,
-          altitudeMode: null,
-          tessellate: -1,
-          extrude: 0,
-          visibility: -1,
-          drawOrder: null,
-          icon: null,
-        },
-        geometry: { type: "Point", coordinates: [114.21154171, 25.75631937] },
-      },
-      {
-        type: "Feature",
-        properties: {
-          id: null,
-          Name: "安置点",
-          description: null,
-          timestamp: null,
-          begin: null,
-          end: null,
-          altitudeMode: null,
-          tessellate: -1,
-          extrude: 0,
-          visibility: -1,
-          drawOrder: null,
-          icon: null,
-        },
-        geometry: { type: "Point", coordinates: [114.21318591, 25.76929839] },
-      },
-      {
-        type: "Feature",
-        properties: {
-          id: null,
-          Name: "安置点",
-          description: null,
-          timestamp: null,
-          begin: null,
-          end: null,
-          altitudeMode: null,
-          tessellate: -1,
-          extrude: 0,
-          visibility: -1,
-          drawOrder: null,
-          icon: null,
-        },
-        geometry: { type: "Point", coordinates: [114.21333879, 25.77681509] },
-      },
-      {
-        type: "Feature",
-        properties: {
-          id: null,
-          Name: "安置点",
-          description: null,
-          timestamp: null,
-          begin: null,
-          end: null,
-          altitudeMode: null,
-          tessellate: -1,
-          extrude: 0,
-          visibility: -1,
-          drawOrder: null,
-          icon: null,
-        },
-        geometry: { type: "Point", coordinates: [114.20554429, 25.7822929] },
-      },
-      {
-        type: "Feature",
-        properties: {
-          id: null,
-          Name: "安置点",
-          description: null,
-          timestamp: null,
-          begin: null,
-          end: null,
-          altitudeMode: null,
-          tessellate: -1,
-          extrude: 0,
-          visibility: -1,
-          drawOrder: null,
-          icon: null,
-        },
-        geometry: { type: "Point", coordinates: [114.22744453, 25.79340473] },
-      },
-      {
-        type: "Feature",
-        properties: {
-          id: null,
-          Name: "安置点",
-          description: null,
-          timestamp: null,
-          begin: null,
-          end: null,
-          altitudeMode: null,
-          tessellate: -1,
-          extrude: 0,
-          visibility: -1,
-          drawOrder: null,
-          icon: null,
-        },
-        geometry: { type: "Point", coordinates: [114.22891438, 25.78691068] },
-      },
-      {
-        type: "Feature",
-        properties: {
-          id: null,
-          Name: "安置点",
-          description: null,
-          timestamp: null,
-          begin: null,
-          end: null,
-          altitudeMode: null,
-          tessellate: -1,
-          extrude: 0,
-          visibility: -1,
-          drawOrder: null,
-          icon: null,
-        },
-        geometry: { type: "Point", coordinates: [114.22794074, 25.79651035] },
-      },
-      {
-        type: "Feature",
-        properties: {
-          id: null,
-          Name: "安置点",
-          description: null,
-          timestamp: null,
-          begin: null,
-          end: null,
-          altitudeMode: null,
-          tessellate: -1,
-          extrude: 0,
-          visibility: -1,
-          drawOrder: null,
-          icon: null,
-        },
-        geometry: { type: "Point", coordinates: [114.22976464, 25.79936716] },
-      },
-      {
-        type: "Feature",
-        properties: {
-          id: null,
-          Name: "安置点",
-          description: null,
-          timestamp: null,
-          begin: null,
-          end: null,
-          altitudeMode: null,
-          tessellate: -1,
-          extrude: 0,
-          visibility: -1,
-          drawOrder: null,
-          icon: null,
-        },
-        geometry: { type: "Point", coordinates: [114.2662856, 25.84549641] },
-      },
-      {
-        type: "Feature",
-        properties: {
-          id: null,
-          Name: "安置点",
-          description: null,
-          timestamp: null,
-          begin: null,
-          end: null,
-          altitudeMode: null,
-          tessellate: -1,
-          extrude: 0,
-          visibility: -1,
-          drawOrder: null,
-          icon: null,
-        },
-        geometry: { type: "Point", coordinates: [114.26644787, 25.83811443] },
-      },
-      {
-        type: "Feature",
-        properties: {
-          id: null,
-          Name: "安置点",
-          description: null,
-          timestamp: null,
-          begin: null,
-          end: null,
-          altitudeMode: null,
-          tessellate: -1,
-          extrude: 0,
-          visibility: -1,
-          drawOrder: null,
-          icon: null,
-        },
-        geometry: { type: "Point", coordinates: [114.28101093, 25.91689053] },
-      },
-      {
-        type: "Feature",
-        properties: {
-          id: null,
-          Name: "安置点",
-          description: null,
-          timestamp: null,
-          begin: null,
-          end: null,
-          altitudeMode: null,
-          tessellate: -1,
-          extrude: 0,
-          visibility: -1,
-          drawOrder: null,
-          icon: null,
-        },
-        geometry: { type: "Point", coordinates: [114.2913267, 25.92160679] },
-      },
-      {
-        type: "Feature",
-        properties: {
-          id: null,
-          Name: "安置点",
-          description: null,
-          timestamp: null,
-          begin: null,
-          end: null,
-          altitudeMode: null,
-          tessellate: -1,
-          extrude: 0,
-          visibility: -1,
-          drawOrder: null,
-          icon: null,
-        },
-        geometry: { type: "Point", coordinates: [114.29738313, 25.91557091] },
-      },
-      {
-        type: "Feature",
-        properties: {
-          id: null,
-          Name: "安置点",
-          description: null,
-          timestamp: null,
-          begin: null,
-          end: null,
-          altitudeMode: null,
-          tessellate: -1,
-          extrude: 0,
-          visibility: -1,
-          drawOrder: null,
-          icon: null,
-        },
-        geometry: { type: "Point", coordinates: [114.33330595, 25.96902183] },
-      },
-      {
-        type: "Feature",
-        properties: {
-          id: null,
-          Name: "安置点",
-          description: null,
-          timestamp: null,
-          begin: null,
-          end: null,
-          altitudeMode: null,
-          tessellate: -1,
-          extrude: 0,
-          visibility: -1,
-          drawOrder: null,
-          icon: null,
-        },
-        geometry: { type: "Point", coordinates: [114.3431738, 25.95107731] },
-      },
-      {
-        type: "Feature",
-        properties: {
-          id: null,
-          Name: "安置点",
-          description: null,
-          timestamp: null,
-          begin: null,
-          end: null,
-          altitudeMode: null,
-          tessellate: -1,
-          extrude: 0,
-          visibility: -1,
-          drawOrder: null,
-          icon: null,
-        },
-        geometry: { type: "Point", coordinates: [114.36549783, 25.94204976] },
-      },
-      {
-        type: "Feature",
-        properties: {
-          id: null,
-          Name: "安置点",
-          description: null,
-          timestamp: null,
-          begin: null,
-          end: null,
-          altitudeMode: null,
-          tessellate: -1,
-          extrude: 0,
-          visibility: -1,
-          drawOrder: null,
-          icon: null,
-        },
-        geometry: { type: "Point", coordinates: [114.36241731, 25.93746337] },
-      },
-      {
-        type: "Feature",
-        properties: {
-          id: null,
-          Name: "安置点",
-          description: null,
-          timestamp: null,
-          begin: null,
-          end: null,
-          altitudeMode: null,
-          tessellate: -1,
-          extrude: 0,
-          visibility: -1,
-          drawOrder: null,
-          icon: null,
-        },
-        geometry: { type: "Point", coordinates: [114.34465706, 25.93298293] },
-      },
-      {
-        type: "Feature",
-        properties: {
-          id: null,
-          Name: "安置点",
-          description: null,
-          timestamp: null,
-          begin: null,
-          end: null,
-          altitudeMode: null,
-          tessellate: -1,
-          extrude: 0,
-          visibility: -1,
-          drawOrder: null,
-          icon: null,
-        },
-        geometry: { type: "Point", coordinates: [114.3433857, 25.94212936] },
-      },
-      {
-        type: "Feature",
-        properties: {
-          id: null,
-          Name: "安置点",
-          description: null,
-          timestamp: null,
-          begin: null,
-          end: null,
-          altitudeMode: null,
-          tessellate: -1,
-          extrude: 0,
-          visibility: -1,
-          drawOrder: null,
-          icon: null,
-        },
-        geometry: { type: "Point", coordinates: [114.3321982, 25.95374951] },
-      },
-      {
-        type: "Feature",
-        properties: {
-          id: null,
-          Name: "安置点",
-          description: null,
-          timestamp: null,
-          begin: null,
-          end: null,
-          altitudeMode: null,
-          tessellate: -1,
-          extrude: 0,
-          visibility: -1,
-          drawOrder: null,
-          icon: null,
-        },
-        geometry: { type: "Point", coordinates: [114.33132648, 25.95110143] },
-      },
-      {
-        type: "Feature",
-        properties: {
-          id: null,
-          Name: "安置点",
-          description: null,
-          timestamp: null,
-          begin: null,
-          end: null,
-          altitudeMode: null,
-          tessellate: -1,
-          extrude: 0,
-          visibility: -1,
-          drawOrder: null,
-          icon: null,
-        },
-        geometry: { type: "Point", coordinates: [114.33784693, 25.95783486] },
-      },
-    ];
+import {turf} from "swpdmap"
 
-function extractionPointFactory(list) {
-  return list.map((item, index) => {
-    return {
-      ...item.properties,
-      id: item.id || `extractionPoint_${index + 2}`,
-      name: "安置点",
-      longitude: item.geometry.coordinates[0] || 0,
-      latitude: item.geometry.coordinates[1] || 0,
-      capacity: item.capacity || "",
-      type: item.type || "",
-    };
-  });
-}
 
 class AffectedHousesLayer extends BaseLayer {
   constructor(options) {
     super(options);
     this.dataSource = null;
+    this.outlineDataSource = null;
+    this.highlightDataSource = null;
     this.isVisible = false;
-    this.entities = [];
-
-    // 默认水库数据 - 可以从API获取
-    this.reservoirData = extractionPointFactory(showList);
-  }
-
-  /**
-   * 显示水库点位图层
-   * @param {Object} options 配置选项
-   */
-  async show(options = {}) {
-    if (this.isVisible) return;
-
-    try {
-      // 创建数据源
-      if (!this.dataSource) {
-        this.dataSource = new Cesium.CustomDataSource("reservoirPoints");
-        this.viewer.dataSources.add(this.dataSource);
-      }
-
-      // 清除现有实体
-      this.dataSource.entities.removeAll();
-      this.entities = [];
-
-      // 添加水库点位
-      this.reservoirData.forEach((reservoir) => {
-        this.addReservoirPoint(reservoir);
-      });
-
-      this.isVisible = true;
-      this.hasLoaded = true;
-
-      console.log("水库点位图层显示成功");
-    } catch (error) {
-      console.error("显示水库点位图层失败:", error);
-    }
-  }
-
-  /**
-   * 添加单个水库点位
-   * @param {Object} reservoir 水库数据
-   */
-  addReservoirPoint(reservoir) {
-    const position = Cesium.Cartesian3.fromDegrees(
-      reservoir.longitude,
-      reservoir.latitude,
-      reservoir.height || 50 // 使用配置的高度或默认50米
-    );
-
-    // 根据pointType决定渲染方式
-    let entityConfig = {
-      id: reservoir.id,
-      position: position,
-      // 文字标签
-      label: {
-        text: reservoir.name,
-        font: "bold 24pt Microsoft YaHei",
-        fillColor: Cesium.Color.BLACK,
-        outlineColor: Cesium.Color.WHITE,
-        outlineWidth: 3,
-        style: Cesium.LabelStyle.FILL_AND_OUTLINE,
-        backgroundColor: Cesium.Color.fromCssColorString(
-          "rgba(255, 255, 255, 0.9)"
-        ),
-        backgroundPadding: new Cesium.Cartesian2(12, 8),
-        pixelOffset: new Cesium.Cartesian2(0, -40),
-        heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
-        scaleByDistance: new Cesium.NearFarScalar(1000, 1.0, 50000, 0.3),
-        disableDepthTestDistance: Number.POSITIVE_INFINITY,
-      },
-      // 自定义属性
-      properties: {
-        name: reservoir.name,
-        capacity: reservoir.capacity,
-        type: reservoir.type,
-        longitude: reservoir.longitude,
-        latitude: reservoir.latitude,
-        pointType: reservoir.pointType,
-      },
+    this.hasLoaded = false;
+    this.zIndex = 120;
+    this.style = {
+      color: "#FF0000",
+      alpha: 0.25,
+      strokeWidth: 6,
     };
-
-    // 根据pointType选择渲染方式
-    if (
-      reservoir.pointType === "downTaper" ||
-      reservoir.pointType === "taper"
-    ) {
-      // 根据类型决定锥子方向
-      let topRadius, bottomRadius, labelOffset;
-
-      if (reservoir.pointType === "taper") {
-        // 正锥子形式 - 尖端向上
-        topRadius = 30.0; // 顶部半径
-        bottomRadius = 0.0; // 底部半径为0，形成锥形
-        labelOffset = new Cesium.Cartesian2(0, -40); // 标签在锥子下方
-      } else {
-        // 倒锥子形式 - 尖端向下
-        topRadius = 0.0; // 顶部半径为0，形成锥形
-        bottomRadius = 30.0; // 底部半径
-        labelOffset = new Cesium.Cartesian2(0, -120); // 标签在锥子上方
-      }
-
-      entityConfig.cylinder = {
-        length: 100.0, // 锥子高度
-        topRadius: topRadius,
-        bottomRadius: bottomRadius,
-        material: Cesium.Color.CYAN.withAlpha(0.8),
-        outline: true,
-        outlineColor: Cesium.Color.WHITE,
-        heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
-        extrudedHeight: 100.0, // 拉伸高度
-      };
-      // 调整标签位置
-      entityConfig.label.pixelOffset = labelOffset;
-    } else {
-      // 默认图片形式 - 使用billboard
-      entityConfig.billboard = {
-        image: this.getReservoirIcon(reservoir.type), // 根据水库类型获取图标
-        width: 48,
-        height: 48,
-        heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
-        scaleByDistance: new Cesium.NearFarScalar(1000, 1.0, 50000, 0.5),
-        verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
-        disableDepthTestDistance: Number.POSITIVE_INFINITY,
-      };
-      // 调整标签位置
-      entityConfig.label.pixelOffset = new Cesium.Cartesian2(0, -50);
-    }
-
-    // 创建水库点位实体
-    const entity = this.dataSource.entities.add(entityConfig);
-    this.entities.push(entity);
+    // Hover tooltip and handler
+    this._hoverHandler = null;
+    this._hoverTooltipEl = null;
+    this._turfFeatures = [];
   }
 
-  /**
-   * 根据水库类型获取对应的图标
-   * @param {String} type 水库类型
-   * @returns {String} 图标路径
-   */
-  getReservoirIcon(type) {
-    // 这里可以根据不同的水库类型返回不同的图标
-    // 目前使用一个通用的水库图标，您可以根据需要添加不同的图标
-    switch (type) {
-      case "1":
-        return require(`@/assets/map/icons/安置点1.png`);
-      default:
-        return require(`@/assets/map/icons/安置点2.png`);
-    }
-  }
+  async add(options = {}) {
+    const { data, id = "affected-houses", zIndex = this.zIndex, style = {} } = options;
 
-  /**
-   * 隐藏水库点位图层
-   */
-  hide() {
-    if (!this.isVisible) return;
+    // 合并样式
+    this.style = { ...this.style, ...style };
 
     try {
+      // 若已有数据源，先移除
       if (this.dataSource) {
-        this.dataSource.entities.removeAll();
-      }
-
-      this.isVisible = false;
-      console.log("水库点位图层已隐藏");
-    } catch (error) {
-      console.error("隐藏水库点位图层失败:", error);
-    }
-  }
-
-  /**
-   * 更新水库数据
-   * @param {Array} newData 新的水库数据
-   */
-  updateReservoirData(newData) {
-    this.reservoirData = newData;
-    if (this.isVisible) {
-      this.hide();
-      this.show();
-    }
-  }
-
-  /**
-   * 定位到指定水库
-   * @param {String} reservoirId 水库ID
-   */
-  flyToReservoir(reservoirId) {
-    const reservoir = this.reservoirData.find((r) => r.id === reservoirId);
-    if (!reservoir) {
-      console.warn(`未找到ID为 ${reservoirId} 的水库`);
-      return;
-    }
-
-    const position = Cesium.Cartesian3.fromDegrees(
-      reservoir.longitude,
-      reservoir.latitude,
-      2000 // 飞行高度
-    );
-
-    this.viewer.camera.flyTo({
-      destination: position,
-      duration: 2.0,
-    });
-  }
-
-  /**
-   * 获取水库信息
-   * @param {String} reservoirId 水库ID
-   * @returns {Object} 水库信息
-   */
-  getReservoirInfo(reservoirId) {
-    return this.reservoirData.find((r) => r.id === reservoirId);
-  }
-
-  /**
-   * 检查图层是否可见
-   * @returns {Boolean}
-   */
-  isShown() {
-    return this.isVisible;
-  }
-
-  /**
-   * 销毁图层
-   */
-  destroy() {
-    try {
-      if (this.dataSource) {
-        this.viewer.dataSources.remove(this.dataSource);
+        this.viewer.dataSources.remove(this.dataSource, true);
         this.dataSource = null;
       }
 
-      this.entities = [];
-      this.isVisible = false;
-      this.hasLoaded = false;
+      const geoJsonData = data || (await houseData.getHouses());
+      if (!geoJsonData || !geoJsonData.features) {
+        console.warn("受影响民房数据为空或格式错误");
+        return;
+      }
 
-      console.log("水库点位图层已销毁");
+      const { color, alpha, strokeWidth } = this.style;
+
+      const dataSource = await window.Cesium.GeoJsonDataSource.load(geoJsonData, {
+        stroke: window.Cesium.Color.fromCssColorString(color),
+        // 禁用填充：设置为透明，随后在实体上直接关闭 fill
+        fill: window.Cesium.Color.TRANSPARENT,
+        strokeWidth: strokeWidth,
+        clampToGround: true,
+      });
+
+      const entities = dataSource.entities.values;
+      entities.forEach((entity) => {
+        if (entity && entity.polygon) {
+          entity.polygon.zIndex = zIndex;
+          // 面透明填充以支持拾取；关闭自带轮廓，由贴地 polyline 显示
+          entity.polygon.fill = true;
+          entity.polygon.outline = false;
+          entity.polygon.material = window.Cesium.Color.TRANSPARENT;
+        }
+      });
+
+      // 为面要素生成贴地线框（polyline），实现真正贴地的轮廓
+      const outlineDS = new window.Cesium.CustomDataSource(`${id}-outline`);
+
+      geoJsonData.features.forEach((feature) => {
+        const geometry = feature && feature.geometry;
+        if (!geometry || !geometry.type || !geometry.coordinates) return;
+        const type = geometry.type;
+        const coords = geometry.coordinates;
+        const props = (feature && feature.properties) || {};
+
+        const addRingPolyline = (ring) => {
+          // ring: [[lon, lat, h?], ...]
+          // 扁平化为 [lon,lat,lon,lat,...]
+          const flat = ring.flat();
+          // 若包含高度，fromDegreesArray 会忽略高度；贴地由 clampToGround 控制
+          const positions = window.Cesium.Cartesian3.fromDegreesArray(flat);
+          outlineDS.entities.add({
+            name: props.name || props.Name || "受影响民房",
+            properties: new window.Cesium.PropertyBag(props || {}),
+            polyline: {
+              positions,
+              clampToGround: true,
+              width: strokeWidth,
+              material: window.Cesium.Color.fromCssColorString(color),
+            },
+          });
+        };
+
+        if (type === "Polygon") {
+          // coords: [ outerRing, holeRing1, holeRing2, ... ]
+          coords.forEach((ring) => addRingPolyline(ring));
+        } else if (type === "MultiPolygon") {
+          // coords: [ [ outerRing, holeRing... ], [ ... ], ... ]
+          coords.forEach((poly) => {
+            poly.forEach((ring) => addRingPolyline(ring));
+          });
+        }
+      });
+
+      // 预构建 turf 几何（Polygon/MultiPolygon），用于鼠标在面上时的兜底命中判断
+      this._turfFeatures = geoJsonData.features
+        .map((f) => {
+          const g = f && f.geometry;
+          if (!g || !g.type || !g.coordinates) return null;
+          const props = (f && f.properties) || {};
+          if (g.type === "Polygon") return turf.polygon(g.coordinates, props);
+          if (g.type === "MultiPolygon") return turf.multiPolygon(g.coordinates, props);
+          return null;
+        })
+        .filter(Boolean);
+
+      await this.viewer.dataSources.add(outlineDS);
+      this.outlineDataSource = outlineDS;
+
+      dataSource.name = id;
+      dataSource.zIndex = zIndex;
+      await this.viewer.dataSources.add(dataSource);
+      this.dataSource = dataSource;
+      this.isVisible = true;
+      this.hasLoaded = true;
+
+      // 初始化悬浮提示与事件
+      this._setupHoverTooltip();
+
+      // 可选：通知图例（如需）
+      eventBus.emit("setLegend", {
+        type: "affectedHouses",
+        data: {
+          label: "受影响民房范围",
+          items: [{ label: "范围", color }],
+        },
+      });
     } catch (error) {
-      console.error("销毁水库点位图层失败:", error);
+      console.error("加载受影响民房面数据失败:", error);
+    }
+  }
+
+  show() {
+    if (this.dataSource) {
+      this.dataSource.show = true;
+      this.isVisible = true;
+    }
+  }
+
+  hide() {
+    if (this.dataSource) {
+      this.dataSource.show = false;
+      this.isVisible = false;
+    }
+    // 隐藏悬浮提示
+    if (this._hoverTooltipEl) {
+      this._hoverTooltipEl.style.display = "none";
+    }
+  }
+
+  remove() {
+    if (this.dataSource) {
+      this.viewer.dataSources.remove(this.dataSource, true);
+      this.dataSource = null;
+      this.isVisible = false;
+      eventBus.emit("closeLegend", { type: "affectedHouses" });
+    }
+    if (this.outlineDataSource) {
+      this.viewer.dataSources.remove(this.outlineDataSource, true);
+      this.outlineDataSource = null;
+    }
+    if (this.highlightDataSource) {
+      this.viewer.dataSources.remove(this.highlightDataSource, true);
+      this.highlightDataSource = null;
+    }
+    this._destroyHoverTooltip();
+  }
+
+  removeAll() {
+    this.remove();
+  }
+
+  // ===== 悬浮提示实现 =====
+  _ensureHoverTooltipEl() {
+    if (this._hoverTooltipEl) return this._hoverTooltipEl;
+    const el = document.createElement("div");
+    el.style.position = "absolute";
+    el.style.pointerEvents = "none";
+    el.style.zIndex = "9999";
+    el.style.background = "rgba(4,26,56,0.85)";
+    el.style.color = "#fff";
+    el.style.border = "1px solid #335c94";
+    el.style.borderRadius = "4px";
+    el.style.boxShadow = "0 2px 6px rgba(0,0,0,0.4)";
+    el.style.padding = "8px 10px";
+    el.style.fontSize = "12px";
+    el.style.display = "none";
+    el.style.maxWidth = "320px";
+    el.style.backdropFilter = "blur(2px)";
+    this.viewer.container.appendChild(el);
+    this._hoverTooltipEl = el;
+    return el;
+  }
+
+  _formatPropsToHtml(props = {}) {
+    try {
+      const entries = Object.entries(props || {});
+      if (!entries.length) return "";
+      // 选取前若干条关键信息
+      const maxItems = 8;
+      const lines = entries.slice(0, maxItems).map(([k, v]) => {
+        const vv = v == null ? "" : String(v);
+        return `<div><span style="color:#50beff">${k}</span>：${vv}</div>`;
+      });
+      return lines.join("");
+    } catch (e) {
+      return "";
+    }
+  }
+
+  _showTooltipAt(x, y, html = "") {
+    const el = this._ensureHoverTooltipEl();
+    if (!html) {
+      el.style.display = "none";
+      return;
+    }
+    el.innerHTML = html;
+    // 避免超出右下角
+    const offsetX = 12;
+    const offsetY = 12;
+    const { clientWidth, clientHeight } = el;
+    const containerRect = this.viewer.container.getBoundingClientRect();
+    let left = x + offsetX;
+    let top = y + offsetY;
+    // 调整到容器坐标
+    // pick返回的是canvas坐标，容器通常是同一层次，直接使用即可
+    if (left + clientWidth > containerRect.width - 10) {
+      left = Math.max(10, x - clientWidth - offsetX);
+    }
+    if (top + clientHeight > containerRect.height - 10) {
+      top = Math.max(10, y - clientHeight - offsetY);
+    }
+    el.style.left = `${left}px`;
+    el.style.top = `${top}px`;
+    el.style.display = "block";
+  }
+
+  _hideTooltip() {
+    if (this._hoverTooltipEl) this._hoverTooltipEl.style.display = "none";
+  }
+
+  _setupHoverTooltip() {
+    // 已存在则不重复绑定
+    if (this._hoverHandler) return;
+    this._ensureHoverTooltipEl();
+    const scene = this.viewer.scene;
+    const handler = new window.Cesium.ScreenSpaceEventHandler(scene.canvas);
+    handler.setInputAction((movement) => {
+      const pos = movement && movement.endPosition;
+      if (!pos) {
+        this._hideTooltip();
+        return;
+      }
+      const picked = scene.pick(pos);
+      let handled = false;
+
+      if (picked && picked.id) {
+        const entity = picked.id;
+        // 处理本图层轮廓线实体或面实体
+        const isOutlineEntity =
+          this.outlineDataSource &&
+          this.outlineDataSource.entities &&
+          this.outlineDataSource.entities.values &&
+          this.outlineDataSource.entities.values.indexOf(entity) !== -1;
+
+        const isPolygonEntity =
+          this.dataSource &&
+          this.dataSource.entities &&
+          this.dataSource.entities.values &&
+          this.dataSource.entities.values.indexOf(entity) !== -1 &&
+          !!entity.polygon;
+
+        if (isOutlineEntity || isPolygonEntity) {
+          let props = {};
+          try {
+            if (entity.properties && typeof entity.properties.getValue === "function") {
+              props = entity.properties.getValue(window.Cesium.JulianDate.now()) || {};
+            } else if (entity.properties) {
+              props = entity.properties || {};
+            }
+          } catch (e) {
+            props = {};
+          }
+          const html = this._formatPropsToHtml(props);
+          if (html) {
+            this._showTooltipAt(pos.x, pos.y, html);
+            handled = true;
+          }
+        }
+      }
+
+      // 若未拾取到实体，进行兜底：将鼠标点转为经纬度并做面内判断
+      if (!handled && Array.isArray(this._turfFeatures) && this._turfFeatures.length) {
+        let cartesian = scene.pickPosition(pos);
+        if (!cartesian) {
+          cartesian = this.viewer.camera.pickEllipsoid(
+            pos,
+            scene.globe && scene.globe.ellipsoid
+          );
+        }
+        if (cartesian) {
+          const carto = window.Cesium.Cartographic.fromCartesian(cartesian);
+          const lon = window.Cesium.Math.toDegrees(carto.longitude);
+          const lat = window.Cesium.Math.toDegrees(carto.latitude);
+          const pt = turf.point([lon, lat]);
+          for (const tf of this._turfFeatures) {
+            try {
+              if (turf.booleanPointInPolygon(pt, tf)) {
+                const html = this._formatPropsToHtml(tf.properties || {});
+                if (html) {
+                  this._showTooltipAt(pos.x, pos.y, html);
+                  handled = true;
+                }
+                break;
+              }
+            } catch (e) {}
+          }
+        }
+      }
+
+      if (!handled) this._hideTooltip();
+    }, window.Cesium.ScreenSpaceEventType.MOUSE_MOVE);
+    this._hoverHandler = handler;
+  }
+
+  _destroyHoverTooltip() {
+    if (this._hoverHandler) {
+      this._hoverHandler.destroy();
+      this._hoverHandler = null;
+    }
+    if (this._hoverTooltipEl && this._hoverTooltipEl.parentNode) {
+      this._hoverTooltipEl.parentNode.removeChild(this._hoverTooltipEl);
+      this._hoverTooltipEl = null;
+    }
+  }
+
+  updateStyle(styleConfig = {}) {
+    this.style = { ...this.style, ...styleConfig };
+    if (this.dataSource) {
+      const { color, alpha, strokeWidth } = this.style;
+      const entities = this.dataSource.entities.values;
+      entities.forEach((entity) => {
+        if (entity && entity.polygon) {
+          // 面透明填充便于拾取；边框仍由贴地 polyline 控制
+          entity.polygon.fill = true;
+          entity.polygon.outline = false;
+          entity.polygon.material = window.Cesium.Color.TRANSPARENT;
+        }
+      });
+    }
+    if (this.outlineDataSource) {
+      const { color, strokeWidth } = this.style;
+      const entities = this.outlineDataSource.entities.values;
+      entities.forEach((entity) => {
+        if (entity && entity.polyline) {
+          entity.polyline.width = strokeWidth;
+          entity.polyline.material = window.Cesium.Color.fromCssColorString(color);
+        }
+      });
+    }
+  }
+
+  /**
+   * 高亮显示选中面要素（只绘制贴地线框）
+   * @param {Object} geojson FeatureCollection，包含 Polygon/MultiPolygon
+   * @param {Object} options { color?: string, width?: number, flyTo?: boolean }
+   */
+  highlight(geojson, options = {}) {
+    if (!geojson || !geojson.features || !Array.isArray(geojson.features)) return;
+
+    // 清除已有高亮
+    if (this.highlightDataSource) {
+      this.viewer.dataSources.remove(this.highlightDataSource, true);
+      this.highlightDataSource = null;
+    }
+
+    const colorStr = options.color || "#00FFFF"; // 青色高亮
+    const lineWidth = options.width || Math.max(3, this.style.strokeWidth + 2);
+    const flyTo = options.flyTo !== false; // 默认飞到
+
+    const highlightDS = new window.Cesium.CustomDataSource("affected-houses-highlight");
+
+    // 计算范围（用于飞到）
+    let minLon = Infinity, minLat = Infinity, maxLon = -Infinity, maxLat = -Infinity;
+
+    const addRingPolyline = (ring) => {
+      // 更新范围
+      ring.forEach(([lon, lat]) => {
+        if (lon < minLon) minLon = lon;
+        if (lat < minLat) minLat = lat;
+        if (lon > maxLon) maxLon = lon;
+        if (lat > maxLat) maxLat = lat;
+      });
+
+      const flat = ring.flat();
+      const positions = window.Cesium.Cartesian3.fromDegreesArray(flat);
+      highlightDS.entities.add({
+        polyline: {
+          positions,
+          clampToGround: true,
+          width: lineWidth,
+          material: window.Cesium.Color.fromCssColorString(colorStr),
+        },
+      });
+    };
+
+    geojson.features.forEach((feature) => {
+      const geometry = feature && feature.geometry;
+      if (!geometry || !geometry.type || !geometry.coordinates) return;
+      const type = geometry.type;
+      const coords = geometry.coordinates;
+
+      if (type === "Polygon") {
+        coords.forEach((ring) => addRingPolyline(ring));
+      } else if (type === "MultiPolygon") {
+        coords.forEach((poly) => {
+          poly.forEach((ring) => addRingPolyline(ring));
+        });
+      }
+    });
+
+    this.viewer.dataSources.add(highlightDS);
+    this.highlightDataSource = highlightDS;
+
+    if (flyTo && isFinite(minLon) && isFinite(minLat) && isFinite(maxLon) && isFinite(maxLat)) {
+      const zoomOutFactor = options.zoomOutFactor != null ? options.zoomOutFactor : 0.25; // 默认四周留白25%
+      const padLon = Math.max((maxLon - minLon) * zoomOutFactor, 0.001);
+      const padLat = Math.max((maxLat - minLat) * zoomOutFactor, 0.001);
+      const rect = window.Cesium.Rectangle.fromDegrees(
+        minLon - padLon,
+        minLat - padLat,
+        maxLon + padLon,
+        maxLat + padLat
+      );
+      this.viewer.camera.flyTo({
+        destination: rect,
+        duration: 1.0,
+      });
     }
   }
 }

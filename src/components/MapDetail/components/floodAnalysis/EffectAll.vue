@@ -13,7 +13,7 @@
         <span
           v-if="scope.row.name === '影响民房数(栋)'"
           class="cell-clickable" style="cursor: pointer;"
-          @click="handleHousingCountClick(scope, normalizeKey(key))"
+          @click="handleHousingCountClick(scope, normalizeKey(key),key)"
         >
           {{ formatValue(scope.row[normalizeKey(key)]) }}
         </span>
@@ -131,24 +131,24 @@ export default {
       });
       return result;
     },
-    handleHousingCountClick(scope, waterLevelKey) {
-      console.log("🚀 ~ waterLevelKey:", waterLevelKey);
-      console.log("🚀 ~ scope:", scope);
+    handleHousingCountClick(scope, waterLevelKey,key) {
+      const cfg = EFFECT_WATER_LEVEL_COLOR_CONFIG_LSIT.find((i) => i.label === key)||{value:Infinity};
       const value = scope.row[waterLevelKey];
-      console.log("🚀 ~ value:", value);
       const rowName = scope.row.name;
       // 向父组件派发事件，传递当前水位列与该行数据值
-      this.$emit('click-housing', { waterLevelKey, value, rowName, row: scope.row });
+      this.$emit('click-housing', { waterLevelKey, value, rowName, row: scope.row,cfg });
       // 可选：向全局总线广播，便于其他模块监听
-      this.$bus && this.$bus.emit('clickSubmergedCivilHousingCount', { waterLevelKey, value, rowName });
+      this.$bus && this.$bus.emit('clickSubmergedCivilHousingCount', { waterLevelKey, value, rowName,cfg });
       this.$bus.emit("addMapDetail", {
         ...houseLayer,
         props: {
           waterLevelKey:this.denormalizeKey(waterLevelKey),
           housesCount: value,
           currentAreaName: this.currentAreaName,
+          cfg,
         }
       });
+
       // 发布水位类型事件
       this.$bus.emit("changeWaterLevelType", {
         waterLevelKey:this.denormalizeKey(waterLevelKey),
@@ -183,5 +183,11 @@ export default {
   font-weight: bold;
   word-break: break-all; 
   text-align: center;
+}
+
+.cell-clickable {
+  color: #409EFF; /* Element UI 主色 */
+  text-decoration: underline;
+  cursor: pointer;
 }
 </style>
