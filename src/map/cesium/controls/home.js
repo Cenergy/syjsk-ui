@@ -32,6 +32,7 @@ const layerMap = new Map([
   ["waterLayer", layers.waterLayer],
   ["extractionPointsLayer", layers.extractionPointsLayer],
   ["affectedHousesLayer", layers.affectedHousesLayer],
+  ["waterGcdLayer", layers.waterGcdLayer],
 ]);
 /**
  * 首页中的地图业务类

@@ -36,6 +36,11 @@ const layerGroup = {
       flag: false,
     },
     {
+      value: "waterGcdLayer",
+      label: "高程控制点",
+      flag: false,
+    },
+    {
       value: "extractionPointsLayer",
       label: "安置点位",
       flag: false,

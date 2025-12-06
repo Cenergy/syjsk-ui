@@ -40,3 +40,5 @@ export { default as extractionPointsLayer } from "./extractionPoints";
 export { default as affectedHousesLayer } from "./affectedHousesLayer";
 // //天气特效
 export {default as weather} from './weather'
+// 高程控制点图层
+export { default as waterGcdLayer } from "./waterGcdLayer";
