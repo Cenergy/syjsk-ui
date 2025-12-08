@@ -1,7 +1,6 @@
 export { default as damMonitor } from "./damMonitor";
 // 内涝点
 //图层
-export { default as radarImage } from "./radarImage";
 export { default as waterLoggingPoint } from "./waterLoggingPoint";
 export { default as vehicle } from "./vehicle";
 // 地形图层
@@ -19,15 +18,11 @@ export { default as drainageZone } from "./drainageZone";
 //模型
 export { default as tilesetModel } from "./tilesetModel";
 export { default as tilesetModelAccuracy } from "./tilesetModelAccuracy";
-export { default as waterLayer } from "./waterLayer";
 export { default as administrativeLayer } from "./administrativeLayer";
 export { default as watershedLayer } from "./watershedLayer";
-export { default as glbModel } from "./glbModel";
-export { default as videoMonitor } from "./videoMonitor";
 export { default as weatherGrid } from "./weatherGrid";
 export { default as floodAnalysisLayer } from "./floodAnalysisLayer";
-//echarts图层
-export { default as echartsLayer } from "./echartsLayer";
+
 // 水库点位图层
 export { default as reservoirPoints } from "./reservoirPoints";
 export { default as boundaryLayer } from "./boundaryLayer";

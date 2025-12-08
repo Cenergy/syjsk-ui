@@ -1,12 +1,12 @@
 import BaseLayer from "./baseLayer";
 import eventBus from "@/utils/EventBus";
 import houseData from "@/api/map/getHouses";
-import waterGcdLayer from './waterGcdLayer';
+import waterGcdLayer from "./waterGcdLayer";
 
 import { turf } from "swpdmap";
 
 import * as common from "@/components/MapPopup/common";
-import componentToHtml from '@/map/tools/componentToHtml'
+import componentToHtml from "@/map/tools/componentToHtml";
 
 class AffectedHousesLayer extends BaseLayer {
   constructor(options) {
@@ -14,6 +14,7 @@ class AffectedHousesLayer extends BaseLayer {
     this.dataSource = null;
     this.outlineDataSource = null;
     this.highlightDataSource = null;
+    this._lastHighlightedId = null;
     this.isVisible = false;
     this.hasLoaded = false;
     this.zIndex = 120;
@@ -26,6 +27,11 @@ class AffectedHousesLayer extends BaseLayer {
     this._hoverHandler = null;
     this._hoverTooltipEl = null;
     this._turfFeatures = [];
+    // 性能优化：鼠标移动拾取节流与备用判定频率限制
+    this._hoverThrottleMs = 80;
+    this._lastHoverTs = 0;
+    this._fallbackThrottleMs = 250;
+    this._lastFallbackTs = 0;
   }
 
   async add(options = {}) {
@@ -160,6 +166,10 @@ class AffectedHousesLayer extends BaseLayer {
     if (this.dataSource) {
       this.dataSource.show = true;
       this.isVisible = true;
+      // 显示时确保绑定悬浮提示事件
+      if (!this._hoverHandler) {
+        this._setupHoverTooltip();
+      }
     }
   }
 
@@ -168,10 +178,8 @@ class AffectedHousesLayer extends BaseLayer {
       this.dataSource.show = false;
       this.isVisible = false;
     }
-    // 隐藏悬浮提示
-    if (this._hoverTooltipEl) {
-      this._hoverTooltipEl.style.display = "none";
-    }
+    // 隐藏并解除悬浮提示事件，避免资源占用
+    this._destroyHoverTooltip();
     // 隐藏高程控制点
     waterGcdLayer.hide();
   }
@@ -274,6 +282,13 @@ class AffectedHousesLayer extends BaseLayer {
     const scene = this.viewer.scene;
     const handler = new window.Cesium.ScreenSpaceEventHandler(scene.canvas);
     handler.setInputAction((movement) => {
+      // 节流鼠标移动处理，降低 scene.pick 与几何判定频率
+      const nowTs = Date.now();
+      if (nowTs - this._lastHoverTs < this._hoverThrottleMs) {
+        return;
+      }
+      this._lastHoverTs = nowTs;
+
       const pos = movement && movement.endPosition;
       if (!pos) {
         this._hideTooltip();
@@ -314,8 +329,22 @@ class AffectedHousesLayer extends BaseLayer {
           } catch (e) {
             props = {};
           }
-          const htmlEl = componentToHtml({ component: common.AffectedHouses, props: { data: props } });
-          const html = htmlEl && htmlEl.outerHTML;
+          // 将 entity 转化成标准 FeatureCollection 并高亮显示（仅在目标变化时刷新）
+          if (this._lastHighlightedId !== entity.id) {
+            const feature = this._entityPolygonToGeoJSON(entity);
+            if (feature) {
+              this.highlight(
+                { type: "FeatureCollection", features: [feature] },
+                { needFlyTo: false }
+              );
+              this._lastHighlightedId = entity.id;
+            }
+          }
+
+          const html = componentToHtml({
+            component: common.AffectedHouses,
+            props: { data: props },
+          });
           if (html) {
             this._showTooltipAt(pos.x, pos.y, html);
             handled = true;
@@ -323,12 +352,17 @@ class AffectedHousesLayer extends BaseLayer {
         }
       }
 
-      // 若未拾取到实体，进行兜底：将鼠标点转为经纬度并做面内判断
+      // 若未拾取到实体，进行兜底：将鼠标点转为经纬度并做面内判断（频率限制）
       if (
         !handled &&
         Array.isArray(this._turfFeatures) &&
         this._turfFeatures.length
       ) {
+        if (nowTs - this._lastFallbackTs < this._fallbackThrottleMs) {
+          if (!handled) this._hideTooltip();
+          return;
+        }
+        this._lastFallbackTs = nowTs;
         let cartesian = scene.pickPosition(pos);
         if (!cartesian) {
           cartesian = this.viewer.camera.pickEllipsoid(
@@ -344,22 +378,131 @@ class AffectedHousesLayer extends BaseLayer {
           for (const tf of this._turfFeatures) {
             try {
               if (turf.booleanPointInPolygon(pt, tf)) {
-                const htmlEl = componentToHtml({ component: common.AffectedHouses, props: { data: tf.properties || {} } });
-                const html = htmlEl && htmlEl.outerHTML;
+                const html = componentToHtml({
+                  component: common.AffectedHouses,
+                  props: { data: tf.properties || {} },
+                });
                 if (html) {
                   this._showTooltipAt(pos.x, pos.y, html);
                   handled = true;
                 }
-                break;
+                //  高亮显示
               }
             } catch (e) {}
           }
         }
       }
 
-      if (!handled) this._hideTooltip();
+      if (!handled) {
+        this._hideTooltip();
+        // 清除高亮并重置缓存的高亮目标
+        if (this.highlightDataSource) {
+          this.viewer.dataSources.remove(this.highlightDataSource, true);
+          this.highlightDataSource = null;
+        }
+        this._lastHighlightedId = null;
+      }
     }, window.Cesium.ScreenSpaceEventType.MOUSE_MOVE);
     this._hoverHandler = handler;
+  }
+
+  _entityPolygonToGeoJSON(entity) {
+    // 优先处理 polygon，兼容 polyline（轮廓线）作为单环 polygon 返回
+    const time = Cesium.JulianDate ? Cesium.JulianDate.now() : undefined;
+
+    // Polygon 路径
+    if (entity && entity.polygon) {
+      const polygonGraphics = entity.polygon;
+      if (!polygonGraphics || !polygonGraphics.hierarchy) {
+        return null;
+      }
+      const hierarchy =
+        typeof polygonGraphics.hierarchy.getValue === "function"
+          ? polygonGraphics.hierarchy.getValue(time)
+          : polygonGraphics.hierarchy;
+      if (
+        !hierarchy ||
+        !hierarchy.positions ||
+        hierarchy.positions.length === 0
+      ) {
+        return null;
+      }
+      function extractCoordinates(h) {
+        const coordinates = [];
+        const positions = h.positions;
+        for (let i = 0; i < positions.length; i++) {
+          const cartographic = Cesium.Ellipsoid.WGS84.cartesianToCartographic(
+            positions[i]
+          );
+          const longitude = Cesium.Math.toDegrees(cartographic.longitude);
+          const latitude = Cesium.Math.toDegrees(cartographic.latitude);
+          coordinates.push([longitude, latitude]);
+        }
+        // 闭合环
+        if (coordinates.length > 0) {
+          const first = coordinates[0];
+          const last = coordinates[coordinates.length - 1];
+          if (first[0] !== last[0] || first[1] !== last[1]) {
+            coordinates.push(first);
+          }
+        }
+        if (h.holes && h.holes.length) {
+          for (let j = 0; j < h.holes.length; j++) {
+            coordinates.push(extractCoordinates(h.holes[j]));
+          }
+        }
+        return coordinates;
+      }
+      const geoJsonPolygon = {
+        type: "Feature",
+        geometry: {
+          type: "Polygon",
+          coordinates: [extractCoordinates(hierarchy)],
+        },
+        properties: {},
+      };
+      return geoJsonPolygon;
+    }
+
+    // Polyline 路径（作为轮廓线），转换为单环 Polygon
+    if (entity && entity.polyline && entity.polyline.positions) {
+      const posProp = entity.polyline.positions;
+      const positions =
+        typeof posProp.getValue === "function"
+          ? posProp.getValue(time)
+          : posProp;
+      if (!positions || positions.length === 0) {
+        return null;
+      }
+      const ring = [];
+      for (let i = 0; i < positions.length; i++) {
+        const cartographic = Cesium.Ellipsoid.WGS84.cartesianToCartographic(
+          positions[i]
+        );
+        const longitude = Cesium.Math.toDegrees(cartographic.longitude);
+        const latitude = Cesium.Math.toDegrees(cartographic.latitude);
+        ring.push([longitude, latitude]);
+      }
+      // 闭合环
+      if (ring.length > 0) {
+        const first = ring[0];
+        const last = ring[ring.length - 1];
+        if (first[0] !== last[0] || first[1] !== last[1]) {
+          ring.push(first);
+        }
+      }
+      return {
+        type: "Feature",
+        geometry: {
+          type: "Polygon",
+          coordinates: [ring],
+        },
+        properties: {},
+      };
+    }
+
+    // 其他类型或无法解析时返回 null，调用方需判空
+    return null;
   }
 
   _destroyHoverTooltip() {
@@ -406,6 +549,7 @@ class AffectedHousesLayer extends BaseLayer {
    * @param {Object} options { color?: string, width?: number, flyTo?: boolean }
    */
   highlight(geojson, options = {}) {
+    const { needFlyTo = true } = options;
     if (!geojson || !geojson.features || !Array.isArray(geojson.features))
       return;
 
@@ -467,6 +611,8 @@ class AffectedHousesLayer extends BaseLayer {
 
     this.viewer.dataSources.add(highlightDS);
     this.highlightDataSource = highlightDS;
+
+    if (!needFlyTo) return;
 
     if (
       flyTo &&
