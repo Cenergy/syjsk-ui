@@ -69,7 +69,7 @@ class WaterGcdLayer extends BaseLayer {
         });
 
          const depth = (typeof this.maxDepth === "number" ? this.maxDepth : NaN) - heightVal;
-        const depthText = depth<0 ? "" : `\n水深:${Math.max(0, depth).toFixed(2)}m`;
+        const depthText = depth<=0 ? "" : `\n水深:${Math.max(0, depth).toFixed(2)}m`;
         const text = `高程:${heightVal}m${depthText}`;
 
         // 标签样式

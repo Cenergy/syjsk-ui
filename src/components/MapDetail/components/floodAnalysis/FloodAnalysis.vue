@@ -66,6 +66,7 @@ import EffectSta from "./EffectSta";
 import EffectAll from "./EffectAll.vue";
 import ChartShow from "@/components/MapPopup/FloodStatistical/ChartShow.vue";
 import waterLevelLayer from "@/map/cesium/layers/waterLevelLayer";
+import waterGcdLayer from "@/map/cesium/layers/waterGcdLayer";
 import WaterLevelSelector from "@/components/MapDetail/components/common/WaterLevelSelector.vue";
 
 const { EFFECT_WATER_LEVEL_COLOR_CONFIG_LSIT, MODEL_3DTILES_INFO_LIST } = constant;
@@ -145,6 +146,7 @@ export default {
       const removeWaterLevelList = this.previousWaterLevelList.filter(
         (item) => !this.selectedWaterLevelList.includes(item)
       );
+      
       addWaterLevelList.forEach((item) => {
         const obj = EFFECT_WATER_LEVEL_COLOR_CONFIG_LSIT.find((i) => i.label === item);
         if (!obj) return;
@@ -163,6 +165,9 @@ export default {
       this.$bus.emit("waterLevelChanged", this.selectedWaterLevelList);
       // 保存到store里面
       this.$store.commit("selectedWaterLevelList", this.selectedWaterLevelList);
+      const maxDepth = Math.max(...EFFECT_WATER_LEVEL_COLOR_CONFIG_LSIT.filter(item => this.selectedWaterLevelList.includes(item.label)).map(item => item.value));
+      // 显示高程控制点图层，联动“水深”标签
+      waterGcdLayer.show({maxDepth});
     },
     handleRowClick(row) {
       // const row = this.data[idx]
@@ -196,6 +201,8 @@ export default {
     this.selectedWaterLevelList = selectedWaterLevelList;
     this.previousWaterLevelList = selectedWaterLevelList;
     this.$store.commit("selectedWaterLevelList", this.selectedWaterLevelList);
+    // 显示高程控制点图层，联动“水深”标签
+    waterGcdLayer.show();
     this.$bus.on("mapLocate", (evt) => {
       const name = evt.data;
       if (areaNameList.includes(name)) {
@@ -207,6 +214,8 @@ export default {
   },
   beforeDestroy() {
     waterLevelLayer.removeAll();
+    // 隐藏高程控制点图层
+    waterGcdLayer.hide();
   },
 };
 </script>
