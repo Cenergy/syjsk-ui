@@ -1,0 +1,1 @@
+export { default as AffectedHouses } from "./AffectedHouses.vue";

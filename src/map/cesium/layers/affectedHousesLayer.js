@@ -1,9 +1,12 @@
 import BaseLayer from "./baseLayer";
 import eventBus from "@/utils/EventBus";
 import houseData from "@/api/map/getHouses";
+import waterGcdLayer from './waterGcdLayer';
 
-import {turf} from "swpdmap"
+import { turf } from "swpdmap";
 
+import * as common from "@/components/MapPopup/common";
+import componentToHtml from '@/map/tools/componentToHtml'
 
 class AffectedHousesLayer extends BaseLayer {
   constructor(options) {
@@ -26,7 +29,12 @@ class AffectedHousesLayer extends BaseLayer {
   }
 
   async add(options = {}) {
-    const { data, id = "affected-houses", zIndex = this.zIndex, style = {} } = options;
+    const {
+      data,
+      id = "affected-houses",
+      zIndex = this.zIndex,
+      style = {},
+    } = options;
 
     // 合并样式
     this.style = { ...this.style, ...style };
@@ -46,13 +54,16 @@ class AffectedHousesLayer extends BaseLayer {
 
       const { color, alpha, strokeWidth } = this.style;
 
-      const dataSource = await window.Cesium.GeoJsonDataSource.load(geoJsonData, {
-        stroke: window.Cesium.Color.fromCssColorString(color),
-        // 禁用填充：设置为透明，随后在实体上直接关闭 fill
-        fill: window.Cesium.Color.TRANSPARENT,
-        strokeWidth: strokeWidth,
-        clampToGround: true,
-      });
+      const dataSource = await window.Cesium.GeoJsonDataSource.load(
+        geoJsonData,
+        {
+          stroke: window.Cesium.Color.fromCssColorString(color),
+          // 禁用填充：设置为透明，随后在实体上直接关闭 fill
+          fill: window.Cesium.Color.TRANSPARENT,
+          strokeWidth: strokeWidth,
+          clampToGround: true,
+        }
+      );
 
       const entities = dataSource.entities.values;
       entities.forEach((entity) => {
@@ -111,7 +122,8 @@ class AffectedHousesLayer extends BaseLayer {
           if (!g || !g.type || !g.coordinates) return null;
           const props = (f && f.properties) || {};
           if (g.type === "Polygon") return turf.polygon(g.coordinates, props);
-          if (g.type === "MultiPolygon") return turf.multiPolygon(g.coordinates, props);
+          if (g.type === "MultiPolygon")
+            return turf.multiPolygon(g.coordinates, props);
           return null;
         })
         .filter(Boolean);
@@ -140,6 +152,8 @@ class AffectedHousesLayer extends BaseLayer {
     } catch (error) {
       console.error("加载受影响民房面数据失败:", error);
     }
+    // 加载高程控制点
+    waterGcdLayer.show();
   }
 
   show() {
@@ -158,6 +172,8 @@ class AffectedHousesLayer extends BaseLayer {
     if (this._hoverTooltipEl) {
       this._hoverTooltipEl.style.display = "none";
     }
+    // 隐藏高程控制点
+    waterGcdLayer.hide();
   }
 
   remove() {
@@ -285,15 +301,21 @@ class AffectedHousesLayer extends BaseLayer {
         if (isOutlineEntity || isPolygonEntity) {
           let props = {};
           try {
-            if (entity.properties && typeof entity.properties.getValue === "function") {
-              props = entity.properties.getValue(window.Cesium.JulianDate.now()) || {};
+            if (
+              entity.properties &&
+              typeof entity.properties.getValue === "function"
+            ) {
+              props =
+                entity.properties.getValue(window.Cesium.JulianDate.now()) ||
+                {};
             } else if (entity.properties) {
               props = entity.properties || {};
             }
           } catch (e) {
             props = {};
           }
-          const html = this._formatPropsToHtml(props);
+          const htmlEl = componentToHtml({ component: common.AffectedHouses, props: { data: props } });
+          const html = htmlEl && htmlEl.outerHTML;
           if (html) {
             this._showTooltipAt(pos.x, pos.y, html);
             handled = true;
@@ -302,7 +324,11 @@ class AffectedHousesLayer extends BaseLayer {
       }
 
       // 若未拾取到实体，进行兜底：将鼠标点转为经纬度并做面内判断
-      if (!handled && Array.isArray(this._turfFeatures) && this._turfFeatures.length) {
+      if (
+        !handled &&
+        Array.isArray(this._turfFeatures) &&
+        this._turfFeatures.length
+      ) {
         let cartesian = scene.pickPosition(pos);
         if (!cartesian) {
           cartesian = this.viewer.camera.pickEllipsoid(
@@ -318,7 +344,8 @@ class AffectedHousesLayer extends BaseLayer {
           for (const tf of this._turfFeatures) {
             try {
               if (turf.booleanPointInPolygon(pt, tf)) {
-                const html = this._formatPropsToHtml(tf.properties || {});
+                const htmlEl = componentToHtml({ component: common.AffectedHouses, props: { data: tf.properties || {} } });
+                const html = htmlEl && htmlEl.outerHTML;
                 if (html) {
                   this._showTooltipAt(pos.x, pos.y, html);
                   handled = true;
@@ -366,7 +393,8 @@ class AffectedHousesLayer extends BaseLayer {
       entities.forEach((entity) => {
         if (entity && entity.polyline) {
           entity.polyline.width = strokeWidth;
-          entity.polyline.material = window.Cesium.Color.fromCssColorString(color);
+          entity.polyline.material =
+            window.Cesium.Color.fromCssColorString(color);
         }
       });
     }
@@ -378,7 +406,8 @@ class AffectedHousesLayer extends BaseLayer {
    * @param {Object} options { color?: string, width?: number, flyTo?: boolean }
    */
   highlight(geojson, options = {}) {
-    if (!geojson || !geojson.features || !Array.isArray(geojson.features)) return;
+    if (!geojson || !geojson.features || !Array.isArray(geojson.features))
+      return;
 
     // 清除已有高亮
     if (this.highlightDataSource) {
@@ -390,10 +419,15 @@ class AffectedHousesLayer extends BaseLayer {
     const lineWidth = options.width || Math.max(3, this.style.strokeWidth + 2);
     const flyTo = options.flyTo !== false; // 默认飞到
 
-    const highlightDS = new window.Cesium.CustomDataSource("affected-houses-highlight");
+    const highlightDS = new window.Cesium.CustomDataSource(
+      "affected-houses-highlight"
+    );
 
     // 计算范围（用于飞到）
-    let minLon = Infinity, minLat = Infinity, maxLon = -Infinity, maxLat = -Infinity;
+    let minLon = Infinity,
+      minLat = Infinity,
+      maxLon = -Infinity,
+      maxLat = -Infinity;
 
     const addRingPolyline = (ring) => {
       // 更新范围
@@ -434,8 +468,15 @@ class AffectedHousesLayer extends BaseLayer {
     this.viewer.dataSources.add(highlightDS);
     this.highlightDataSource = highlightDS;
 
-    if (flyTo && isFinite(minLon) && isFinite(minLat) && isFinite(maxLon) && isFinite(maxLat)) {
-      const zoomOutFactor = options.zoomOutFactor != null ? options.zoomOutFactor : 0.25; // 默认四周留白25%
+    if (
+      flyTo &&
+      isFinite(minLon) &&
+      isFinite(minLat) &&
+      isFinite(maxLon) &&
+      isFinite(maxLat)
+    ) {
+      const zoomOutFactor =
+        options.zoomOutFactor != null ? options.zoomOutFactor : 0.25; // 默认四周留白25%
       const padLon = Math.max((maxLon - minLon) * zoomOutFactor, 0.001);
       const padLat = Math.max((maxLat - minLat) * zoomOutFactor, 0.001);
       const rect = window.Cesium.Rectangle.fromDegrees(

@@ -7,6 +7,9 @@ class WaterGcdLayer extends BaseLayer {
     this.entities = [];
     this.isVisible = false;
     this.gcdUrl = "/datasets/geojson/gcd.geojson";
+    this.autoDecimate = true;
+    this._clusterListenerSet = false;
+    this._cameraChangedHandler = null;
   }
 
   async show(options = {}) {
@@ -75,6 +78,11 @@ class WaterGcdLayer extends BaseLayer {
         this.entities.push(entity);
       });
 
+      // 启用并配置聚类，实现自动抽稀
+      this.setupClustering();
+      // 根据相机高度自适应聚类强度
+      this.setupCameraAdaptiveClustering();
+
       this.isVisible = true;
       this.hasLoaded = true;
       console.log("水利高程控制点图层加载并显示成功");
@@ -95,8 +103,142 @@ class WaterGcdLayer extends BaseLayer {
     }
   }
 
+  // 聚类配置（自动抽稀）
+  setupClustering() {
+    if (!this.dataSource) return;
+    const clustering = this.dataSource.clustering;
+    clustering.enabled = true;
+    clustering.pixelRange = 50; // 聚类半径像素范围
+    clustering.minimumClusterSize = 3; // 最少聚类数量
+
+    if (this._clusterListenerSet) return;
+    clustering.clusterEvent.addEventListener((clusteredEntities, cluster) => {
+      // 聚类：显示该簇内最低高程（不显示数量、不显示图标）
+      const now = Cesium.JulianDate.now();
+      let minHeight = Number.POSITIVE_INFINITY;
+      const keys = [
+        "height",
+        "Height",
+        "Elevation",
+        "elevation",
+        "H",
+        "Z",
+        "高程",
+        "海拔",
+      ];
+
+      for (const ent of clusteredEntities) {
+        let candidate = NaN;
+        // 1) 尝试从实体标签解析数值（标签通常是“123m”）
+        try {
+          const t = ent.label && ent.label.text;
+          if (typeof t === "string") {
+            candidate = parseFloat(t);
+          } else if (t && typeof t.getValue === "function") {
+            const tv = t.getValue(now);
+            candidate = parseFloat(tv);
+          }
+        } catch (_) {}
+
+        // 2) 若标签不可用或解析失败，则从属性中获取
+        if (isNaN(candidate)) {
+          try {
+            const propsBag = ent.properties && typeof ent.properties.getValue === "function" ? ent.properties.getValue(now) : null;
+            for (const k of keys) {
+              let v = undefined;
+              if (propsBag && propsBag[k] !== undefined && propsBag[k] !== null) {
+                v = propsBag[k];
+              } else if (ent.properties && ent.properties[k]) {
+                const p = ent.properties[k];
+                v = typeof p.getValue === "function" ? p.getValue(now) : p;
+              }
+              if (v !== undefined && v !== null) {
+                const num = parseFloat(v);
+                if (!isNaN(num)) {
+                  candidate = num;
+                  break;
+                }
+              }
+            }
+          } catch (_) {}
+        }
+
+        if (!isNaN(candidate)) {
+          minHeight = Math.min(minHeight, candidate);
+        }
+      }
+
+      if (minHeight !== Number.POSITIVE_INFINITY) {
+        const text = `${minHeight}m`;
+        cluster.label.show = true;
+        cluster.label.text = text;
+        cluster.label.font = "14pt Microsoft YaHei, sans-serif";
+        cluster.label.fillColor = Cesium.Color.WHITE;
+        cluster.label.outlineColor = Cesium.Color.BLACK;
+        cluster.label.outlineWidth = 2;
+        cluster.label.style = Cesium.LabelStyle.FILL_AND_OUTLINE;
+      } else {
+        cluster.label.show = false;
+      }
+      // 隐藏聚类图标
+      cluster.billboard.show = false;
+      cluster.billboard.image = undefined;
+    });
+    this._clusterListenerSet = true;
+  }
+
+  // 相机高度自适应聚类强度（自动抽稀增强）
+  setupCameraAdaptiveClustering() {
+    if (!this.viewer || !this.dataSource || !this.autoDecimate) return;
+    const clustering = this.dataSource.clustering;
+    const update = () => {
+      const height = this.viewer.camera.positionCartographic.height || 0;
+      if (height > 40000) {
+        clustering.pixelRange = 90;
+        clustering.minimumClusterSize = 6;
+      } else if (height > 15000) {
+        clustering.pixelRange = 70;
+        clustering.minimumClusterSize = 5;
+      } else if (height > 5000) {
+        clustering.pixelRange = 50;
+        clustering.minimumClusterSize = 4;
+      } else {
+        clustering.pixelRange = 30;
+        clustering.minimumClusterSize = 2;
+      }
+    };
+
+    if (!this._cameraChangedHandler) {
+      this._cameraChangedHandler = () => update();
+      this.viewer.camera.changed.addEventListener(this._cameraChangedHandler);
+    }
+    update();
+  }
+
+  // 开关自动抽稀
+  enableAutoDecimate(enabled = true) {
+    this.autoDecimate = Boolean(enabled);
+    if (this.autoDecimate) {
+      this.setupCameraAdaptiveClustering();
+    } else {
+      if (this._cameraChangedHandler && this.viewer) {
+        this.viewer.camera.changed.removeEventListener(this._cameraChangedHandler);
+        this._cameraChangedHandler = null;
+      }
+      if (this.dataSource) {
+        this.dataSource.clustering.pixelRange = 30;
+        this.dataSource.clustering.minimumClusterSize = 2;
+      }
+    }
+  }
+
   destroy() {
     try {
+      // 移除相机事件监听
+      if (this._cameraChangedHandler && this.viewer) {
+        this.viewer.camera.changed.removeEventListener(this._cameraChangedHandler);
+        this._cameraChangedHandler = null;
+      }
       if (this.dataSource && this.viewer) {
         this.viewer.dataSources.remove(this.dataSource);
       }
