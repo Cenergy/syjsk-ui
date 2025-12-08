@@ -10,10 +10,22 @@ class WaterGcdLayer extends BaseLayer {
     this.autoDecimate = true;
     this._clusterListenerSet = false;
     this._cameraChangedHandler = null;
+    this.maxDepth = 198.4;
   }
 
   async show(options = {}) {
     const { viewer } = this;
+    const { maxDepth } = options;
+    // 若传入新的水位（maxDepth）并与当前不一致：
+    // 已加载且正在显示则先移除，再更新水位；未加载则直接更新水位
+    if (typeof maxDepth === "number" && !isNaN(maxDepth)) {
+      if (this.hasLoaded && this.isVisible && this.maxDepth !== maxDepth) {
+        this.remove();
+      }
+      this.maxDepth = maxDepth;
+    }
+    
+    
     if (!viewer) return;
 
     // 若已加载过，直接显示
@@ -56,10 +68,14 @@ class WaterGcdLayer extends BaseLayer {
           disableDepthTestDistance: Number.POSITIVE_INFINITY,
         });
 
+         const depth = (typeof this.maxDepth === "number" ? this.maxDepth : NaN) - heightVal;
+        const depthText = depth<0 ? "" : `\n水深:${Math.max(0, depth).toFixed(2)}m`;
+        const text = `高程:${heightVal}m${depthText}`;
+
         // 标签样式
         entity.label = new Cesium.LabelGraphics({
         //   text: heightVal !== undefined ? `${refName || ""} (${heightVal}m)` : `${refName || ""}`,
-          text: heightVal+"m",
+          text,
           font: "14pt Microsoft YaHei, sans-serif",
           fillColor: Cesium.Color.BLACK,
           outlineColor: Cesium.Color.WHITE,
@@ -68,7 +84,7 @@ class WaterGcdLayer extends BaseLayer {
           showBackground: true,
           backgroundColor: Cesium.Color.WHITE.withAlpha(0.9),
           backgroundPadding: new Cesium.Cartesian2(10, 6),
-          pixelOffset: new Cesium.Cartesian2(0, -24),
+          pixelOffset: new Cesium.Cartesian2(0, depthText?-40:-24),
           heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
           disableDepthTestDistance: Number.POSITIVE_INFINITY,
           scaleByDistance: new Cesium.NearFarScalar(1000, 1.0, 50000, 0.4),
@@ -232,6 +248,11 @@ class WaterGcdLayer extends BaseLayer {
     }
   }
 
+  // 移除图层（语义化方法，等同于销毁）
+  remove() {
+    this.destroy();
+  }
+
   destroy() {
     try {
       // 移除相机事件监听
@@ -246,6 +267,8 @@ class WaterGcdLayer extends BaseLayer {
       this.entities = [];
       this.isVisible = false;
       this.hasLoaded = false;
+      // 重置聚类监听标志，避免重新加载后不再绑定自定义聚类事件
+      this._clusterListenerSet = false;
       console.log("水利高程控制点图层已销毁");
     } catch (error) {
       console.error("销毁水利高程控制点图层失败:", error);
