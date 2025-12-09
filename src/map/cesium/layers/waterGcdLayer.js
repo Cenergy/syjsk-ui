@@ -9,7 +9,7 @@ class WaterGcdLayer extends BaseLayer {
     this.gcdUrl = "/datasets/geojson/gcd.geojson";
     this.autoDecimate = true;
     this._clusterListenerSet = false;
-    this._cameraChangedHandler = null;
+    this._cameraMoveEndHandler = null;
     this.maxDepth = 198.4;
     // 性能缓存：减少不必要的标签显隐更新与相机事件频率
     this._lastShowLabels = null;
@@ -116,9 +116,9 @@ class WaterGcdLayer extends BaseLayer {
   hide() {
     if (!this.entities.length) {
       // 仍需移除相机监听以降低后台负载
-      if (this._cameraChangedHandler && this.viewer) {
-        this.viewer.camera.changed.removeEventListener(this._cameraChangedHandler);
-        this._cameraChangedHandler = null;
+      if (this._cameraMoveEndHandler && this.viewer) {
+        this.viewer.camera.moveEnd.removeEventListener(this._cameraMoveEndHandler);
+        this._cameraMoveEndHandler = null;
       }
       this.isVisible = false;
       return;
@@ -126,9 +126,9 @@ class WaterGcdLayer extends BaseLayer {
     this.entities.forEach((entity) => (entity.show = false));
     this.isVisible = false;
     // 隐藏时移除相机监听，避免空闲时仍然响应相机事件
-    if (this._cameraChangedHandler && this.viewer) {
-      this.viewer.camera.changed.removeEventListener(this._cameraChangedHandler);
-      this._cameraChangedHandler = null;
+    if (this._cameraMoveEndHandler && this.viewer) {
+      this.viewer.camera.moveEnd.removeEventListener(this._cameraMoveEndHandler);
+      this._cameraMoveEndHandler = null;
     }
   }
 
@@ -181,12 +181,6 @@ class WaterGcdLayer extends BaseLayer {
   setupCameraAdaptiveClustering() {
     if (!this.viewer || !this.dataSource || !this.autoDecimate) return;
     const clustering = this.dataSource.clustering;
-    // 提高 Camera.changed 触发阈值，减少事件触发频率
-    try {
-      const cam = this.viewer.camera;
-      const currentPct = typeof cam.percentageChanged === "number" ? cam.percentageChanged : 0.05;
-      cam.percentageChanged = Math.max(currentPct, 0.1);
-    } catch (_) {}
     // 节流相机变化触发聚类强度调整：仅在高度分桶变化时更新
     this._lastClusterBucket = this._lastClusterBucket || null;
     const update = () => {
@@ -217,9 +211,9 @@ class WaterGcdLayer extends BaseLayer {
       this._updateLabelVisibilityByBucket(bucket);
     };
 
-    if (!this._cameraChangedHandler) {
-      this._cameraChangedHandler = () => update();
-      this.viewer.camera.changed.addEventListener(this._cameraChangedHandler);
+    if (!this._cameraMoveEndHandler) {
+      this._cameraMoveEndHandler = () => update();
+      this.viewer.camera.moveEnd.addEventListener(this._cameraMoveEndHandler);
     }
     update();
   }
@@ -230,9 +224,9 @@ class WaterGcdLayer extends BaseLayer {
     if (this.autoDecimate) {
       this.setupCameraAdaptiveClustering();
     } else {
-      if (this._cameraChangedHandler && this.viewer) {
-        this.viewer.camera.changed.removeEventListener(this._cameraChangedHandler);
-        this._cameraChangedHandler = null;
+      if (this._cameraMoveEndHandler && this.viewer) {
+        this.viewer.camera.moveEnd.removeEventListener(this._cameraMoveEndHandler);
+        this._cameraMoveEndHandler = null;
       }
       if (this.dataSource) {
         this.dataSource.clustering.pixelRange = 30;
@@ -291,9 +285,9 @@ class WaterGcdLayer extends BaseLayer {
   destroy() {
     try {
       // 移除相机事件监听
-      if (this._cameraChangedHandler && this.viewer) {
-        this.viewer.camera.changed.removeEventListener(this._cameraChangedHandler);
-        this._cameraChangedHandler = null;
+      if (this._cameraMoveEndHandler && this.viewer) {
+        this.viewer.camera.moveEnd.removeEventListener(this._cameraMoveEndHandler);
+        this._cameraMoveEndHandler = null;
       }
       if (this.dataSource && this.viewer) {
         this.viewer.dataSources.remove(this.dataSource);
