@@ -29,7 +29,7 @@ class TerrainLayer extends BaseLayer {
 
     try {
       // 尝试加载地形数据
-      await this.loadTerrain(viewer, '/geodata/terrain1');
+      await this.loadTerrain(viewer, '/geodata/terrain');
       this.isLoaded = true;
     } catch (error) {
       console.warn('Failed to load terrain, using ellipsoid terrain:', error);
