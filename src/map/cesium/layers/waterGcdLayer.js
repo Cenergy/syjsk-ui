@@ -6,302 +6,216 @@ class WaterGcdLayer extends BaseLayer {
     this.dataSource = null;
     this.entities = [];
     this.isVisible = false;
+    this.hasLoaded = false;
+
+    // 数据源
     this.gcdUrl = "/datasets/geojson/gcd.geojson";
-    this.autoDecimate = true;
-    this._clusterListenerSet = false;
-    this._cameraMoveEndHandler = null;
-    this.maxDepth = 198.4;
-    // 性能缓存：减少不必要的标签显隐更新与相机事件频率
-    this._lastShowLabels = null;
-    this._lastCameraUpdateTime = 0;
+
+    // 标签样式（对齐 reservoirPoints 的风格）
+    this.labelConfig = {
+      fontSize: options?.fontSize || 18,
+      fontFamily: "Microsoft YaHei",
+      fontWeight: "bold",
+      fillColor: Cesium.Color.BLACK,
+      outlineColor: Cesium.Color.WHITE,
+      outlineWidth: 3,
+      showBackground: true,
+      backgroundColor: Cesium.Color.WHITE.withAlpha(1),
+      backgroundPadding: new Cesium.Cartesian2(12, 8),
+    };
+
+    // 交互处理器
+    this.clickHandler = null;
+    this.mouseMoveHandler = null;
+  }
+
+  removeClickHandler() {
+    if (this.clickHandler) {
+      this.viewer.cesiumWidget.screenSpaceEventHandler.removeInputAction(
+        Cesium.ScreenSpaceEventType.LEFT_CLICK
+      );
+      this.clickHandler = null;
+    }
+  }
+
+  removeMouseMoveHandler() {
+    if (this.mouseMoveHandler) {
+      this.viewer.cesiumWidget.screenSpaceEventHandler.removeInputAction(
+        Cesium.ScreenSpaceEventType.MOUSE_MOVE
+      );
+      this.mouseMoveHandler = null;
+    }
+  }
+
+  setupMouseMoveHandler() {
+    if (this.mouseMoveHandler) {
+      this.viewer.cesiumWidget.screenSpaceEventHandler.removeInputAction(
+        Cesium.ScreenSpaceEventType.MOUSE_MOVE
+      );
+    }
+
+    this.mouseMoveHandler = this.viewer.cesiumWidget.screenSpaceEventHandler.setInputAction(
+      (event) => {
+        const pickedObject = this.viewer.scene.pick(event.endPosition);
+        if (Cesium.defined(pickedObject) && Cesium.defined(pickedObject.id)) {
+          const entity = pickedObject.id;
+          if (this.entities.includes(entity)) {
+            this.viewer.canvas.style.cursor = "pointer";
+          } else {
+            this.viewer.canvas.style.cursor = "default";
+          }
+        } else {
+          this.viewer.canvas.style.cursor = "default";
+        }
+      },
+      Cesium.ScreenSpaceEventType.MOUSE_MOVE
+    );
+  }
+
+  setupClickHandler() {
+    if (this.clickHandler) {
+      this.viewer.cesiumWidget.screenSpaceEventHandler.removeInputAction(
+        Cesium.ScreenSpaceEventType.LEFT_CLICK
+      );
+    }
+
+    this.clickHandler = this.viewer.cesiumWidget.screenSpaceEventHandler.setInputAction(
+      (event) => {
+        const pickedObject = this.viewer.scene.pick(event.position);
+        if (Cesium.defined(pickedObject) && Cesium.defined(pickedObject.id)) {
+          const entity = pickedObject.id;
+          if (entity.clickHandler && typeof entity.clickHandler === "function") {
+            entity.clickHandler(event, entity);
+          }
+        }
+      },
+      Cesium.ScreenSpaceEventType.LEFT_CLICK
+    );
   }
 
   async show(options = {}) {
-    const { viewer } = this;
-    const { maxDepth } = options;
-    // 若传入新的水位（maxDepth）并与当前不一致：
-    // 性能优化：已加载时优先只更新水位相关文本与聚类，而不重载数据
-    if (typeof maxDepth === "number" && !isNaN(maxDepth)) {
-      if (this.hasLoaded && this.isVisible && this.maxDepth !== maxDepth) {
-        this.updateWaterLevel(maxDepth);
-        return;
-      }
-      this.maxDepth = maxDepth;
-    }
-    
-    
-    if (!viewer) return;
+    if (this.isVisible) return;
 
-    // 若已加载过，直接显示
-    if (this.hasLoaded && this.entities.length > 0) {
-      this.entities.forEach((entity) => (entity.show = true));
-      this.isVisible = true;
-      return;
+    // 创建数据源
+    if (!this.dataSource) {
+      this.dataSource = new Cesium.CustomDataSource("waterGcdPoints");
+      this.viewer.dataSources.add(this.dataSource);
     }
 
+    // 清空旧实体
+    this.dataSource.entities.removeAll();
+    this.entities = [];
+
+    // 载入 GCD 点位数据（GeoJSON）
     try {
-      // 加载GeoJSON点数据
-      const ds = await Cesium.GeoJsonDataSource.load(this.gcdUrl, {
-        clampToGround: true,
-        markerSize: 12,
-        markerColor: Cesium.Color.CYAN,
-        stroke: Cesium.Color.CYAN,
-        strokeWidth: 1,
-        fill: Cesium.Color.CYAN.withAlpha(0.15),
-        skipLevelOfDetail: true,
-      });
+      const res = await fetch(this.gcdUrl);
+      const geojson = await res.json();
+      const features = Array.isArray(geojson?.features) ? geojson.features : [];
 
-      this.dataSource = ds;
-      viewer.dataSources.add(ds);
+      for (const feature of features) {
+        if (feature?.geometry?.type !== "Point") continue;
+        const coords = feature.geometry.coordinates || [];
+        if (coords.length < 2) continue;
 
-      const entities = ds.entities.values;
-      // 样式化点与标签
-      entities.forEach((entity) => {
-        if (!entity.position) return;
-        const props = entity.properties || {};
-        const refName = props.RefName && props.RefName.getValue ? props.RefName.getValue() : "";
-        const heightVal = props.height && props.height.getValue ? props.height.getValue() : (props.Elevation && props.Elevation.getValue ? props.Elevation.getValue() : undefined);
-        const heightNum = Number(heightVal);
-        entity._heightNum = isNaN(heightNum) ? undefined : heightNum;
+        const lon = Number(coords[0]);
+        const lat = Number(coords[1]);
+        const alt = Number(coords[2] || 0);
+        const props = feature.properties || {};
+        const name = props.RefName || "";
+        const elev = props.height ?? props.Elevation; // 优先取 height
+        const elevText = typeof elev === "number" ? `${elev.toFixed(2)}m` : "";
 
-        // 点样式
-        entity.point = new Cesium.PointGraphics({
-          pixelSize: 10,
-          color: Cesium.Color.CYAN.withAlpha(0.95),
-          outlineColor: Cesium.Color.WHITE,
-          outlineWidth: 2,
-          heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
-          disableDepthTestDistance: Number.POSITIVE_INFINITY,
-        });
-
-         const depth = (typeof this.maxDepth === "number" ? this.maxDepth : NaN) - heightVal;
-        const depthText = depth<=0 ? "" : `\n水深:${Math.max(0, depth).toFixed(2)}m`;
-        const text = `高程:${heightVal}m${depthText}`;
-
-        // 标签样式
-        entity.label = new Cesium.LabelGraphics({
-        //   text: heightVal !== undefined ? `${refName || ""} (${heightVal}m)` : `${refName || ""}`,
-          text,
-          font: "14pt Microsoft YaHei, sans-serif",
-          fillColor: Cesium.Color.BLACK,
-          outlineColor: Cesium.Color.WHITE,
-          outlineWidth: 2,
-          style: Cesium.LabelStyle.FILL_AND_OUTLINE,
-          showBackground: true,
-          backgroundColor: Cesium.Color.WHITE.withAlpha(0.9),
-          backgroundPadding: new Cesium.Cartesian2(10, 6),
-          pixelOffset: new Cesium.Cartesian2(0, depthText?-40:-24),
-          heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
-          disableDepthTestDistance: Number.POSITIVE_INFINITY,
-          scaleByDistance: new Cesium.NearFarScalar(1000, 1.0, 50000, 0.4),
-          distanceDisplayCondition: new Cesium.DistanceDisplayCondition(0, 40000),
-        });
-
+        const entity = this._createEntity({ lon, lat, alt, name, elevText, props });
         this.entities.push(entity);
-      });
+      }
 
-      // 启用并配置聚类，实现自动抽稀
-      this.setupClustering();
-      // 根据相机高度自适应聚类强度
-      this.setupCameraAdaptiveClustering();
+      // 启用聚类
+      this.setupClustering(options?.clustering);
+
+      // 交互（默认开启）
+      const enableInteractions = options?.enableInteractions !== false;
+      if (enableInteractions) {
+        this.setupClickHandler();
+        this.setupMouseMoveHandler();
+      } else {
+        this.removeClickHandler();
+        this.removeMouseMoveHandler();
+      }
 
       this.isVisible = true;
       this.hasLoaded = true;
-      console.log("水利高程控制点图层加载并显示成功");
-    } catch (error) {
-      console.error("加载高程控制点图层失败:", error);
+    } catch (err) {
+      console.error("加载 GCD 点位失败:", err);
     }
   }
 
   hide() {
-    if (!this.entities.length) {
-      // 仍需移除相机监听以降低后台负载
-      if (this._cameraMoveEndHandler && this.viewer) {
-        this.viewer.camera.moveEnd.removeEventListener(this._cameraMoveEndHandler);
-        this._cameraMoveEndHandler = null;
-      }
-      this.isVisible = false;
-      return;
-    }
-    this.entities.forEach((entity) => (entity.show = false));
+    if (!this.dataSource) return;
     this.isVisible = false;
-    // 隐藏时移除相机监听，避免空闲时仍然响应相机事件
-    if (this._cameraMoveEndHandler && this.viewer) {
-      this.viewer.camera.moveEnd.removeEventListener(this._cameraMoveEndHandler);
-      this._cameraMoveEndHandler = null;
-    }
+    this.dataSource.show = false;
+    this.removeClickHandler();
+    this.removeMouseMoveHandler();
   }
 
-  flyToAll() {
-    if (this.dataSource && this.viewer) {
-      this.viewer.flyTo(this.dataSource);
-    }
+  _createEntity({ lon, lat, alt, name, elevText, props }) {
+    const position = Cesium.Cartesian3.fromDegrees(lon, lat, alt || 0);
+
+    const labelText = elevText ? `${name}\n${elevText}` : name;
+    const entityConfig = {
+      position,
+      label: {
+        text: labelText,
+        font: `${this.labelConfig.fontWeight} ${this.labelConfig.fontSize}pt ${this.labelConfig.fontFamily}`,
+        fillColor: this.labelConfig.fillColor,
+        outlineColor: this.labelConfig.outlineColor,
+        outlineWidth: this.labelConfig.outlineWidth,
+        style: Cesium.LabelStyle.FILL_AND_OUTLINE,
+        showBackground: this.labelConfig.showBackground,
+        backgroundColor: this.labelConfig.backgroundColor,
+        backgroundPadding: this.labelConfig.backgroundPadding,
+        pixelOffset: new Cesium.Cartesian2(0, -40),
+        heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
+        scaleByDistance: new Cesium.NearFarScalar(1000, 1.0, 50000, 0.3),
+        disableDepthTestDistance: Number.POSITIVE_INFINITY,
+      },
+      properties: {
+        name,
+        elevText,
+        ...props,
+      },
+    };
+
+    const entity = this.dataSource.entities.add(entityConfig);
+    // 可选：为点击提供默认行为（示例为日志）
+    entity.clickHandler = (evt, e) => {
+      // console.log("GCD 点位点击:", e?.properties?.name?.getValue?.());
+    };
+    return entity;
   }
 
-  // 聚类配置（自动抽稀）
-  setupClustering() {
+  setupClustering(config = {}) {
     if (!this.dataSource) return;
     const clustering = this.dataSource.clustering;
     clustering.enabled = true;
-    clustering.pixelRange = 50; // 聚类半径像素范围
-    clustering.minimumClusterSize = 3; // 最少聚类数量
+    clustering.pixelRange = config.pixelRange ?? 50;
+    clustering.minimumClusterSize = config.minimumClusterSize ?? 3;
 
-    if (this._clusterListenerSet) return;
     clustering.clusterEvent.addEventListener((clusteredEntities, cluster) => {
-      // 聚类：显示该簇内最低高程（不显示数量、不显示图标）
-      // 性能优化：仅使用预缓存的 _heightNum，避免每帧读取属性与解析
-      let minHeight = Number.POSITIVE_INFINITY;
-      for (const ent of clusteredEntities) {
-        const h = ent && typeof ent._heightNum === "number" ? ent._heightNum : NaN;
-        if (!isNaN(h) && h < minHeight) minHeight = h;
-      }
+      const count = clusteredEntities.length;
+      const text = `GCD点位 ${count}`;
 
-      if (minHeight !== Number.POSITIVE_INFINITY) {
-        const depth = (typeof this.maxDepth === "number" ? this.maxDepth : NaN) - minHeight;
-        const depthText = isNaN(depth) || depth <= 0 ? "" : ` 深:${Math.max(0, depth).toFixed(2)}m`;
-        const text = `${minHeight}m${depthText}`;
-        cluster.label.show = true;
-        cluster.label.text = text;
-        cluster.label.font = "14pt Microsoft YaHei, sans-serif";
-        cluster.label.fillColor = Cesium.Color.WHITE;
-        cluster.label.outlineColor = Cesium.Color.BLACK;
-        cluster.label.outlineWidth = 2;
-        cluster.label.style = Cesium.LabelStyle.FILL_AND_OUTLINE;
-      } else {
-        cluster.label.show = false;
-      }
-      // 隐藏聚类图标
+      // 仅显示聚类的文字标签，关闭默认图标
+      cluster.label.show = true;
+      cluster.label.text = text;
+      cluster.label.font = "14pt Microsoft YaHei, sans-serif";
+      cluster.label.fillColor = Cesium.Color.WHITE;
+      cluster.label.outlineColor = Cesium.Color.BLACK;
+      cluster.label.outlineWidth = 2;
+      cluster.label.style = Cesium.LabelStyle.FILL_AND_OUTLINE;
+
       cluster.billboard.show = false;
       cluster.billboard.image = undefined;
     });
-    this._clusterListenerSet = true;
-  }
-
-  // 相机高度自适应聚类强度（自动抽稀增强）
-  setupCameraAdaptiveClustering() {
-    if (!this.viewer || !this.dataSource || !this.autoDecimate) return;
-    const clustering = this.dataSource.clustering;
-    // 节流相机变化触发聚类强度调整：仅在高度分桶变化时更新
-    this._lastClusterBucket = this._lastClusterBucket || null;
-    const update = () => {
-      // 轻量节流：避免每帧都运行计算
-      const nowTs = (typeof performance !== "undefined" && performance.now) ? performance.now() : Date.now();
-      if (nowTs - this._lastCameraUpdateTime < 100) return; // ~10fps 上限，进一步降负载
-      this._lastCameraUpdateTime = nowTs;
-      const height = this.viewer.camera.positionCartographic.height || 0;
-      const bucket = height > 40000 ? 3 : height > 15000 ? 2 : height > 5000 ? 1 : 0;
-      if (bucket === this._lastClusterBucket) return;
-      this._lastClusterBucket = bucket;
-      if (bucket === 3) {
-        clustering.pixelRange = 90;
-        clustering.minimumClusterSize = 6;
-      } else if (bucket === 2) {
-        clustering.pixelRange = 70;
-        clustering.minimumClusterSize = 5;
-      } else if (bucket === 1) {
-        clustering.pixelRange = 50;
-        clustering.minimumClusterSize = 4;
-      } else {
-        clustering.pixelRange = 30;
-        clustering.minimumClusterSize = 2;
-      }
-
-      // 根据缩放级别控制单点标签显示，避免与聚类标签叠加
-      // 远景（bucket>=2）隐藏单点标签，仅保留聚类标签；近景（bucket<=1）恢复单点标签
-      this._updateLabelVisibilityByBucket(bucket);
-    };
-
-    if (!this._cameraMoveEndHandler) {
-      this._cameraMoveEndHandler = () => update();
-      this.viewer.camera.moveEnd.addEventListener(this._cameraMoveEndHandler);
-    }
-    update();
-  }
-
-  // 开关自动抽稀
-  enableAutoDecimate(enabled = true) {
-    this.autoDecimate = Boolean(enabled);
-    if (this.autoDecimate) {
-      this.setupCameraAdaptiveClustering();
-    } else {
-      if (this._cameraMoveEndHandler && this.viewer) {
-        this.viewer.camera.moveEnd.removeEventListener(this._cameraMoveEndHandler);
-        this._cameraMoveEndHandler = null;
-      }
-      if (this.dataSource) {
-        this.dataSource.clustering.pixelRange = 30;
-        this.dataSource.clustering.minimumClusterSize = 2;
-      }
-    }
-  }
-
-  // 移除图层（语义化方法，等同于销毁）
-  remove() {
-    this.destroy();
-  }
-
-  // 根据相机高度分桶控制单点标签显示，缓解重叠
-  _updateLabelVisibilityByBucket(bucket) {
-    if (!Array.isArray(this.entities) || !this.entities.length) return;
-    const showLabels = bucket <= 1; // 近景显示，远景隐藏
-    if (this._lastShowLabels === showLabels) return; // 无变化则不遍历
-    this._lastShowLabels = showLabels;
-    for (const entity of this.entities) {
-      if (entity && entity.label) {
-        entity.label.show = showLabels;
-      }
-    }
-  }
-
-  // 高效更新水位，不重载数据源，仅刷新文本与聚类
-  updateWaterLevel(maxDepth) {
-    if (typeof maxDepth !== "number" || isNaN(maxDepth)) return;
-    this.maxDepth = maxDepth;
-    // 更新所有点实体的标签文本与偏移
-    if (Array.isArray(this.entities) && this.entities.length) {
-      this.entities.forEach((entity) => {
-        const h = typeof entity._heightNum === "number" && !isNaN(entity._heightNum) ? entity._heightNum : undefined;
-        if (typeof h !== "number") return;
-        const depth = this.maxDepth - h;
-        const depthText = depth <= 0 ? "" : `\n水深:${Math.max(0, depth).toFixed(2)}m`;
-        const text = `高程:${h}m${depthText}`;
-        if (entity.label) {
-          entity.label.text = text;
-          entity.label.pixelOffset = new Cesium.Cartesian2(0, depthText ? -40 : -24);
-        }
-      });
-    }
-    // 触发聚类重算以刷新簇标签
-    if (this.dataSource && this.dataSource.clustering) {
-      const clustering = this.dataSource.clustering;
-      const prev = clustering.enabled;
-      clustering.enabled = !prev;
-      clustering.enabled = prev;
-    }
-    this.isVisible = true;
-    this.hasLoaded = true;
-  }
-
-  destroy() {
-    try {
-      // 移除相机事件监听
-      if (this._cameraMoveEndHandler && this.viewer) {
-        this.viewer.camera.moveEnd.removeEventListener(this._cameraMoveEndHandler);
-        this._cameraMoveEndHandler = null;
-      }
-      if (this.dataSource && this.viewer) {
-        this.viewer.dataSources.remove(this.dataSource);
-      }
-      this.dataSource = null;
-      this.entities = [];
-      this.isVisible = false;
-      this.hasLoaded = false;
-      // 重置聚类监听标志，避免重新加载后不再绑定自定义聚类事件
-      this._clusterListenerSet = false;
-      console.log("水利高程控制点图层已销毁");
-    } catch (error) {
-      console.error("销毁水利高程控制点图层失败:", error);
-    }
   }
 }
 
