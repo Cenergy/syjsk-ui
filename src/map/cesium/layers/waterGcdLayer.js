@@ -1,4 +1,5 @@
 import BaseLayer from "./baseLayer";
+import { gcdData } from "@/api/map";
 
 class WaterGcdLayer extends BaseLayer {
   constructor(options = {}) {
@@ -139,8 +140,7 @@ class WaterGcdLayer extends BaseLayer {
 
     // 载入 GCD 点位数据（GeoJSON）
     try {
-      const res = await fetch(this.gcdUrl);
-      const geojson = await res.json();
+      const geojson = await gcdData.fetch();
       const features = Array.isArray(geojson?.features) ? geojson.features : [];
 
       for (const feature of features) {
