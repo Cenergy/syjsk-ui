@@ -1,8 +1,8 @@
 
 // 写一个缓存数据的接口
 // 地址  const baseURL= `/geodata/geojson/houses.geojson`
-class GcdData{
-  constructor(baseURL = "/datasets/geojson/gcd.geojson"){
+class EffectsData{
+  constructor(baseURL = `/geodata/effects/`){
     this.data = null;
     this.baseURL = baseURL;
     this.hasFetched = false;
@@ -13,7 +13,7 @@ class GcdData{
   setData(data){
     this.data = data;
   }
-  async fetch(force = false){
+  async getHouses(force = false){
     const cached = this.getData();
     if (!force && cached && this.hasFetched) return cached;
     try {
@@ -28,7 +28,7 @@ class GcdData{
       return { code: 500, message: error };
     }
   }
-  filter(filterOptions = {}){ 
+  filterHouses(filterOptions = {}){ 
     const data = this.getData();
     if (!data) return [];
     const {features=[]} = data;
@@ -44,7 +44,7 @@ class GcdData{
     this.hasFetched = false;
   }
 }
-const gcdData = new GcdData();
+const houseData = new EffectsData();
 
-export default gcdData;
-export { gcdData };
+export default houseData;
+export { houseData };

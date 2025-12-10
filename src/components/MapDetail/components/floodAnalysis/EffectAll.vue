@@ -8,19 +8,20 @@
         :prop="normalizeKey(key)"
         :label="key"
       >
-      <!-- 设置第一列的宽度 -->
-      <template slot-scope="scope">
-        <span
-          v-if="scope.row.name === '影响民房数(栋)'"
-          class="cell-clickable" style="cursor: pointer;"
-          @click="handleHousingCountClick(scope, normalizeKey(key),key)"
-        >
-          {{ formatValue(scope.row[normalizeKey(key)]) }}
-        </span>
-        <span v-else>
-          {{ formatValue(scope.row[normalizeKey(key)]) }}
-        </span>
-      </template>
+        <!-- 设置第一列的宽度 -->
+        <template slot-scope="scope">
+          <span
+            v-if="scope.row.name === '影响民房数(栋)'"
+            class="cell-clickable"
+            style="cursor: pointer"
+            @click="handleHousingCountClick(scope, normalizeKey(key), key)"
+          >
+            {{ formatValue(scope.row[normalizeKey(key)]) }}
+          </span>
+          <span v-else>
+            {{ formatValue(scope.row[normalizeKey(key)]) }}
+          </span>
+        </template>
       </el-table-column>
     </el-table>
   </div>
@@ -28,13 +29,18 @@
 
 <script>
 import { mapGetters } from "vuex";
-import { getStatisticalData, tables } from "@/components/MapPopup/FloodStatistical/mockData";
+import {
+  getStatisticalData,
+  tables,
+} from "@/components/MapPopup/FloodStatistical/mockData";
 import { constant } from "@/map";
-const { EFFECT_WATER_LEVEL_COLOR_CONFIG_LSIT,MODEL_3DTILES_INFO_LIST } = constant;
+const { EFFECT_WATER_LEVEL_COLOR_CONFIG_LSIT, MODEL_3DTILES_INFO_LIST } = constant;
 
-import layerGroup from '@/components/LayerControl/layerGroup';
+import layerGroup from "@/components/LayerControl/layerGroup";
 
-const houseLayer=layerGroup.layerGuideLine.find((item) => item.value === 'affectedHousesLayer');
+const houseLayer = layerGroup.layerGuideLine.find(
+  (item) => item.value === "affectedHousesLayer"
+);
 
 export default {
   name: "EffectAll",
@@ -95,19 +101,17 @@ export default {
       if (!Number.isFinite(num)) return "-";
       if (Number.isInteger(num)) return String(Math.trunc(num));
       // 非整数：最多保留 6 位小数，去掉末尾的 0 和可能多余的小数点
-      return parseFloat(num.toFixed(6)).toString();;
+      return parseFloat(num.toFixed(6)).toString();
     },
     buildMockData(levelLabels) {
       const result = {};
       // 使用聚合统计数据（按水位分组求和）
       // 假如this.areaName有值，则统计这个areaName的值
-       let aggregatedMap;
+      let aggregatedMap;
       if (this.currentAreaName) {
         const areaRows = (tables && tables.get(this.currentAreaName)) || [];
         // 转换为 Map<waterLevel, number[]> 以与聚合模式一致
-        aggregatedMap = new Map(
-          areaRows.map((row) => [row[0], row.slice(1)])
-        );
+        aggregatedMap = new Map(areaRows.map((row) => [row[0], row.slice(1)]));
       } else {
         aggregatedMap = getStatisticalData();
       }
@@ -131,37 +135,56 @@ export default {
       });
       return result;
     },
-    handleHousingCountClick(scope, waterLevelKey,key) {
-      const cfg = EFFECT_WATER_LEVEL_COLOR_CONFIG_LSIT.find((i) => i.label === key)||{value:Infinity};
+    handleHousingCountClick(scope, waterLevelKey, key) {
+      const cfg = EFFECT_WATER_LEVEL_COLOR_CONFIG_LSIT.find((i) => i.label === key) || {
+        value: Infinity,
+      };
       const value = scope.row[waterLevelKey];
       const rowName = scope.row.name;
       // 向父组件派发事件，传递当前水位列与该行数据值
-      this.$emit('click-housing', { waterLevelKey, value, rowName, row: scope.row,cfg });
+      this.$emit("click-housing", { waterLevelKey, value, rowName, row: scope.row, cfg });
       // 可选：向全局总线广播，便于其他模块监听
-      this.$bus && this.$bus.emit('clickSubmergedCivilHousingCount', { waterLevelKey, value, rowName,cfg });
+      this.$bus &&
+        this.$bus.emit("clickSubmergedCivilHousingCount", {
+          waterLevelKey,
+          value,
+          rowName,
+          cfg,
+        });
       this.$bus.emit("addMapDetail", {
         ...houseLayer,
         props: {
-          waterLevelKey:this.denormalizeKey(waterLevelKey),
+          waterLevelKey: this.denormalizeKey(waterLevelKey),
           housesCount: value,
           currentAreaName: this.currentAreaName,
           cfg,
-        }
+        },
+      });
+      this.$bus.emit("addMapDetail", {
+        value: "waterGcdLayer",
+        label: "水深点位",
+        flag: true,
+        props: {
+          waterLevelKey: this.denormalizeKey(waterLevelKey),
+          housesCount: value,
+          currentAreaName: this.currentAreaName,
+          cfg,
+        },
       });
 
       // 发布水位类型事件
       this.$bus.emit("changeWaterLevelType", {
-        waterLevelKey:this.denormalizeKey(waterLevelKey),
+        waterLevelKey: this.denormalizeKey(waterLevelKey),
         value,
         rowName,
       });
-    }
+    },
   },
   mounted() {
     this.mockData = this.buildMockData(this.selectedWaterLevelList);
-    const areaNameList = MODEL_3DTILES_INFO_LIST.map(item => item.name);
+    const areaNameList = MODEL_3DTILES_INFO_LIST.map((item) => item.name);
     this.$bus.on("mapLocate", (evt) => {
-      const name =evt.data;
+      const name = evt.data;
       if (areaNameList.includes(name)) {
         this.currentAreaName = name;
       } else {
@@ -178,15 +201,15 @@ export default {
   padding: 10px;
 }
 
-::v-deep .el-table__row .el-table_2_column_4 .cell{
+::v-deep .el-table__row .el-table_2_column_4 .cell {
   text-wrap: wrap;
   font-weight: bold;
-  word-break: break-all; 
+  word-break: break-all;
   text-align: center;
 }
 
 .cell-clickable {
-  color: #409EFF; /* Element UI 主色 */
+  color: #409eff; /* Element UI 主色 */
   text-decoration: underline;
   cursor: pointer;
 }

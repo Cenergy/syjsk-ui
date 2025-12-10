@@ -51,7 +51,7 @@
         <span style="color: orange">{{ selectedName }}</span> 共<span
           style="color: orange"
           >{{ count }}</span
-        >户受影响
+        >个控制点位
       </div>
 
       <el-table
@@ -63,23 +63,21 @@
         height="100%"
         @row-click="handleRowClick"
       >
-        <el-table-column align="center" label="所属村镇" prop="tsmc"></el-table-column>
-        <el-table-column align="center" label="所属小组" prop="xmmc"></el-table-column>
-        <el-table-column align="center" label="户主姓名" prop="cwbj"></el-table-column>
-        <el-table-column align="center" label="联系电话" prop="lxdh"></el-table-column>
+        <el-table-column align="center" label="所属乡镇" prop="RefName"></el-table-column>
+        <el-table-column align="center" label="高程点" prop="height"></el-table-column>
+        <el-table-column align="center" label="水深(米)" prop="depth"></el-table-column>
       </el-table>
     </div>
   </div>
 </template>
 <script>
 import { constant } from "@/map";
-import houseData from "@/api/map/getHouses";
+import { gcdData } from "@/api/map";
 import waterLevelLayer from "@/map/cesium/layers/waterLevelLayer";
 import affectedHousesLayer from "@/map/cesium/layers/affectedHousesLayer";
 import WaterLevelSelector from "@/components/MapDetail/components/common/WaterLevelSelector.vue";
 
 import { turf } from "swpdmap";
-
 
 const { EFFECT_WATER_LEVEL_COLOR_CONFIG_LSIT, MODEL_3DTILES_INFO_LIST } = constant;
 
@@ -90,7 +88,7 @@ const showWaterNameList = [
 ];
 
 export default {
-  name: "floodRisk",
+  name: "waterGcdLayer",
 
   components: { WaterLevelSelector },
 
@@ -124,7 +122,7 @@ export default {
       effectWaterLevelList: EFFECT_WATER_LEVEL_COLOR_CONFIG_LSIT,
       singleCheck: true,
       count: 0,
-      // 本地维护当前显示的水位标签，避免依赖父传入的 props 被覆盖
+      // 本地维护当前显示的水位标签，避免直接修改父传入的 props
       currentWaterLevelLabel: "",
       // 本地副本，避免直接修改 props.cfg
       localCfg: {},
@@ -133,6 +131,7 @@ export default {
 
   computed: {
     displayWaterLevel() {
+      // 优先使用本地维护的当前水位标签，其次使用父传入的 waterLevelKey 或选中列表
       return (
         this.currentWaterLevelLabel ||
         this.waterLevelKey ||
@@ -144,41 +143,54 @@ export default {
 
   methods: {
     buildTableDataMock(options = {}) {
-      console.log("🚀 ~ options:", options);
       // this.orignalTableData 过滤区域和水深，赋值给tableData
-      console.log("🚀 ~ this.selectedName:", this.selectedName);
       const { cfg = {} } = options;
-      const { value: waterHeight } = cfg;
+      const { value: waterHeight, label } = cfg;
+      console.log("🚀 ~ label:", label);
+      // 记录当前水位标签到本地状态，避免直接修改 props
+      this.currentWaterLevelLabel = label || "";
       console.log("🚀 ~ waterHeight:", waterHeight);
+        console.log("🚀 ~ this.selectedName:", this.selectedName);
       if (
         this.selectedName === "全部" ||
         this.selectedName === "整体影响" ||
         this.selectedName === ""
       ) {
-         this.tableData = this.orignalTableData.filter((item) => {
-          return item.hsx <= waterHeight;
-        });
+        this.tableData = this.orignalTableData.map((item) => {
+            const depth = waterHeight - item.height;
+            return {
+              ...item,
+              depth: depth > 0 ? depth.toFixed(2) : "--",
+            };
+          });
       } else {
-        this.tableData = this.orignalTableData.filter((item) => {
-          return item.RefName === this.selectedName && item.hsx <= waterHeight;
-        });
+        this.tableData = this.orignalTableData
+          .filter((item) => {
+            return item.RefName === this.selectedName;
+          })
+          .map((item) => {
+            const depth = waterHeight - item.height;
+            return {
+              ...item,
+              depth: depth > 0 ? depth.toFixed(2) : "--",
+            };
+          });
       }
 
       this.count = this.tableData.length;
     },
     handleRowClick(row, column, event) {
-      const filterData=houseData.filterHouses({OBJECTID: row.OBJECTID});
-      console.log("🚀 ~ filterData:", filterData);
-     const hightlightData = turf.featureCollection(filterData);
-    //  高亮显示hightlightData
-      affectedHousesLayer.highlight(hightlightData);
+      const filterData = gcdData.filter({ OBJECTID: row.OBJECTID })|| [];
+      // flyto
+      this.$bus.emit("mapLocate", {
+        type: "FlyToLocal",
+        data: {
+           center: [filterData[0].geometry.coordinates[0], filterData[0].geometry.coordinates[1]],
+           height: 500,
+        },
+      });
+      //  高亮显示hightlightData
 
-      // this.$bus.emit("mapLocate", {
-      //   type: "FlyToLocal",
-      //   data: row.id,
-      // });
-
-      console.log("🚀 ~ row:", row);
       // this.$bus.emit("changeFloodRiskImage", row.imageName);
     },
     selectAreaName(name) {
@@ -195,27 +207,11 @@ export default {
       });
     },
     handleWaterLevelList() {
-      const addWaterLevelList = this.selectedWaterLevelList.filter(
-        (item) => !this.previousWaterLevelList.includes(item)
-      );
-      const removeWaterLevelList = this.previousWaterLevelList.filter(
-        (item) => !this.selectedWaterLevelList.includes(item)
-      );
-      addWaterLevelList.forEach((item) => {
-        const obj = EFFECT_WATER_LEVEL_COLOR_CONFIG_LSIT.find((i) => i.label === item);
-        if (!obj) return;
-        waterLevelLayer.add(obj);
-      });
-      removeWaterLevelList.forEach((item) => {
-        const obj = EFFECT_WATER_LEVEL_COLOR_CONFIG_LSIT.find((i) => i.label === item);
-        if (!obj) return;
-        waterLevelLayer.hide(obj.id);
-      });
+   
       const labelOrder = EFFECT_WATER_LEVEL_COLOR_CONFIG_LSIT.map((i) => i.label);
       this.selectedWaterLevelList = labelOrder.filter((label) =>
         this.selectedWaterLevelList.includes(label)
       );
-      console.log("🚀 ~ this.selectedWaterLevelList:", this.selectedWaterLevelList);
       this.previousWaterLevelList = [...this.selectedWaterLevelList];
       // this.$bus.emit("waterLevelChanged", this.selectedWaterLevelList);
       // this.$store.commit("selectedWaterLevelList", this.selectedWaterLevelList);
@@ -224,45 +220,32 @@ export default {
 
   mounted() {
     // 初始化表格 mock 数据
-    houseData.getHouses().then((data) => {
-      console.log("🚀 ~ data:", data);
+    gcdData.fetch().then((data) => {
       const { features } = data;
-      console.log("🚀 ~ features:", features);
+      // 使用本地副本或父传入的 cfg，避免直接依赖 props
+      const sourceCfg = (this.localCfg && Object.keys(this.localCfg).length)
+        ? this.localCfg
+        : this.cfg;
+      const hasValue = sourceCfg && typeof sourceCfg.value === "number";
+      const waterLevelVal = hasValue ? sourceCfg.value : NaN;
       const featuresData = features.map((item, i) => {
+        const depthRaw = waterLevelVal - item.properties.height;
         return {
           ...item.properties,
           tsmc: item.properties.RefName,
           xmmc: item.properties.ssc,
           cwbj: item.properties.wz,
-          lxdh: item.properties.lxdh==0?"--":item.properties.lxdh,
+          lxdh: item.properties.lxdh == 0 ? "--" : item.properties.lxdh,
+          depth: hasValue && depthRaw > 0 ? depthRaw.toFixed(2) : "--",
         };
       });
-      this.orignalTableData = Object.freeze(featuresData);
-      this.buildTableDataMock({ cfg: this.localCfg && Object.keys(this.localCfg).length ? this.localCfg : this.cfg });
+      this.orignalTableData = Object.freeze(
+        featuresData.sort((a, b) => a.height - b.height)
+      );
+      this.buildTableDataMock({ cfg: sourceCfg });
 
       // 加载受影响民房面数据图层
       affectedHousesLayer.add({ data, id: "affected-houses", zIndex: 120 });
-    });
-    const selectedWaterLevelList = EFFECT_WATER_LEVEL_COLOR_CONFIG_LSIT.filter(
-      (item) => item.checked
-    ).map((item) => {
-      waterLevelLayer.add(item);
-      waterLevelLayer.add({ id: "sk" });
-      return item.label;
-    });
-    this.selectedWaterLevelList = selectedWaterLevelList;
-    this.previousWaterLevelList = selectedWaterLevelList;
-    // this.$store.commit("selectedWaterLevelList", this.selectedWaterLevelList);
-    // 若通过 props 传入 waterLevelKey，则选中对应水位
-    if (this.waterLevelKey) {
-      this.selectedWaterLevelList = [this.waterLevelKey];
-      this.previousWaterLevelList = [this.waterLevelKey];
-      // this.$store.commit("selectedWaterLevelList", this.selectedWaterLevelList);
-    }
-    this.$nextTick(() => {
-      if (this.tableData.length > 0) {
-        this.$refs.table.setCurrentRow(this.tableData[0]);
-      }
     });
     // 若通过 props 传入 currentAreaName，则选中对应区域
     if (this.currentAreaName) {
@@ -283,19 +266,17 @@ export default {
       console.log("🚀 ~ data:", data);
       const { waterLevelKey } = data;
       this.selectedWaterLevelList = [waterLevelKey];
-      console.log("🚀 ~ this.selectedWaterLevelList:", this.selectedWaterLevelList);
-      // 同步当前水位标签（事件传入的是去下划线后的 key，如 "199.0"）
+      // 同步本地显示标签（changeWaterLevelType 传入的是还原后的 key，如 "199.0"）
       this.currentWaterLevelLabel = waterLevelKey || "";
     });
     // 监听民房数点击事件，使用传入值刷新表格 mock 数据
     this.$bus.on("clickSubmergedCivilHousingCount", (data) => {
-      // 同步 cfg 至本地，并记录显示标签
-      const { cfg } = data || {};
-      if (cfg) {
-        this.localCfg = { ...cfg };
-        this.currentWaterLevelLabel = cfg.label || this.currentWaterLevelLabel;
-      }
-      this.buildTableDataMock(data);
+      console.log("🚀 ~ data:===================》", data);
+      const { cfg } = data;
+      // 同步到本地副本，避免直接修改 props
+      if (cfg) this.localCfg = { ...cfg };
+      // 按最新 cfg 重建表格数据
+      this.buildTableDataMock({ cfg });
     });
   },
 
@@ -306,17 +287,23 @@ export default {
         this.selectedWaterLevelList = [newVal];
         this.previousWaterLevelList = [newVal];
         // this.$store.commit("selectedWaterLevelList", this.selectedWaterLevelList);
-        // 更新本地显示标签
+        // 同步本地显示标签
         this.currentWaterLevelLabel = newVal;
       }
     },
     // 影响区域选择变化时，重建表格数据
     selectedName() {
-      this.buildTableDataMock({ cfg: this.localCfg && Object.keys(this.localCfg).length ? this.localCfg : this.cfg });
+      const sourceCfg = (this.localCfg && Object.keys(this.localCfg).length)
+        ? this.localCfg
+        : this.cfg;
+      this.buildTableDataMock({ cfg: sourceCfg });
     },
     // housesCount 变化时重新生成表格 mock 数据
     housesCount() {
-      this.buildTableDataMock({ cfg: this.localCfg && Object.keys(this.localCfg).length ? this.localCfg : this.cfg });
+      const sourceCfg = (this.localCfg && Object.keys(this.localCfg).length)
+        ? this.localCfg
+        : this.cfg;
+      this.buildTableDataMock({ cfg: sourceCfg });
     },
     selectedWaterLevelList(newValue, oldValue) {
       if (this.singleCheck) {

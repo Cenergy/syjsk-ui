@@ -202,7 +202,7 @@ export default {
     this.previousWaterLevelList = selectedWaterLevelList;
     this.$store.commit("selectedWaterLevelList", this.selectedWaterLevelList);
     // 显示高程控制点图层，联动“水深”标签
-    waterGcdLayer.show();
+    waterGcdLayer.show({maxDepth: 198.4});
     this.$bus.on("mapLocate", (evt) => {
       const name = evt.data;
       if (areaNameList.includes(name)) {

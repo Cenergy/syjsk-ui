@@ -1,0 +1,472 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    
+    <link rel="stylesheet" href="Build/Cesium/Widgets/widgets.css">
+    <style>
+        *{
+            padding: 0;
+            margin: 0;
+            list-style: none;
+        }
+ 
+        #toolbar {
+            margin: 5px;
+            padding: 2px 5px;
+            position: absolute;
+            z-index: 9999;
+            top: 10px;
+            left: 10px;
+        }
+ 
+        .label-cesiums-box1{
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            color: #fff;
+            height: 1px;
+            width: 1px;
+            display: flex;
+            transform: scale(0);
+            animation: scale-in-bottom 0.3s cubic-bezier(0.250, 0.460, 0.450, 0.940) both;
+        }
+ 
+        .label-name{
+            margin-top: -46px;
+            /* background: #1d5fbf; */
+            height: 30px;
+            line-height: 30px;
+            width: max-content;
+            transform: translateX(-50%);
+            padding: 0 16px;
+            border-radius: 4px;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            font-size: 16px;
+            text-shadow: 1px 0px 3px #c9c9c9;
+        }
+ 
+        .icon-range{
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            top: 0;
+            left: 0;
+            transform: translate(-50%, -50%);
+            border-radius: 8px;
+            cursor: pointer;
+        }
+ 
+        .front-icon{
+            width: 8px;
+            height: 8px;
+            background: red;
+            border-radius: 50%;
+            display: none;
+        }
+ 
+        .text-name{
+            width: max-content;
+            cursor: pointer;
+        }
+ 
+        .label-cesiums-box1.show-label {
+            transform: scale(1);
+        }
+ 
+ 
+        .label-cluster{
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            color: #fff;
+            height: 1px;
+            width: 1px;
+            display: flex;
+            z-index: 99;
+            animation: scale-in-bottom 0.3s cubic-bezier(0.250, 0.460, 0.450, 0.940) both;
+        }
+        .label-cluster-name{
+            background: #0e8f0c;
+            height: 30px;
+            line-height: 30px;
+            width: max-content;
+            display: flex;
+            position: absolute;
+            transform: translateX(-50%);
+            padding: 0 10px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: -43px;
+        }
+ 
+        .label-cluster-name:hover{
+            background: #15bd12;
+        }
+ 
+        .more-content-ul{
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: max-content;
+            background: #232324d1;
+            z-index: 2;
+            padding: 10px;
+            border-radius: 8px;
+        }
+ 
+        .more-content-ul.hide{
+            display: none;
+        }
+ 
+        .inner-cluster-li{
+            cursor: pointer;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            user-select: none;
+            gap:8px;
+        }
+ 
+        .inner-cluster-li .icon-item{
+            width: 20px;
+            height: 20px;
+            background-position: center;
+            background-size: contain;
+            background-repeat: no-repeat;
+            transform: translateY(2px);
+        }
+ 
+        .inner-cluster-li .cluster-text-item{
+            flex:1;
+        }
+ 
+        @keyframes scale-in-bottom {
+            0% {
+                transform: scale(0);
+                transform-origin: 50% 100%;
+                opacity: 1;
+            }
+            100% {
+                transform: scale(1);
+                transform-origin: 50% 100%;
+                opacity: 1;
+            }
+        }
+    </style>
+    <script src="Build/Cesium/Cesium.js"></script>
+</head>
+<body >
+	<div id="cesiumContainer" class="fullSize"></div>
+    <script src="/js/turf.min.js"></script>
+    <script  type="module">
+        import Label from './js/Label.js'
+        import ClusteredLabel from './js/ClusteredLabel.js'
+        // let buildBaseImageryProvider = new Cesium.UrlTemplateImageryProvider({
+		// 	url: "./map/tile/{z}/{x}/{y}.png",
+		// 	maximumLevel: 3 // 最大级别
+		// })
+			
+ 
+		Cesium.Ion.defaultAccessToken='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiIyMGFhNTBjMi1kNGM4LTRjYWQtYWZhMC05ZTJhY2U2Y2U0ODkiLCJpZCI6MzE2MzYsImlhdCI6MTY2MDcxODA4NX0.jljbTXZPBaeSdsU7vuWg8V01oV1-fEA_qUa_08wXvq0';
+		var viewer = new Cesium.Viewer('cesiumContainer', {
+            geocoder: true,
+			animation : true,//是否显示动画控件,左下角仪表
+			fullscreenButton : false,//是否显示全屏按钮
+			homeButton : false,//是否显示Home按钮
+			infoBox : false,//是否显示信息框
+			sceneModePicker : false,//是否显示3D/2D选择器
+			scene3DOnly : true,//如果设置为true，则所有几何图形以3D模式绘制以节约GPU资源
+			selectionIndicator : false,//是否显示选取指示器组件
+			timeline : true,//是否显示时间轴
+			navigationHelpButton : false,//是否显示右上角的帮助按钮
+			baselLayerPicker:false,// 将图层选择的控件关掉，才能添加其他影像数据
+			shadows: true,//是否显示背影
+			shouldAnimate: true,
+		});
+ 
+ 
+        //去除版权信息
+        viewer._cesiumWidget._creditContainer.style.display = "none";
+        viewer.scene.debugShowFramesPerSecond = true;
+ 
+        if (Cesium.FeatureDetection.supportsImageRenderingPixelated()) {
+            //判断是否支持图像渲染像素化处理
+            viewer.resolutionScale = window.devicePixelRatio;
+        }
+        //开启抗锯齿
+        viewer.scene.fxaa = true;
+        viewer.scene.postProcessStages.fxaa.enabled = true;
+ 
+		//加载地理标记
+		// viewer.imageryLayers.addImageryProvider(
+        //     new Cesium.UrlTemplateImageryProvider({
+        //         url: "./map/label/{z}/{x}/{y}.png",
+        //         fileExtension: "png",
+        //         maximumLevel: 18
+        //     })
+        // )
+ 
+        let enterpriseList = []
+        
+        // let ssd = new Array()
+        // enterpriseList.forEach((item)=>{
+        //     ssd.push({
+        //         "id": item.id,
+        //         "materialName": item.equipName,
+        //         "longitude": item.longitude,
+        //         "latitude": item.latitude,
+        //         "icon":"/map/enterprise.png",
+        //         "imgWidth":21,
+        //         "imgHeight":27,
+        //         "address": item.equipLocation
+        //     })
+        // })
+       
+        // console.log(ssd)
+ 
+        let goodsList = [
+            {
+                "id": "1025924853057560576",
+                "materialName": "捆绑式堵漏袋",
+                "longitude": "112.790322",
+                "latitude": "28.506327",
+                "icon":"/map/wuzi.png",
+                "imgWidth":21,
+                "imgHeight":27,
+                "address": "湖南省长沙市望城区铜官街道九典宏阳制药(西门)湖南九典宏阳制药有限公司"
+            },
+            {
+                "id": "1025924853057560599",
+                "materialName": "捆绑式堵漏袋222227777777777777777777",
+                "longitude": "112.788994",
+                "latitude": "28.507182",
+                "icon":"/map/wuzi.png",
+                "imgWidth":21,
+                "imgHeight":27,
+                "address": "湖南省长沙市望城区铜官街道九典宏阳制药(西门)湖南九典宏阳制药有限公司"
+            }
+        ]
+ 
+        var points={
+            type: "FeatureCollection",
+            features:[
+                // {type: "Feature",geometry:{ type: "Point",coordinates:[113.4,33.9] } },
+                // {type: "Feature",geometry:{ type: "Point",coordinates:[123.5,33.9] } },
+                // {type: "Feature",geometry:{ type: "Point",coordinates:[96.4,20.9] } },
+                // {type: "Feature",geometry:{ type: "Point",coordinates:[120.4,38.9] } },
+                // {type: "Feature",geometry:{ type: "Point",coordinates:[123.4,33.9] } },
+                // {type: "Feature",geometry:{ type: "Point",coordinates:[123.4,33.9] } },
+            ]
+        }
+ 
+        goodsList.forEach((item)=>{
+            points.features.push({
+                type: "Feature",
+                geometry:{ type: "Point",coordinates:[Number(item.longitude),Number(item.latitude)] },
+                id:item.id,
+                coordinates:[Number(item.longitude),Number(item.latitude)],
+                extData:item
+            })
+        })
+ 
+        const calcIndexs = (list)=>{
+ 
+            let clusterIndexs = {}
+ 
+            list.forEach((item)=>{
+                if(item.properties.cluster!=undefined){
+                    if(clusterIndexs[item.properties.cluster]){
+                        clusterIndexs[item.properties.cluster].push(item)
+                    }else{
+                        clusterIndexs[item.properties.cluster] = [ item ]
+                    }
+                }else{
+                    clusterIndexs[ item.id ] = [item]
+                }
+                
+            })
+        
+            return clusterIndexs
+        }
+ 
+        var flyToEntity = null;
+        function viewerFlyToLonLat(obj) {
+            console.log("飞行参数：", obj.lng, obj.lat, obj.eyeHeight);
+            let cartographics = [Cesium.Cartographic.fromDegrees(obj.lng, obj.lat)];
+            cartographics.obj = obj;
+            Cesium.sampleTerrain(viewer.scene.terrainProvider, 14, cartographics)
+                .then((updatedPositions) => {
+                    var flyToHeight=updatedPositions[0].height;
+                    if(typeof(flyToHeight)=="undefined"){
+                        updatedPositions.obj.height = 0;
+                    }else{
+                        updatedPositions.obj.height = flyToHeight;
+                    }
+                    console.log("地形高度：", updatedPositions.obj.height);
+                    if (flyToEntity) {
+                        viewer.entities.remove(flyToEntity);
+                    }
+                    flyToEntity = new Cesium.Entity({
+                        id: 'flyTmp',
+                        position: Cesium.Cartesian3.fromDegrees(updatedPositions.obj.lng, updatedPositions.obj.lat, updatedPositions.obj.height),
+                        point: {
+                            pixelSize: 0,//控制居中的时候是否展示中心点
+                            color: Cesium.Color.RED.withAlpha(0),
+                            outlineColor: Cesium.Color.WHITE.withAlpha(0),
+                            outlineWidth: 0
+                        }
+                    });
+                    viewer.entities.add(flyToEntity);
+                    var flyPromise = viewer.flyTo(flyToEntity, {
+                        duration: updatedPositions.obj.time,//飞行时间,单位：秒
+                        offset: {
+                            heading: Cesium.Math.toRadians(updatedPositions.obj.heading),//旋转角度
+                            pitch: Cesium.Math.toRadians(updatedPositions.obj.pitch),//倾斜角度
+                            range: updatedPositions.obj.eyeHeight//视角高度
+                        }
+                    });
+                    // 飞行完后
+                    flyPromise.then(function (flyPromise) {
+                        console.log("飞行结束");
+                    }).otherwise(function (error) {
+                        console.log(error);
+                    });
+                });
+        }
+ 
+        
+        let curLevel = 18
+        let labelArray = new Array()
+        let clusteredLabelArray = new Array()
+        let levels = [10,11,12,13,14,15,16,17,18]
+ 
+        //监听地图移动完成事件 
+        const onMoveendMap = () => { 
+            let tileRender = viewer.scene.globe._surface._tilesToRender;
+            let clustered = null
+            //获取缩放级别
+            if(tileRender && Array.isArray(tileRender) && tileRender.length>0){
+                //判断缩放级别是否已变化并且在监听的级别之内
+                if(curLevel!=tileRender[0]._level && levels.includes(tileRender[0]._level)){
+                    removeMapObj()
+                    curLevel = tileRender[0]._level;
+                    if(tileRender[0]._level==13){
+                        clustered = turf.clustersDbscan(points, 0.5,{minPoints:2});//单位默认公里    0.5 //500米  minPoints  最少2个点
+                    }else if(tileRender[0]._level==14){
+                        clustered = turf.clustersDbscan(points, 0.2,{minPoints:2});//单位默认公里    0.2 //200米  minPoints  最少2个点
+                    }else if([15,16].includes(tileRender[0]._level)){
+                        clustered = turf.clustersDbscan(points, 0.05,{minPoints:2});//单位默认公里    0.05 //50米
+                    }else if([17,18].includes(tileRender[0]._level)){
+                        clustered = turf.clustersDbscan(points, 0.010,{minPoints:2});//单位默认公里    0.010 //10米
+                        console.log(clustered)
+                    }else{
+                        clustered = turf.clustersDbscan(points, 2,{minPoints:2});//单位默认公里    2 //2000米 
+                    }
+                    if(clustered){
+                        //返回的数据带有特点标识。
+                        let obj = calcIndexs(clustered.features)
+                        addPoint(obj)
+                    }
+                }
+            }
+        };  
+ 
+        const removeMapObj = ()=>{
+            labelArray.forEach((label)=>label.destory())
+            clusteredLabelArray.forEach((clustered)=>clustered.destory())
+        }
+ 
+        function getHeightByLevel(level) {
+            var A = 40487.57
+            var B = 0.00007096758
+            var C = 91610.74
+            var D = -40467.74
+            return Math.pow((A - D) / (level - D) - 1, 1 / B) * C
+        }
+ 
+        const addPoint = (obj)=>{
+            Object.keys(obj).forEach((key)=>{
+                if(obj[key].length==1){
+                    let label = new Label({
+                        viewer:viewer,
+                        position:[obj[key][0].coordinates[0], obj[key][0].coordinates[1],0],
+                        id:key,
+                        msg:obj[key][0].extData.materialName,
+                        icon:obj[key][0].extData.icon,
+                        extData:obj[key][0].extData,
+                        show:true,
+                        level:curLevel,
+                        click:(position,extData)=>{
+                            viewerFlyToLonLat({
+                                lng:position[0],
+                                lat:position[1],
+                                eyeHeight:700.0,
+                                pitch:Cesium.Math.toDegrees(viewer.scene.camera.pitch),
+                                heading:Cesium.Math.toDegrees(viewer.scene.camera.heading),
+                                roll:Cesium.Math.toDegrees(viewer.scene.camera.roll),
+                                time:1
+                            })
+                        },
+                        iconClick:()=>{
+                            alert("icon")
+                        }
+                    })
+                    labelArray.push(label)
+                }else{
+                    let clusteredLabel = new  ClusteredLabel({
+                        viewer:viewer,
+                        position:[obj[key][0].coordinates[0], obj[key][0].coordinates[1],0],
+                        id:key,
+                        msg:`物资(${obj[key].length}个)`,
+                        props:{ label:"materialName",value:"id" },
+                        level:curLevel,
+                        extData:obj[key],
+                        click:(data)=>{
+                            let curHeight = 0
+                            if(data.level<13){
+                                curHeight = getHeightByLevel(13)
+                            }else if(data.level<15){
+                                curHeight = getHeightByLevel(15)
+                            }else{
+                                curHeight = getHeightByLevel(18)
+                            }
+                            viewerFlyToLonLat({
+                                lng:data.position[0],
+                                lat:data.position[1],
+                                eyeHeight:curHeight,
+                                pitch:Cesium.Math.toDegrees(viewer.scene.camera.pitch),
+                                heading:Cesium.Math.toDegrees(viewer.scene.camera.heading),
+                                roll:Cesium.Math.toDegrees(viewer.scene.camera.roll),
+                                time:1
+                            })
+                        },
+                        iconClick:(data)=>{
+                            console.log(data)
+                        },
+                        itemClick:(data)=>{
+                            console.log(data)
+                        }
+                    })
+                    clusteredLabelArray.push(clusteredLabel)
+                }
+            })
+        }
+ 
+ 
+ 
+        
+ 
+        window.onload = ()=>{
+            //监听地图移动完成事件 
+            viewer.camera.moveEnd.addEventListener(onMoveendMap); 
+            var obj = {lng:112.791858, lat: 28.507616,eyeHeight:8500,pitch:-90,heading:0.0,time:3};
+            viewerFlyToLonLat(obj);
+        }
+    </script>
+</body>
+</html>

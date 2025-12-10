@@ -13,6 +13,7 @@ const tflyToData = {
 };
 // 基础数据zIndex
 const DEFAULT_GEOJSON_LAYER_Z_INDEX = 10000;
+
 // 二维视角
 const sflyToData = {
   destination: {
@@ -65,9 +66,9 @@ const MODEL_3DTILES_INFO_LIST = [
         z: 2756499.23604951,
       },
       orientation: {
-      heading: 3.3726323967365204,
-      pitch: -0.21280825155238148,
-      roll: 6.283183829219863,
+        heading: 3.3726323967365204,
+        pitch: -0.21280825155238148,
+        roll: 6.283183829219863,
       },
     },
   },
@@ -169,6 +170,7 @@ const EFFECT_WATER_LEVEL_COLOR_CONFIG_LSIT = [
     height: 178,
     checked: true,
     zIndex: 105,
+    loadChunk: false,
   },
   {
     id: 1990,
@@ -179,6 +181,7 @@ const EFFECT_WATER_LEVEL_COLOR_CONFIG_LSIT = [
     name: "设计洪水位(199.0米)",
     height: 192.1,
     zIndex: 104,
+    loadChunk: false,
   },
   {
     id: 1995,
@@ -189,16 +192,18 @@ const EFFECT_WATER_LEVEL_COLOR_CONFIG_LSIT = [
     name: "199.5米",
     height: 192.2,
     zIndex: 103,
+    loadChunk: true,
   },
   {
     id: 2000,
     value: "200.0",
-    color: "#ff5e00ff", 
+    color: "#ff5e00ff",
     alpha: 0.4,
     label: "200.0米",
     name: "200.0米",
     height: 192.3,
     zIndex: 102,
+    loadChunk: true,
   },
   {
     id: 2006,
@@ -209,6 +214,7 @@ const EFFECT_WATER_LEVEL_COLOR_CONFIG_LSIT = [
     name: "校核洪水位(200.6米)",
     height: 192.4,
     zIndex: 101,
+    loadChunk: true,
   },
 ];
 const DEFAULT_WATER_LEVEL_COLOR = {

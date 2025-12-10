@@ -194,7 +194,7 @@ class MapBus extends BaseMapBus {
         destination: Cesium.Cartesian3.fromDegrees(
           data.center[0],
           data.center[1],
-          1000
+          data.height || 1000
         ),
       });
       return;

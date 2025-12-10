@@ -95,7 +95,7 @@ export default {
     },
     handleAddPanel(data) {
       //可显示弹窗的类型
-      const isShowPanel = ["积涝点水位", "洪涝风险", "淹没分析", "房屋影响"];
+      const isShowPanel = ["积涝点水位", "洪涝风险", "淹没分析", "房屋影响", "水深点位"];
       if (isShowPanel.includes(data.label)) {
       // if (true) {
         let idx = this.tabList.findIndex((item) => item.label == data.label);
@@ -237,5 +237,11 @@ export default {
 
     // color: yellow!important;
   }
+}
+::v-deep .el-tabs__nav .is-top{
+  color: white !important;
+}
+::v-deep .el-tabs__nav-scroll .is-active{
+  color: #1890ff !important;
 }
 </style>

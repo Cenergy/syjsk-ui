@@ -159,7 +159,7 @@ class AffectedHousesLayer extends BaseLayer {
       console.error("加载受影响民房面数据失败:", error);
     }
     // 加载高程控制点
-    waterGcdLayer.show();
+    // waterGcdLayer.show({maxDepth: 198.4});
   }
 
   show() {
