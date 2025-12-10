@@ -205,7 +205,7 @@ class TilesetModelAccuracy extends BaseLayer {
     this.removeCameraListener();
 
     // 添加新的监听器
-    this.cameraChangeListener = viewer.camera.changed.addEventListener(() => {
+    this.cameraChangeListener = viewer.camera.moveEnd.addEventListener(() => {
       this.updateVisibilityThrottled();
     });
   }
