@@ -163,7 +163,7 @@ class WaterGcdLayer extends BaseLayer {
         // 显示水深（按当前 maxDepth）
         const depth = this.maxDepth - hNum;
         const depthText =
-          depth <= 0 ? "" : `\n水深:${Math.max(0, depth).toFixed(2)}m`;
+          depth <= 0 ? "" : `\n参考水深:${Math.max(0, depth).toFixed(2)}m`;
         const text = `高程:${elevTextVal}${depthText}`;
 
         const entity = this._createEntity({
@@ -311,7 +311,7 @@ class WaterGcdLayer extends BaseLayer {
         if (typeof h !== "number") return;
         const depth = this.maxDepth - h;
         const depthText =
-          depth <= 0 ? "" : `\n水深:${Math.max(0, depth).toFixed(2)}m`;
+          depth <= 0 ? "" : `\n参考水深:${Math.max(0, depth).toFixed(2)}m`;
         const text = `高程:${h}m${depthText}`;
         if (entity.label) {
           // 差异写入，避免不必要的属性更新与对象分配

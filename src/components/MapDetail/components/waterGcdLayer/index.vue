@@ -65,7 +65,7 @@
       >
         <el-table-column align="center" label="所属乡镇" prop="RefName"></el-table-column>
         <el-table-column align="center" label="高程点" prop="height"></el-table-column>
-        <el-table-column align="center" label="水深(米)" prop="depth"></el-table-column>
+        <el-table-column align="center" label="参考水深(米)" prop="depth"></el-table-column>
       </el-table>
     </div>
   </div>

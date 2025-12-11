@@ -42,6 +42,7 @@ const MODEL_3DTILES_INFO_LIST = [
     name: "营前镇",
     center: [114.28575725407956, 25.922855302869802, 150], // 模型纠偏位置
     postion: [114.28946781265908, 25.926791091608518], // 点位标注中心
+    height: 191.9,
     flyToData: {
       destination: {
         x: -2363662.01448374,
@@ -59,6 +60,7 @@ const MODEL_3DTILES_INFO_LIST = [
     name: "果木村",
     center: [114.17722276999999, 25.743288721999994, 0],
     postion: [114.19409004855454, 25.744386604141457],
+    height: 186.4,
     flyToData: {
       destination: {
         x: -2356023.0285521764,
@@ -76,6 +78,7 @@ const MODEL_3DTILES_INFO_LIST = [
     name: "过埠镇",
     center: [114.199929495, 25.765400621000003, 0],
     postion: [114.21800744628167, 25.754925269539907],
+    height: 187.8,
     flyToData: {
       destination: {
         x: -2360281.8299946846,
@@ -93,6 +96,7 @@ const MODEL_3DTILES_INFO_LIST = [
     name: "河梅村",
     center: [114.22885087572039, 25.793495950885837, 0],
     postion: [114.22888187572039, 25.793636250885837],
+    height: 176.1,
     flyToData: {
       destination: {
         x: -2359144.3677335484,
@@ -110,6 +114,7 @@ const MODEL_3DTILES_INFO_LIST = [
     name: "杰坝乡",
     center: [114.26933198172986, 25.839026424585195, 0],
     postion: [114.27120198172986, 25.834166424585195],
+    height: 189.1,
     flyToData: {
       destination: {
         x: -2362264.193262877,
@@ -127,6 +132,7 @@ const MODEL_3DTILES_INFO_LIST = [
     name: "龙下村",
     center: [114.312820103, 25.914897946999997, 0],
     postion: [114.31602079387898, 25.911017756752823],
+    height: 191.8,
     flyToData: {
       destination: {
         x: -2363791.1483108327,
@@ -144,6 +150,7 @@ const MODEL_3DTILES_INFO_LIST = [
     name: "水岩乡",
     center: [114.347670096, 25.948298538, 0],
     postion: [114.3334155036952, 25.967414295877674],
+    height: 189,
     flyToData: {
       destination: {
         x: -2364575.5037906775,
