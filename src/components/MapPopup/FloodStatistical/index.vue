@@ -129,14 +129,14 @@ import EffectAll from "./EffectAll.vue";
 import ChartShow from "./ChartShow.vue";
 import { mapState } from "vuex";
 
-const { EFFECT_WATER_LEVEL_COLOR_CONFIG_LSIT, MODEL_3DTILES_INFO_LIST } = constant;
+const { EFFECT_WATER_LEVEL_COLOR_CONFIG_LSIT, MODEL_3DTILES_INFO_LIST,MODEL_3DTILES_AREA_LIST } = constant;
 
 const effectWaterLevelList = EFFECT_WATER_LEVEL_COLOR_CONFIG_LSIT.map(
   (item) => item.label
 );
 
 const firstName = "淹没统计";
-const showTabs = [firstName, ...MODEL_3DTILES_INFO_LIST.map((item) => item.name)];
+const showTabs = [firstName, ...MODEL_3DTILES_AREA_LIST.map((item) => item.name)];
 
 export default {
   inject: ["getPopupData"],

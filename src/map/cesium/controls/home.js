@@ -3,7 +3,7 @@ import eventBus from "@/utils/EventBus";
 import * as layers from "../layers";
 import { constant } from "@/map";
 
-const { VIEW_SETTINGS_MAP, MODEL_3DTILES_INFO_LIST } = constant;
+const { VIEW_SETTINGS_MAP, MODEL_3DTILES_INFO_LIST,MODEL_3DTILES_AREA_LIST } = constant;
 
 const layerMap = new Map([
   // ["waterLogging", layers.waterLoggingPoint],
@@ -147,7 +147,7 @@ class MapBus extends BaseMapBus {
         viewInfo && viewer.camera.flyTo(viewInfo);
         return;
       }
-      const selectObj = MODEL_3DTILES_INFO_LIST.find(
+      const selectObj = MODEL_3DTILES_AREA_LIST.find(
         (item) => item.name === data
       );
 

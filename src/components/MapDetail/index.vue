@@ -71,7 +71,7 @@ export default {
       activeIdx: 0,
       activeTab: "",
       expand: false,
-      layerList:[...constant.VIEW_SETTINGS_MAP.keys(),...constant.MODEL_3DTILES_INFO_LIST.map(item=>item.name)]
+      layerList:[...constant.VIEW_SETTINGS_MAP.keys(),...constant.MODEL_3DTILES_AREA_LIST.map(item=>item.name)]
     };
   },
   methods: {
@@ -176,7 +176,7 @@ export default {
     /* outline: 3px solid #2DA6FC; */
   }
   .mapLayerContent {
-    width: 100px;
+    width: 120px;
     font-size: 16px;
     font-weight: bold;
     padding: 10px 0px;

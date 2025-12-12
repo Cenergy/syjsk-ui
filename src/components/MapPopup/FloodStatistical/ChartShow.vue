@@ -6,7 +6,7 @@
 import { mapGetters } from "vuex";
 import { getStatisticalData,tables } from "./mockData";
 import { constant } from "@/map";
-const { EFFECT_WATER_LEVEL_COLOR_CONFIG_LSIT } = constant;
+const { EFFECT_WATER_LEVEL_COLOR_CONFIG_LSIT,getAreaNameFromChildren } = constant;
 import * as echarts from 'echarts'
 
 export default {
@@ -78,11 +78,29 @@ export default {
       // 假如this.areaName有值，则统计这个areaName的值
        let aggregatedMap;
       if (this.areaName) {
-        const areaRows = (tables && tables.get(this.areaName)) || [];
-        // 转换为 Map<waterLevel, number[]> 以与聚合模式一致
-        aggregatedMap = new Map(
-          areaRows.map((row) => [row[0], row.slice(1)])
-        );
+           // 现在多个值合成一个：以该示例的多表名为准
+        const tableNameList = getAreaNameFromChildren(this.areaName); // L88 示例
+
+        // 将多个表的行按水位进行求和聚合：Map<waterLevel, number[]>
+        const grouped = new Map();
+        tableNameList.forEach((name) => {
+          const rows = (tables && tables.get(name)) || [];
+          rows.forEach((row) => {
+            const waterLevelKey = row[0];
+            const values = row.slice(1).map((v) => Number(v) || 0);
+            const acc = grouped.get(waterLevelKey);
+            if (!acc) {
+              // 初始化为当前值的拷贝
+              grouped.set(waterLevelKey, values.slice());
+            } else {
+              // 逐项累加
+              for (let i = 0; i < values.length; i++) {
+                acc[i] = (acc[i] || 0) + values[i];
+              }
+            }
+          });
+        });
+        aggregatedMap = grouped;
       } else {
         aggregatedMap = getStatisticalData();
       }

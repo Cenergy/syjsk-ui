@@ -63,9 +63,11 @@
         height="100%"
         @row-click="handleRowClick"
       >
-        <el-table-column align="center" label="所属村镇" prop="tsmc"></el-table-column>
-        <el-table-column align="center" label="所属小组" prop="xmmc"></el-table-column>
-        <el-table-column align="center" label="户主姓名" prop="cwbj"></el-table-column>
+        <el-table-column align="center" label="所属乡镇" prop="xz" width="80px"></el-table-column>
+        <el-table-column align="center" label="所属村" prop="xmmc">
+          <template slot-scope="scope">{{ (scope.row.xmmc+scope.row.fwwz)?(scope.row.xmmc+scope.row.fwwz):"--" }}</template>
+        </el-table-column>
+        <el-table-column align="center" label="户主姓名" prop="cwbj" width="110px"></el-table-column>
         <el-table-column align="center" label="联系电话" prop="lxdh"></el-table-column>
       </el-table>
     </div>
@@ -81,12 +83,12 @@ import WaterLevelSelector from "@/components/MapDetail/components/common/WaterLe
 import { turf } from "swpdmap";
 
 
-const { EFFECT_WATER_LEVEL_COLOR_CONFIG_LSIT, MODEL_3DTILES_INFO_LIST } = constant;
+const { EFFECT_WATER_LEVEL_COLOR_CONFIG_LSIT, MODEL_3DTILES_INFO_LIST,MODEL_3DTILES_AREA_LIST,getAreaNameFromChildren} = constant;
 
 const selectedName = "全部";
 const showWaterNameList = [
   selectedName,
-  ...MODEL_3DTILES_INFO_LIST.map((item) => item.name),
+  ...MODEL_3DTILES_AREA_LIST.map((item) => item.name),
 ];
 
 export default {
@@ -159,8 +161,9 @@ export default {
           return item.hsx <= waterHeight;
         });
       } else {
+        const areaNameList=getAreaNameFromChildren(this.selectedName)||[];
         this.tableData = this.orignalTableData.filter((item) => {
-          return item.RefName === this.selectedName && item.hsx <= waterHeight;
+          return areaNameList.includes(item.RefName) && item.hsx <= waterHeight;
         });
       }
 

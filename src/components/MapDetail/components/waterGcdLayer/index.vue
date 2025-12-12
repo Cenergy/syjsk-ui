@@ -79,12 +79,12 @@ import WaterLevelSelector from "@/components/MapDetail/components/common/WaterLe
 
 import { turf } from "swpdmap";
 
-const { EFFECT_WATER_LEVEL_COLOR_CONFIG_LSIT, MODEL_3DTILES_INFO_LIST } = constant;
+const { EFFECT_WATER_LEVEL_COLOR_CONFIG_LSIT, MODEL_3DTILES_INFO_LIST,MODEL_3DTILES_AREA_LIST,getAreaNameFromChildren } = constant;
 
 const selectedName = "全部";
 const showWaterNameList = [
   selectedName,
-  ...MODEL_3DTILES_INFO_LIST.map((item) => item.name),
+  ...MODEL_3DTILES_AREA_LIST.map((item) => item.name),
 ];
 
 export default {
@@ -149,8 +149,6 @@ export default {
       console.log("🚀 ~ label:", label);
       // 记录当前水位标签到本地状态，避免直接修改 props
       this.currentWaterLevelLabel = label || "";
-      console.log("🚀 ~ waterHeight:", waterHeight);
-        console.log("🚀 ~ this.selectedName:", this.selectedName);
       if (
         this.selectedName === "全部" ||
         this.selectedName === "整体影响" ||
@@ -164,9 +162,10 @@ export default {
             };
           });
       } else {
+        const areaNameList=getAreaNameFromChildren(this.selectedName)||[];
         this.tableData = this.orignalTableData
           .filter((item) => {
-            return item.RefName === this.selectedName;
+            return areaNameList.includes(item.RefName)
           })
           .map((item) => {
             const depth = waterHeight - item.height;

@@ -36,13 +36,11 @@ const VIEW_SETTINGS_MAP = new Map([
 // 默认视角
 const DEFAULT_VIEW_INFO = tflyToData;
 
-// 模型列表
-const MODEL_3DTILES_INFO_LIST = [
+//
+
+const MODEL_3DTILES_AREA_LIST = [
   {
-    name: "营前镇",
-    center: [114.28575725407956, 25.922855302869802, 150], // 模型纠偏位置
-    postion: [114.28946781265908, 25.926791091608518], // 点位标注中心
-    height: 191.9,
+    name: "上犹县营前镇",
     flyToData: {
       destination: {
         x: -2363662.01448374,
@@ -55,102 +53,47 @@ const MODEL_3DTILES_INFO_LIST = [
         roll: 0.000030021807740254758,
       },
     },
+    children: [
+      {
+        name: "营前镇",
+        center: [114.28575725407956, 25.922855302869802, 150], // 模型纠偏位置
+        postion: [114.28946781265908, 25.926791091608518], // 点位标注中心
+        height: 191.9,
+        flyToData: {
+          destination: {
+            x: -2363662.01448374,
+            y: 5232311.304850143,
+            z: 2770272.8201225647,
+          },
+          orientation: {
+            heading: 5.458459827020796,
+            pitch: -0.14823566961047518,
+            roll: 0.000030021807740254758,
+          },
+        },
+      },
+      {
+        name: "龙下村",
+        center: [114.312820103, 25.914897946999997, 0],
+        postion: [114.31602079387898, 25.911017756752823],
+        height: 191.8,
+        flyToData: {
+          destination: {
+            x: -2363791.1483108327,
+            y: 5232698.101370196,
+            z: 2769735.6823498416,
+          },
+          orientation: {
+            heading: 0.5930053820599612,
+            pitch: -0.3846411119478996,
+            roll: 6.28316864350151,
+          },
+        },
+      },
+    ],
   },
   {
-    name: "果木村",
-    center: [114.17722276999999, 25.743288721999994, 0],
-    postion: [114.19409004855454, 25.744386604141457],
-    height: 186.4,
-    flyToData: {
-      destination: {
-        x: -2356023.0285521764,
-        y: 5242942.229759408,
-        z: 2756499.23604951,
-      },
-      orientation: {
-        heading: 3.3726323967365204,
-        pitch: -0.21280825155238148,
-        roll: 6.283183829219863,
-      },
-    },
-  },
-  {
-    name: "过埠镇",
-    center: [114.199929495, 25.765400621000003, 0],
-    postion: [114.21800744628167, 25.754925269539907],
-    height: 187.8,
-    flyToData: {
-      destination: {
-        x: -2360281.8299946846,
-        y: 5243199.253728833,
-        z: 2753344.307854071,
-      },
-      orientation: {
-        heading: 5.581068125642169,
-        pitch: -0.1620939787421587,
-        roll: 6.283160021886346,
-      },
-    },
-  },
-  {
-    name: "河梅村",
-    center: [114.22885087572039, 25.793495950885837, 0],
-    postion: [114.22888187572039, 25.793636250885837],
-    height: 176.1,
-    flyToData: {
-      destination: {
-        x: -2359144.3677335484,
-        y: 5240816.90945893,
-        z: 2757514.541804226,
-      },
-      orientation: {
-        heading: 5.932846963081119,
-        pitch: -0.09979169964206691,
-        roll: 0.000006051929970496417,
-      },
-    },
-  },
-  {
-    name: "杰坝乡",
-    center: [114.26933198172986, 25.839026424585195, 0],
-    postion: [114.27120198172986, 25.834166424585195],
-    height: 189.1,
-    flyToData: {
-      destination: {
-        x: -2362264.193262877,
-        y: 5237709.428261508,
-        z: 2761166.7267465405,
-      },
-      orientation: {
-        heading: 5.948829336014486,
-        pitch: -0.12191523321607356,
-        roll: 0.00003198124260794799,
-      },
-    },
-  },
-  {
-    name: "龙下村",
-    center: [114.312820103, 25.914897946999997, 0],
-    postion: [114.31602079387898, 25.911017756752823],
-    height: 191.8,
-    flyToData: {
-      destination: {
-        x: -2363791.1483108327,
-        y: 5232698.101370196,
-        z: 2769735.6823498416,
-      },
-      orientation: {
-        heading: 0.5930053820599612,
-        pitch: -0.3846411119478996,
-        roll: 6.28316864350151,
-      },
-    },
-  },
-  {
-    name: "水岩乡",
-    center: [114.347670096, 25.948298538, 0],
-    postion: [114.3334155036952, 25.967414295877674],
-    height: 185.3,
+    name: "上犹县水岩乡",
     flyToData: {
       destination: {
         x: -2364575.5037906775,
@@ -163,8 +106,168 @@ const MODEL_3DTILES_INFO_LIST = [
         roll: 6.28318431596369,
       },
     },
+    children: [
+      {
+        name: "水岩乡",
+        center: [114.347670096, 25.948298538, 0],
+        postion: [114.3334155036952, 25.967414295877674],
+        height: 185.3,
+        flyToData: {
+          destination: {
+            x: -2364575.5037906775,
+            y: 5228667.009322487,
+            z: 2775279.904647736,
+          },
+          orientation: {
+            heading: 5.9579370597453165,
+            pitch: -0.09766414281171043,
+            roll: 6.28318431596369,
+          },
+        },
+      },
+    ],
+  },
+  {
+    name: "崇义县过埠镇",
+    flyToData: {
+      destination: {
+        x: -2360281.8299946846,
+        y: 5243199.253728833,
+        z: 2753344.307854071,
+      },
+      orientation: {
+        heading: 5.581068125642169,
+        pitch: -0.1620939787421587,
+        roll: 6.283160021886346,
+      },
+    },
+    children: [
+      {
+        name: "果木村",
+        center: [114.17722276999999, 25.743288721999994, 0],
+        postion: [114.19409004855454, 25.744386604141457],
+        height: 186.4,
+        flyToData: {
+          destination: {
+            x: -2356023.0285521764,
+            y: 5242942.229759408,
+            z: 2756499.23604951,
+          },
+          orientation: {
+            heading: 3.3726323967365204,
+            pitch: -0.21280825155238148,
+            roll: 6.283183829219863,
+          },
+        },
+      },
+      {
+        name: "过埠镇",
+        center: [114.199929495, 25.765400621000003, 0],
+        postion: [114.21800744628167, 25.754925269539907],
+        height: 187.8,
+        flyToData: {
+          destination: {
+            x: -2360281.8299946846,
+            y: 5243199.253728833,
+            z: 2753344.307854071,
+          },
+          orientation: {
+            heading: 5.581068125642169,
+            pitch: -0.1620939787421587,
+            roll: 6.283160021886346,
+          },
+        },
+      },
+      {
+        name: "河梅村",
+        center: [114.22885087572039, 25.793495950885837, 0],
+        postion: [114.22888187572039, 25.793636250885837],
+        height: 176.1,
+        flyToData: {
+          destination: {
+            x: -2359144.3677335484,
+            y: 5240816.90945893,
+            z: 2757514.541804226,
+          },
+          orientation: {
+            heading: 5.932846963081119,
+            pitch: -0.09979169964206691,
+            roll: 0.000006051929970496417,
+          },
+        },
+      },
+    ],
+  },
+  {
+    name: "崇义县杰坝乡",
+    flyToData: {
+      destination: {
+        x: -2362264.193262877,
+        y: 5237709.428261508,
+        z: 2761166.7267465405,
+      },
+      orientation: {
+        heading: 5.948829336014486,
+        pitch: -0.12191523321607356,
+        roll: 0.00003198124260794799,
+      },
+    },
+    children: [
+      {
+        name: "杰坝乡",
+        center: [114.26933198172986, 25.839026424585195, 0],
+        postion: [114.27120198172986, 25.834166424585195],
+        height: 189.1,
+        flyToData: {
+          destination: {
+            x: -2362264.193262877,
+            y: 5237709.428261508,
+            z: 2761166.7267465405,
+          },
+          orientation: {
+            heading: 5.948829336014486,
+            pitch: -0.12191523321607356,
+            roll: 0.00003198124260794799,
+          },
+        },
+      },
+    ],
   },
 ];
+
+// 根据 ml 的 children 生成模型列表，结构与原 MODEL_3DTILES_INFO_LIST 保持一致
+function buildModelTilesInfoListFromChildren(modelTree = []) {
+  const list = [];
+  modelTree.forEach((area) => {
+    const children = (area && area.children) || [];
+    children.forEach((child) => {
+      if (!child || !child.name) return;
+      list.push({
+        name: child.name,
+        center: child.center,
+        postion: child.postion,
+        height: child.height,
+        // 优先使用子级的 flyToData，缺省时回退到父级
+        flyToData: child.flyToData || area.flyToData,
+      });
+    });
+  });
+  return list;
+}
+// 获取children中的名字
+function getAreaNameFromChildren(areaName) {
+  return MODEL_3DTILES_AREA_LIST.filter((area) => area.name === areaName)
+    .map((item) => item.children.map((child) => child.name))
+    .flat();
+}
+
+const aaa = getAreaNameFromChildren("上犹县营前镇");
+console.log("🚀 ~ aaa:", aaa);
+
+// 模型列表（由 children 动态生成）
+const MODEL_3DTILES_INFO_LIST = buildModelTilesInfoListFromChildren(
+  MODEL_3DTILES_AREA_LIST
+);
 const EFFECT_WATER_LEVEL_COLOR_CONFIG_LSIT = [
   {
     id: 1984,
@@ -237,9 +340,11 @@ const DEFAULT_WATER_LEVEL_COLOR = {
 };
 
 export {
+  MODEL_3DTILES_AREA_LIST,
   MODEL_3DTILES_INFO_LIST,
   VIEW_SETTINGS_MAP,
   DEFAULT_VIEW_INFO,
   EFFECT_WATER_LEVEL_COLOR_CONFIG_LSIT,
   DEFAULT_WATER_LEVEL_COLOR,
+  getAreaNameFromChildren,
 };

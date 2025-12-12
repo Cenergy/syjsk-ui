@@ -34,7 +34,7 @@ import {
   tables,
 } from "@/components/MapPopup/FloodStatistical/mockData";
 import { constant } from "@/map";
-const { EFFECT_WATER_LEVEL_COLOR_CONFIG_LSIT, MODEL_3DTILES_INFO_LIST } = constant;
+const { EFFECT_WATER_LEVEL_COLOR_CONFIG_LSIT, MODEL_3DTILES_INFO_LIST, MODEL_3DTILES_AREA_LIST, getAreaNameFromChildren } = constant;
 
 import layerGroup from "@/components/LayerControl/layerGroup";
 
@@ -108,10 +108,31 @@ export default {
       // 使用聚合统计数据（按水位分组求和）
       // 假如this.areaName有值，则统计这个areaName的值
       let aggregatedMap;
+      console.log("🚀 ~ this.currentAreaName:", this.currentAreaName);
       if (this.currentAreaName) {
-        const areaRows = (tables && tables.get(this.currentAreaName)) || [];
-        // 转换为 Map<waterLevel, number[]> 以与聚合模式一致
-        aggregatedMap = new Map(areaRows.map((row) => [row[0], row.slice(1)]));
+        // 若为父区域则聚合其 children；若无 children 则回退为当前区域自身
+        const names = getAreaNameFromChildren(this.currentAreaName) || [];
+        const tableNameList = names.length ? names : [this.currentAreaName];
+        console.log("🚀 ~ tableNameList:", tableNameList);
+
+        // 将多个表的行按水位进行求和聚合：Map<waterLevel, number[]>
+        const grouped = new Map();
+        tableNameList.forEach((name) => {
+          const rows = (tables && tables.get(name)) || [];
+          rows.forEach((row) => {
+            const waterLevelKey = row[0];
+            const values = row.slice(1).map((v) => Number(v) || 0);
+            const acc = grouped.get(waterLevelKey);
+            if (!acc) {
+              grouped.set(waterLevelKey, values.slice());
+            } else {
+              for (let i = 0; i < values.length; i++) {
+                acc[i] = (acc[i] || 0) + values[i];
+              }
+            }
+          });
+        });
+        aggregatedMap = grouped;
       } else {
         aggregatedMap = getStatisticalData();
       }
@@ -182,7 +203,7 @@ export default {
   },
   mounted() {
     this.mockData = this.buildMockData(this.selectedWaterLevelList);
-    const areaNameList = MODEL_3DTILES_INFO_LIST.map((item) => item.name);
+    const areaNameList = MODEL_3DTILES_AREA_LIST.map((item) => item.name);
     this.$bus.on("mapLocate", (evt) => {
       const name = evt.data;
       if (areaNameList.includes(name)) {
