@@ -1,6 +1,10 @@
 import BaseLayer from "./baseLayer";
 import { gcdData } from "@/api/map";
 
+import { constant } from "@/map";
+
+const { EFFECT_WATER_LEVEL_COLOR_CONFIG_LSIT, DEFAULT_WATER_LEVEL_COLOR,MODEL_3DTILES_INFO_LIST } = constant;
+
 class WaterGcdLayer extends BaseLayer {
   constructor(options = {}) {
     super(options);
@@ -10,7 +14,7 @@ class WaterGcdLayer extends BaseLayer {
     this.hasLoaded = false;
 
     // 数据源
-    this.gcdUrl = "/datasets/geojson/gcd.geojson";
+    this.gcdUrl = "/geodata/geojson/gcd.geojson";
 
     // 标签样式（对齐 reservoirPoints 的风格）
     this.labelConfig = {
@@ -238,6 +242,7 @@ class WaterGcdLayer extends BaseLayer {
         outlineColor: Cesium.Color.WHITE,
         outlineWidth: 1,
         showBackground: false,
+        heightReference: Cesium.HeightReference.NONE,
         // heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
         disableDepthTestDistance: Number.POSITIVE_INFINITY,
       },

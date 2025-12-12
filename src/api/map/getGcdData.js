@@ -2,7 +2,7 @@
 // 写一个缓存数据的接口
 // 地址  const baseURL= `/geodata/geojson/houses.geojson`
 class GcdData{
-  constructor(baseURL = "/datasets/geojson/gcd.geojson"){
+  constructor(baseURL = "/geodata/geojson/gcd.geojson"){
     this.data = null;
     this.baseURL = baseURL;
     this.hasFetched = false;

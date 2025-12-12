@@ -150,7 +150,7 @@ const MODEL_3DTILES_INFO_LIST = [
     name: "水岩乡",
     center: [114.347670096, 25.948298538, 0],
     postion: [114.3334155036952, 25.967414295877674],
-    height: 189,
+    height: 185.3,
     flyToData: {
       destination: {
         x: -2364575.5037906775,
@@ -177,7 +177,7 @@ const EFFECT_WATER_LEVEL_COLOR_CONFIG_LSIT = [
     height: 178,
     checked: true,
     zIndex: 105,
-    loadChunk: false,
+    loadChunk: true,
   },
   {
     id: 1990,
@@ -188,7 +188,7 @@ const EFFECT_WATER_LEVEL_COLOR_CONFIG_LSIT = [
     name: "设计洪水位(199.0米)",
     height: 192.1,
     zIndex: 104,
-    loadChunk: false,
+    loadChunk: true,
   },
   {
     id: 1995,

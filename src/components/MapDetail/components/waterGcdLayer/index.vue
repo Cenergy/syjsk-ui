@@ -243,9 +243,6 @@ export default {
         featuresData.sort((a, b) => a.height - b.height)
       );
       this.buildTableDataMock({ cfg: sourceCfg });
-
-      // 加载受影响民房面数据图层
-      affectedHousesLayer.add({ data, id: "affected-houses", zIndex: 120 });
     });
     // 若通过 props 传入 currentAreaName，则选中对应区域
     if (this.currentAreaName) {

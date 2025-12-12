@@ -67,6 +67,7 @@ import EffectAll from "./EffectAll.vue";
 import ChartShow from "@/components/MapPopup/FloodStatistical/ChartShow.vue";
 import waterLevelLayer from "@/map/cesium/layers/waterLevelLayer";
 import waterGcdLayer from "@/map/cesium/layers/waterGcdLayer";
+import affectedHousesLayer from "@/map/cesium/layers/affectedHousesLayer";
 import WaterLevelSelector from "@/components/MapDetail/components/common/WaterLevelSelector.vue";
 
 const { EFFECT_WATER_LEVEL_COLOR_CONFIG_LSIT, MODEL_3DTILES_INFO_LIST } = constant;
@@ -203,6 +204,8 @@ export default {
     this.$store.commit("selectedWaterLevelList", this.selectedWaterLevelList);
     // 显示高程控制点图层，联动“水深”标签
     waterGcdLayer.show({maxDepth: 198.4});
+    // 显示受影响的房子
+    affectedHousesLayer.add({ id: "affected-houses", zIndex: 120 });
     this.$bus.on("mapLocate", (evt) => {
       const name = evt.data;
       if (areaNameList.includes(name)) {
