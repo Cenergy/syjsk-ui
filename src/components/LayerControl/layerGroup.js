@@ -8,7 +8,7 @@ const layerGroup = {
     {
       value: "terrainLayer",
       label: "地形数据",
-      flag: true,
+      flag: false,
     },
     {
       value: "cloudImage",
@@ -18,7 +18,7 @@ const layerGroup = {
     {
       value: "tilesetModelAccuracy",
       label: "倾斜摄影",
-      flag: true,
+      flag: false,
     },
     // {
     //   value: "riverLayer",

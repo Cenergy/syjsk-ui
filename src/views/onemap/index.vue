@@ -1,5 +1,8 @@
 <template>
   <div style="height: 100%">
+    <div style="position: absolute;z-index: 100;left: 0%;top:10px;width: 30%;padding: 0px 10px;">
+      <FloodSummary></FloodSummary>
+    </div>
     <CMap style="position: fixed; top: 0; left: 0" />
     <el-row type="flex" style="height: 100%; pointer-events: none">
       <el-col :span="6">
@@ -69,8 +72,11 @@ import CMap from "@/components/CMap";
 import FooterBar from "@/components/FooterBar";
 import LayerControl from "@/components/LayerControl/index.vue";
 import MapDetail from "@/components/MapDetail/index.vue";
+import FloodSummary from "@/components/MapDetail/components/common/FloodSummary";
 import FullscreenIframe from "@/components/FullscreenIframe";
 import MapPopup from "@/components/MapPopup/MapPopup.vue";
+
+
 
 export default {
   components: {
@@ -90,6 +96,7 @@ export default {
     waterSummary,
     FooterBar,
     MapPopup,
+    FloodSummary
   },
   data() {
     return {

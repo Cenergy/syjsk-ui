@@ -24,7 +24,6 @@
         </template>
       </el-table-column>
     </el-table>
-    <FloodSummary />
   </div>
 </template>
 

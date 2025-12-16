@@ -1,6 +1,6 @@
 <template>
   <div class="description">
-    <p>总结：{{ descriptionText }}</p>
+    <p>{{ descriptionText }}</p>
   </div>
 </template>
 
@@ -78,7 +78,7 @@ export default {
           totalArable += arable;
           breakdown.push(`${name}${houses}栋`);
         });
-        const breakdownText = breakdown.length ? `（分村：${breakdown.join("，")}）` : "";
+        const breakdownText = breakdown.length ? `（${breakdown.join("，")}）` : "";
         const levelText = (cfg && cfg.name) ? cfg.name : `${aggKey}米`;
         return `当前水位：${levelText}，影响民房${this.formatValue(totalHouses)}栋${breakdownText}，影响范围${this.formatValue(totalArea)}亩，影响耕地${this.formatValue(totalArable)}亩`;
       }
@@ -108,7 +108,7 @@ export default {
         totalArable += sumArable;
         breakdown.push(`${labelName}${sumHouses}栋`);
       });
-      const breakdownText = breakdown.length ? `（分乡镇：${breakdown.join("，")}）` : "";
+      const breakdownText = breakdown.length ? `（${breakdown.join("，")}）` : "";
       const levelText = (cfg && cfg.name) ? cfg.name : `${aggKey}米`;
       return `当前水位：${levelText}，影响民房${this.formatValue(totalHouses)}栋${breakdownText}，影响范围${this.formatValue(totalArea)}亩，影响耕地${this.formatValue(totalArable)}亩`;
     },

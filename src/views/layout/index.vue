@@ -15,7 +15,7 @@
         </router-link> -->
       </div>
       <div class="title-container">
-        <strong class="title">上犹江水库一张图(上游淹没部分)</strong>
+        <strong class="title">上犹江水库库区淹没一张图</strong>
       </div>
       <div class="navbar" style="justify-content: flex-start">
         <!-- <router-link to="/four-yu" custom v-slot="{ navigate, isActive }">
@@ -140,11 +140,12 @@
     <el-main class="main">
       <router-view></router-view>
     </el-main>
-    <FooterBar  :tab-list="[]"/>
+    <!-- <FooterBar  :tab-list="[]"/> -->
   </el-container>
 </template>
 <script>
 import FooterBar from "@/components/FooterBar";
+
 export default {
   components: {FooterBar},
   data() {

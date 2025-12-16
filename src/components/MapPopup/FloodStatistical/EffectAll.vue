@@ -14,7 +14,6 @@
       </template>
       </el-table-column>
     </el-table>
-    总体描述:
     <div class="description">
       <p>{{ descriptionText }}</p>
     </div>
@@ -24,11 +23,13 @@
 <script>
 import { mapGetters } from "vuex";
 import { getStatisticalData,tables } from "./mockData";
+import FloodSummary from "@/components/MapDetail/components/common/FloodSummary";
 import { constant } from "@/map";
 const { EFFECT_WATER_LEVEL_COLOR_CONFIG_LSIT, MODEL_3DTILES_AREA_LIST, getAreaNameFromChildren } = constant;
 
 export default {
   name: "EffectAll",
+  components: { FloodSummary },
   props: {
     areaName: {
       type: String,

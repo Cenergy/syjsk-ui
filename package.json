@@ -1,7 +1,7 @@
 {
   "name": "syjsk",
   "version": "0.0.1",
-  "description": "上犹江水库一张图(上游淹没部分)",
+  "description": "上犹江水库库区淹没一张图",
   "author": "swkj",
   "license": "MIT",
   "scripts": {
