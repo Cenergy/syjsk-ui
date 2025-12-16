@@ -51,7 +51,6 @@ class WaterLevelLayer extends BaseLayer {
         const {name: areaName,height:baseHeight}=info;
         
         const path = `/geodata/effects/${areaName}${id}.geojson`;
-        console.log("🚀 ~ WaterLevelLayer ~ add (chunk) ~ path:", path);
         try {
           const resp = await fetch(path);
           if (!resp.ok) {
@@ -73,7 +72,6 @@ class WaterLevelLayer extends BaseLayer {
             if (entity && entity.polygon) {
               // entity.polygon.zIndex = zIndex;
               const height = baseHeight+(Number(id)-2000)*0.1;
-              console.log("🚀 ~ WaterLevelLayer ~ add ~ caclHeight:", height);
               entity.polygon.height = height;
             }
           });
@@ -199,6 +197,8 @@ class WaterLevelLayer extends BaseLayer {
     sortedDataSources.forEach((dataSource) => {
       this.viewer.dataSources.raiseToTop(dataSource);
     });
+    // 通知其他图层（如受影响民房）在水位层置顶后自行再置顶，保证覆盖关系
+    eventBus.emit("waterLayersSorted");
   }
 
   setLegend() {

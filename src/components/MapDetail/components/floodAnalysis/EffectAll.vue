@@ -1,6 +1,6 @@
 <template>
   <div class="stat-container">
-    <el-table :data="tableData" style="width: 100%" height="550" border>
+    <el-table :data="tableData" style="width: 100%" height="450" border>
       <el-table-column prop="name" label="典型水位" width="77"></el-table-column>
       <el-table-column
         v-for="(value, key) in mockData"
@@ -24,6 +24,7 @@
         </template>
       </el-table-column>
     </el-table>
+    <FloodSummary />
   </div>
 </template>
 
@@ -34,9 +35,15 @@ import {
   tables,
 } from "@/components/MapPopup/FloodStatistical/mockData";
 import { constant } from "@/map";
-const { EFFECT_WATER_LEVEL_COLOR_CONFIG_LSIT, MODEL_3DTILES_INFO_LIST, MODEL_3DTILES_AREA_LIST, getAreaNameFromChildren } = constant;
+const {
+  EFFECT_WATER_LEVEL_COLOR_CONFIG_LSIT,
+  MODEL_3DTILES_INFO_LIST,
+  MODEL_3DTILES_AREA_LIST,
+  getAreaNameFromChildren,
+} = constant;
 
 import layerGroup from "@/components/LayerControl/layerGroup";
+import FloodSummary from "../common/FloodSummary.vue";
 
 const houseLayer = layerGroup.layerGuideLine.find(
   (item) => item.value === "affectedHousesLayer"
@@ -44,6 +51,7 @@ const houseLayer = layerGroup.layerGuideLine.find(
 
 export default {
   name: "EffectAll",
+  components: { FloodSummary },
   props: {
     areaName: {
       type: String,
@@ -101,7 +109,7 @@ export default {
       if (!Number.isFinite(num)) return "-";
       if (Number.isInteger(num)) return String(Math.trunc(num));
       // 非整数：最多保留 6 位小数，去掉末尾的 0 和可能多余的小数点
-      return parseFloat(num.toFixed(6)).toString();
+      return parseFloat(num.toFixed(2)).toString();
     },
     buildMockData(levelLabels) {
       const result = {};
@@ -160,6 +168,7 @@ export default {
       const cfg = EFFECT_WATER_LEVEL_COLOR_CONFIG_LSIT.find((i) => i.label === key) || {
         value: Infinity,
       };
+      console.log("🚀 ~ cfg:", cfg);
       const value = scope.row[waterLevelKey];
       const rowName = scope.row.name;
       // 向父组件派发事件，传递当前水位列与该行数据值
@@ -172,6 +181,7 @@ export default {
           rowName,
           cfg,
         });
+      houseLayer.isActived = true;
       this.$bus.emit("addMapDetail", {
         ...houseLayer,
         props: {
@@ -181,17 +191,17 @@ export default {
           cfg,
         },
       });
-      this.$bus.emit("addMapDetail", {
-        value: "waterGcdLayer",
-        label: "水深点位",
-        flag: true,
-        props: {
-          waterLevelKey: this.denormalizeKey(waterLevelKey),
-          housesCount: value,
-          currentAreaName: this.currentAreaName,
-          cfg,
-        },
-      });
+      // this.$bus.emit("addMapDetail", {
+      //   value: "waterGcdLayer",
+      //   label: "水深点位",
+      //   flag: true,
+      //   props: {
+      //     waterLevelKey: this.denormalizeKey(waterLevelKey),
+      //     housesCount: value,
+      //     currentAreaName: this.currentAreaName,
+      //     cfg,
+      //   },
+      // });
 
       // 发布水位类型事件
       this.$bus.emit("changeWaterLevelType", {
@@ -212,6 +222,11 @@ export default {
         this.currentAreaName = "";
       }
       this.mockData = this.buildMockData(this.selectedWaterLevelList);
+    });
+
+    this.$bus.emit("addMapDetail", {
+      ...houseLayer,
+      props: {},
     });
   },
 };

@@ -44,6 +44,7 @@ const layerGroup = {
       value: "affectedHousesLayer",
       label: "房屋影响",
       showDetail: true,
+      isOpen: false,
       flag: false,
     },
     // {

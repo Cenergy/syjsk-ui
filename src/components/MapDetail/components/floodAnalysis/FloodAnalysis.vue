@@ -7,7 +7,7 @@
       color: #fff !important;
     "
   >
-    <ZebraTitle style="margin-bottom: 15px">
+    <!-- <ZebraTitle style="margin-bottom: 15px">
       <span
         style="
           font-family: Source Han Sans CN;
@@ -19,7 +19,7 @@
         "
         >查询条件</span
       >
-    </ZebraTitle>
+    </ZebraTitle> -->
     <WaterLevelSelector
       :effectWaterLevelList="effectWaterLevelList"
       v-model="selectedWaterLevelList"
@@ -169,6 +169,7 @@ export default {
       const maxDepth = Math.max(...EFFECT_WATER_LEVEL_COLOR_CONFIG_LSIT.filter(item => this.selectedWaterLevelList.includes(item.label)).map(item => item.value));
       // 显示高程控制点图层，联动“水深”标签
       waterGcdLayer.show({maxDepth});
+      affectedHousesLayer.maxDepth = maxDepth;
     },
     handleRowClick(row) {
       // const row = this.data[idx]
@@ -205,7 +206,7 @@ export default {
     // 显示高程控制点图层，联动“水深”标签
     waterGcdLayer.show({maxDepth: 198.4});
     // 显示受影响的房子
-    affectedHousesLayer.add({ id: "affected-houses", zIndex: 120 });
+    affectedHousesLayer.add({ id: "affected-houses", zIndex: 999 });
     this.$bus.on("mapLocate", (evt) => {
       const name = evt.data;
       if (areaNameList.includes(name)) {

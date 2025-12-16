@@ -69,6 +69,7 @@ class MapBus extends BaseMapBus {
     eventBus.emit("addMapDetail", {
       value: "floodAnalysis",
       label: "淹没分析",
+      isActived: true,
     });
     // eventBus.emit("addMapDetail", {
     //   value: "tilesetModelAccuracy",

@@ -25,7 +25,7 @@ export default {
   data() {
     return {
         excludeFields: [
-            "OBJECTID","wz","xz"
+            "OBJECTID","wz","xz","ID",
         ],
         housesLabel:{
             "hsx":"受影响水位",
@@ -36,9 +36,16 @@ export default {
             "fwwz":"房屋地址",
             "czrk":"常住人口",
             "lxdh":"联系方式",
+            "fwgc":"房屋最低高程",
+            "maxDepth":"当前水位",
+            "waterHeight":"房屋淹没高度",
         },
         unitsObject:{
             "hsx":"米",
+            "fwgc":"米",
+            "maxDepth":"米",
+            "waterHeight":"米",
+            "czrk":"人",
         }
     }
   },
@@ -47,7 +54,9 @@ export default {
       if (v === null || v === undefined) return '';
       return String(v);
     }
-  }
+  },
+  mounted() { 
+  },
 }
 </script>
 

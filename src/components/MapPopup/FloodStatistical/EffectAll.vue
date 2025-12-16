@@ -1,6 +1,6 @@
 <template>
   <div class="stat-container">
-    <el-table :data="tableData" style="width: 100%" height="500" border>
+    <el-table :data="tableData" style="width: 100%" height="400" border>
       <el-table-column prop="name" label="典型水位" width="115"></el-table-column>
       <el-table-column
         v-for="(value, key) in mockData"
@@ -14,6 +14,10 @@
       </template>
       </el-table-column>
     </el-table>
+    总体描述:
+    <div class="description">
+      <p>{{ descriptionText }}</p>
+    </div>
   </div>
 </template>
 
@@ -21,7 +25,7 @@
 import { mapGetters } from "vuex";
 import { getStatisticalData,tables } from "./mockData";
 import { constant } from "@/map";
-const { EFFECT_WATER_LEVEL_COLOR_CONFIG_LSIT,getAreaNameFromChildren } = constant;
+const { EFFECT_WATER_LEVEL_COLOR_CONFIG_LSIT, MODEL_3DTILES_AREA_LIST, getAreaNameFromChildren } = constant;
 
 export default {
   name: "EffectAll",
@@ -46,6 +50,94 @@ export default {
   },
   computed: {
     ...mapGetters(["selectedWaterLevelList"]),
+    // 汇总描述文案
+    descriptionText() {
+      // 选择多个水位时：取“最大水位”作为描述依据
+      const labels = (this.selectedWaterLevelList && this.selectedWaterLevelList.length)
+        ? this.selectedWaterLevelList
+        : EFFECT_WATER_LEVEL_COLOR_CONFIG_LSIT.map((i) => i.label);
+
+      const pickMaxCfg = () => {
+        const cfgList = labels
+          .map((label) => EFFECT_WATER_LEVEL_COLOR_CONFIG_LSIT.find((i) => i.label === label))
+          .filter(Boolean);
+        if (cfgList.length === 0) {
+          // 回退为所有典型水位中最大值
+          return EFFECT_WATER_LEVEL_COLOR_CONFIG_LSIT
+            .slice()
+            .sort((a, b) => Number(b.value) - Number(a.value))[0];
+        }
+        // 在选中水位中找最大值
+        return cfgList.slice().sort((a, b) => Number(b.value) - Number(a.value))[0];
+      };
+
+      const cfg = pickMaxCfg();
+      const targetLabel = cfg ? cfg.label : labels[0];
+      const aggKey = (() => {
+        if (!cfg) return targetLabel;
+        const n = Number(cfg.value);
+        return Number.isFinite(n) ? n.toFixed(1) : String(cfg.value);
+      })();
+
+      // 计算总值与分组值（基于目标水位）
+      let totalRoad = 0;
+      let totalHouses = 0;
+      let totalArea = 0;
+      let totalArable = 0;
+      const breakdown = [];
+
+      if (this.areaName) {
+        // 有具体父区域：按其子级（村/镇）逐个取行并累加
+        const childNames = getAreaNameFromChildren(this.areaName) || [];
+        if (!childNames.length) return "暂无数据";
+        childNames.forEach((name) => {
+          const rows = (tables && tables.get(name)) || [];
+          const row = rows.find((r) => String(r[0]) === String(aggKey));
+          if (!row) return;
+          const road = Number(row[1]) || 0;
+          const houses = Number(row[2]) || 0;
+          const area = Number(row[3]) || 0;
+          const arable = Number(row[5]) || 0;
+          totalRoad += road;
+          totalHouses += houses;
+          totalArea += area;
+          totalArable += arable;
+          breakdown.push(`${name}${houses}栋`);
+        });
+        const breakdownText = breakdown.length ? `（分村：${breakdown.join("，")}）` : "";
+        return `影响民房${this.formatValue(totalHouses)}栋${breakdownText}，影响范围${this.formatValue(totalArea)}亩，影响耕地${this.formatValue(totalArable)}亩`;
+      }
+
+      // 无具体区域：按父区域聚合其所有子级（镇+村），并以“镇/乡”名称作为分组标签
+      const areas = MODEL_3DTILES_AREA_LIST || [];
+      if (!areas.length) return "暂无数据";
+      areas.forEach((area) => {
+        const childNames = (area.children || []).map((c) => c.name);
+        if (!childNames.length) return;
+        // 展示标签优先取子级中以“镇/乡”结尾的名称
+        const labelName = childNames.find((n) => /[镇乡]$/.test(n)) || area.name;
+        let sumRoad = 0;
+        let sumHouses = 0;
+        let sumArea = 0;
+        let sumArable = 0;
+        childNames.forEach((name) => {
+          const rows = (tables && tables.get(name)) || [];
+          const row = rows.find((r) => String(r[0]) === String(aggKey));
+          if (!row) return;
+          sumRoad += Number(row[1]) || 0;
+          sumHouses += Number(row[2]) || 0;
+          sumArea += Number(row[3]) || 0;
+          sumArable += Number(row[5]) || 0;
+        });
+        totalRoad += sumRoad;
+        totalHouses += sumHouses;
+        totalArea += sumArea;
+        totalArable += sumArable;
+        breakdown.push(`${labelName}${sumHouses}栋`);
+      });
+      const breakdownText = breakdown.length ? `（分乡镇：${breakdown.join("，")}）` : "";
+      return `影响民房${this.formatValue(totalHouses)}栋${breakdownText}，影响范围${this.formatValue(totalArea)}亩，影响耕地${this.formatValue(totalArable)}亩`;
+    },
     tableData() {
       return this.statisticalItems.map((item) => {
         const row = { name: item.name };
@@ -74,7 +166,7 @@ export default {
       if (!Number.isFinite(num)) return "-";
       if (Number.isInteger(num)) return String(Math.trunc(num));
       // 非整数：最多保留 6 位小数，去掉末尾的 0 和可能多余的小数点
-      return parseFloat(num.toFixed(6)).toString();;
+      return parseFloat(num.toFixed(2)).toString();;
     },
     buildMockData(levelLabels) {
       const result = {};

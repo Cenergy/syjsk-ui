@@ -32,6 +32,16 @@ class AffectedHousesLayer extends BaseLayer {
     this._lastHoverTs = 0;
     this._fallbackThrottleMs = 250;
     this._lastFallbackTs = 0;
+    this.maxDepth = 198.4;
+
+    // 监听水位图层排序事件，确保民房图层始终置顶显示
+    eventBus.on("waterLayersSorted", () => {
+      try {
+        if (this.isVisible) {
+          this._raiseToTop();
+        }
+      } catch (e) {}
+    });
   }
 
   async add(options = {}) {
@@ -136,6 +146,8 @@ class AffectedHousesLayer extends BaseLayer {
 
       await this.viewer.dataSources.add(outlineDS);
       this.outlineDataSource = outlineDS;
+      // 使轮廓线的数据源略高于面数据源
+      outlineDS.zIndex = zIndex + 1;
 
       dataSource.name = id;
       dataSource.zIndex = zIndex;
@@ -146,6 +158,9 @@ class AffectedHousesLayer extends BaseLayer {
 
       // 初始化悬浮提示与事件
       this._setupHoverTooltip();
+
+      // 确保该图层置顶显示在水位图层之上
+      this._raiseToTop();
 
       // 可选：通知图例（如需）
       eventBus.emit("setLegend", {
@@ -170,6 +185,8 @@ class AffectedHousesLayer extends BaseLayer {
       if (!this._hoverHandler) {
         this._setupHoverTooltip();
       }
+      // 显示时再次置顶，避免被其他图层 raiseToTop 覆盖
+      this._raiseToTop();
     }
   }
 
@@ -204,6 +221,18 @@ class AffectedHousesLayer extends BaseLayer {
 
   removeAll() {
     this.remove();
+  }
+
+  // 将民房图层的数据源置顶：先置顶面数据源，再置顶轮廓数据源（确保轮廓在最上层）
+  _raiseToTop() {
+    try {
+      if (this.dataSource) {
+        this.viewer.dataSources.raiseToTop(this.dataSource);
+      }
+      if (this.outlineDataSource) {
+        this.viewer.dataSources.raiseToTop(this.outlineDataSource);
+      }
+    } catch (e) {}
   }
 
   // ===== 悬浮提示实现 =====
@@ -341,6 +370,10 @@ class AffectedHousesLayer extends BaseLayer {
             }
           }
 
+          props.maxDepth = this.maxDepth;
+          const waterHeight = this.maxDepth - props.fwgc;
+          props.waterHeight = waterHeight ? waterHeight>=0 ? waterHeight.toFixed(2): "--" : "--";
+
           const html = componentToHtml({
             component: common.AffectedHouses,
             props: { data: props },
@@ -378,10 +411,15 @@ class AffectedHousesLayer extends BaseLayer {
           for (const tf of this._turfFeatures) {
             try {
               if (turf.booleanPointInPolygon(pt, tf)) {
+                const props = tf.properties;
+                props.maxDepth = this.maxDepth;
+                const waterHeight = this.maxDepth - props.fwgc;
+                props.waterHeight = waterHeight ? waterHeight.toFixed(2) : "--";
                 const html = componentToHtml({
                   component: common.AffectedHouses,
-                  props: { data: tf.properties || {} },
+                  props: { data: props || {} },
                 });
+                
                 if (html) {
                   this._showTooltipAt(pos.x, pos.y, html);
                   handled = true;

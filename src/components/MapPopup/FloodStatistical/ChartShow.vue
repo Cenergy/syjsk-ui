@@ -69,7 +69,7 @@ export default {
       const num = Number(val);
       if (!Number.isFinite(num)) return "-";
       if (Number.isInteger(num)) return String(Math.trunc(num));
-      const s = num.toFixed(6).replace(/(\.\d*?)0+$/, "$1").replace(/\.$/, "");
+      const s = num.toFixed(2).replace(/(\.\d*?)0+$/, "$1").replace(/\.$/, "");
       return s;
     },
     buildMockData(levelLabels) {

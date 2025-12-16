@@ -86,7 +86,7 @@ export default {
       if (!Number.isFinite(num)) return "-";
       if (Number.isInteger(num)) return String(Math.trunc(num));
       // 非整数：最多保留 6 位小数，去掉末尾的 0 和可能多余的小数点
-      return parseFloat(num.toFixed(6)).toString();;
+      return parseFloat(num.toFixed(2)).toString();;
     },
     buildMockData(levelLabels) {
       const result = {};

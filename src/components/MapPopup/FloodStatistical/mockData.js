@@ -163,7 +163,7 @@ function getSumOfEachWaterLevel(tables) {
         positionSum = t;
       }
       if (!Number.isFinite(positionSum)) positionSum = Number.MAX_VALUE;
-      sum.push(Number(positionSum.toFixed(6)));
+      sum.push(Number(positionSum.toFixed(2)));
     }
     result.set(waterLevel, sum); // 存储水位对应的每个位置的和
   }

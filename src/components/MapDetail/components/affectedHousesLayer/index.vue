@@ -62,12 +62,31 @@
         class="dark"
         height="100%"
         @row-click="handleRowClick"
+        sortable="waterHeight"
       >
-        <el-table-column align="center" label="所属乡镇" prop="xz" width="80px"></el-table-column>
-        <el-table-column align="center" label="所属村" prop="xmmc">
-          <template slot-scope="scope">{{ (scope.row.xmmc+scope.row.fwwz)?(scope.row.xmmc+scope.row.fwwz):"--" }}</template>
+        <el-table-column
+          align="center"
+          label="所属乡镇"
+          prop="xz"
+          width="58px"
+        ></el-table-column>
+        <el-table-column align="center" label="所属村" prop="xmmc" width="65px">
+          <template slot-scope="scope">
+            {{ scope.row.houseAddress }}
+          </template>
         </el-table-column>
-        <el-table-column align="center" label="户主姓名" prop="cwbj" width="110px"></el-table-column>
+        <el-table-column
+          align="center"
+          label="影响水深"
+          prop="waterHeight"
+          width="55px"
+        ></el-table-column>
+        <el-table-column
+          align="center"
+          label="户主姓名"
+          prop="cwbj"
+          width="70px"
+        ></el-table-column>
         <el-table-column align="center" label="联系电话" prop="lxdh"></el-table-column>
       </el-table>
     </div>
@@ -79,11 +98,16 @@ import houseData from "@/api/map/getHouses";
 import waterLevelLayer from "@/map/cesium/layers/waterLevelLayer";
 import affectedHousesLayer from "@/map/cesium/layers/affectedHousesLayer";
 import WaterLevelSelector from "@/components/MapDetail/components/common/WaterLevelSelector.vue";
+import { mapGetters } from "vuex";
 
 import { turf } from "swpdmap";
 
-
-const { EFFECT_WATER_LEVEL_COLOR_CONFIG_LSIT, MODEL_3DTILES_INFO_LIST,MODEL_3DTILES_AREA_LIST,getAreaNameFromChildren} = constant;
+const {
+  EFFECT_WATER_LEVEL_COLOR_CONFIG_LSIT,
+  MODEL_3DTILES_INFO_LIST,
+  MODEL_3DTILES_AREA_LIST,
+  getAreaNameFromChildren,
+} = constant;
 
 const selectedName = "全部";
 const showWaterNameList = [
@@ -146,34 +170,52 @@ export default {
 
   methods: {
     buildTableDataMock(options = {}) {
-      console.log("🚀 ~ options:", options);
       // this.orignalTableData 过滤区域和水深，赋值给tableData
-      console.log("🚀 ~ this.selectedName:", this.selectedName);
       const { cfg = {} } = options;
-      const { value: waterHeight } = cfg;
-      console.log("🚀 ~ waterHeight:", waterHeight);
+      const { value: currentWaterLevel=198.4,label } = cfg;
+      this.currentWaterLevelLabel = label;
       if (
         this.selectedName === "全部" ||
         this.selectedName === "整体影响" ||
         this.selectedName === ""
       ) {
-         this.tableData = this.orignalTableData.filter((item) => {
-          return item.hsx <= waterHeight;
+        this.tableData = this.orignalTableData.filter((item) => {
+          return item.hsx <= currentWaterLevel;
         });
       } else {
-        const areaNameList=getAreaNameFromChildren(this.selectedName)||[];
+        const areaNameList = getAreaNameFromChildren(this.selectedName) || [];
         this.tableData = this.orignalTableData.filter((item) => {
-          return areaNameList.includes(item.RefName) && item.hsx <= waterHeight;
+          return areaNameList.includes(item.RefName) && item.hsx <= currentWaterLevel;
         });
       }
+
+      this.tableData = this.tableData.map((item) => {
+        const {  hsx, fwgc,fwwz="",xmmc }=item;
+
+        let fwwzStr=fwwz;
+        let xmmcStr=xmmc;
+        if(fwwz==""||fwwz=="null"||fwwz==undefined||fwwz==null){
+          fwwzStr="";
+        }
+        if(xmmc==""||xmmc=="null"||xmmc==undefined||xmmc==null){
+          xmmcStr="";
+        }
+        const houseAddress = xmmcStr+fwwzStr;
+        const waterHeight = currentWaterLevel - item.fwgc;
+        return {
+          ...item,
+          houseAddress,
+          waterHeight: waterHeight>0?waterHeight.toFixed(2):"--",
+        };
+      }).sort((a,b)=>b.waterHeight-a.waterHeight);
 
       this.count = this.tableData.length;
     },
     handleRowClick(row, column, event) {
-      const filterData=houseData.filterHouses({OBJECTID: row.OBJECTID});
+      const filterData = houseData.filterHouses({ ID: row.ID });
       console.log("🚀 ~ filterData:", filterData);
-     const hightlightData = turf.featureCollection(filterData);
-    //  高亮显示hightlightData
+      const hightlightData = turf.featureCollection(filterData);
+      //  高亮显示hightlightData
       affectedHousesLayer.highlight(hightlightData);
 
       // this.$bus.emit("mapLocate", {
@@ -181,7 +223,6 @@ export default {
       //   data: row.id,
       // });
 
-      console.log("🚀 ~ row:", row);
       // this.$bus.emit("changeFloodRiskImage", row.imageName);
     },
     selectAreaName(name) {
@@ -218,7 +259,6 @@ export default {
       this.selectedWaterLevelList = labelOrder.filter((label) =>
         this.selectedWaterLevelList.includes(label)
       );
-      console.log("🚀 ~ this.selectedWaterLevelList:", this.selectedWaterLevelList);
       this.previousWaterLevelList = [...this.selectedWaterLevelList];
       // this.$bus.emit("waterLevelChanged", this.selectedWaterLevelList);
       // this.$store.commit("selectedWaterLevelList", this.selectedWaterLevelList);
@@ -228,23 +268,24 @@ export default {
   mounted() {
     // 初始化表格 mock 数据
     houseData.getHouses().then((data) => {
-      console.log("🚀 ~ data:", data);
       const { features } = data;
-      console.log("🚀 ~ features:", features);
       const featuresData = features.map((item, i) => {
         return {
           ...item.properties,
           tsmc: item.properties.RefName,
           xmmc: item.properties.ssc,
           cwbj: item.properties.wz,
-          lxdh: item.properties.lxdh==0?"--":item.properties.lxdh,
+          lxdh: item.properties.lxdh == 0 ? "--" : item.properties.lxdh,
         };
       });
       this.orignalTableData = Object.freeze(featuresData);
-      this.buildTableDataMock({ cfg: this.localCfg && Object.keys(this.localCfg).length ? this.localCfg : this.cfg });
+      this.buildTableDataMock({
+        cfg:
+          this.localCfg && Object.keys(this.localCfg).length ? this.localCfg : this.cfg,
+      });
 
       // 加载受影响民房面数据图层
-      affectedHousesLayer.add({ data, id: "affected-houses", zIndex: 120 });
+      affectedHousesLayer.add({ data, id: "affected-houses", zIndex: 999 });
     });
     const selectedWaterLevelList = EFFECT_WATER_LEVEL_COLOR_CONFIG_LSIT.filter(
       (item) => item.checked
@@ -290,6 +331,21 @@ export default {
       // 同步当前水位标签（事件传入的是去下划线后的 key，如 "199.0"）
       this.currentWaterLevelLabel = waterLevelKey || "";
     });
+    this.$bus.on("waterLevelChanged", (data) => {
+      const maxDepth = Math.max(
+        ...EFFECT_WATER_LEVEL_COLOR_CONFIG_LSIT.filter((item) =>
+          data.includes(item.label)
+        ).map((item) => item.value)
+      );
+      console.log("🚀 ~ maxDepth:", maxDepth);
+      const maxWaterLevel =
+        EFFECT_WATER_LEVEL_COLOR_CONFIG_LSIT.find((item) => Number(item.value) == maxDepth) || {};
+      console.log("🚀 ~ maxWaterLevel:", maxWaterLevel);
+
+      this.buildTableDataMock({
+        cfg: maxWaterLevel,
+      });
+    });
     // 监听民房数点击事件，使用传入值刷新表格 mock 数据
     this.$bus.on("clickSubmergedCivilHousingCount", (data) => {
       // 同步 cfg 至本地，并记录显示标签
@@ -315,11 +371,17 @@ export default {
     },
     // 影响区域选择变化时，重建表格数据
     selectedName() {
-      this.buildTableDataMock({ cfg: this.localCfg && Object.keys(this.localCfg).length ? this.localCfg : this.cfg });
+      this.buildTableDataMock({
+        cfg:
+          this.localCfg && Object.keys(this.localCfg).length ? this.localCfg : this.cfg,
+      });
     },
     // housesCount 变化时重新生成表格 mock 数据
     housesCount() {
-      this.buildTableDataMock({ cfg: this.localCfg && Object.keys(this.localCfg).length ? this.localCfg : this.cfg });
+      this.buildTableDataMock({
+        cfg:
+          this.localCfg && Object.keys(this.localCfg).length ? this.localCfg : this.cfg,
+      });
     },
     selectedWaterLevelList(newValue, oldValue) {
       if (this.singleCheck) {

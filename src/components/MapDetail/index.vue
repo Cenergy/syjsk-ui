@@ -95,15 +95,18 @@ export default {
     },
     handleAddPanel(data) {
       //可显示弹窗的类型
-      const isShowPanel = ["积涝点水位", "洪涝风险", "淹没分析", "房屋影响", "水深点位"];
+      const isShowPanel = ["积涝点水位", "洪涝风险", "房屋影响", "水深点位","淹没分析"];
       if (isShowPanel.includes(data.label)) {
+        const {isOpen=true} = data;
       // if (true) {
         let idx = this.tabList.findIndex((item) => item.label == data.label);
         if (idx == -1) {
           this.tabList.push(data);
         }
         this.expand = true;
-        this.activeTab = data.value;
+        if(data.isActived){
+          this.activeTab = data.value;
+        }
       }
     },
     handleRemovePanel(value) {
