@@ -8,6 +8,8 @@
 import { mapGetters } from "vuex";
 import { tables } from "@/components/MapPopup/FloodStatistical/mockData";
 import { constant } from "@/map";
+import houseData from "@/api/map/getHouses";
+
 const {
   EFFECT_WATER_LEVEL_COLOR_CONFIG_LSIT,
   MODEL_3DTILES_AREA_LIST,
@@ -25,24 +27,45 @@ export default {
   data() {
     return {
       currentAreaName: "",
+      descriptionText: "",
     };
   },
   computed: {
     ...mapGetters(["selectedWaterLevelList"]),
-    descriptionText() {
+  },
+  watch: {
+    selectedWaterLevelList: {
+      handler() { this.updateDescription(); },
+      deep: true,
+    },
+    currentAreaName() { this.updateDescription(); },
+    areaName() { this.updateDescription(); },
+  },
+  methods: {
+    formatValue(val) {
+      const num = Number(val);
+      if (!Number.isFinite(num)) return "-";
+      if (Number.isInteger(num)) return String(Math.trunc(num));
+      return parseFloat(num.toFixed(2)).toString();
+    },
+    async updateDescription(){
+      try { await houseData.getHouses(); } catch (e) {}
       const effectiveAreaName = this.areaName || this.currentAreaName;
-      const labels = (this.selectedWaterLevelList && this.selectedWaterLevelList.length)
-        ? this.selectedWaterLevelList
-        : EFFECT_WATER_LEVEL_COLOR_CONFIG_LSIT.map((i) => i.label);
+      const labels =
+        this.selectedWaterLevelList && this.selectedWaterLevelList.length
+          ? this.selectedWaterLevelList
+          : EFFECT_WATER_LEVEL_COLOR_CONFIG_LSIT.map((i) => i.label);
 
       const pickMaxCfg = () => {
         const cfgList = labels
-          .map((label) => EFFECT_WATER_LEVEL_COLOR_CONFIG_LSIT.find((i) => i.label === label))
+          .map((label) =>
+            EFFECT_WATER_LEVEL_COLOR_CONFIG_LSIT.find((i) => i.label === label)
+          )
           .filter(Boolean);
         if (cfgList.length === 0) {
-          return EFFECT_WATER_LEVEL_COLOR_CONFIG_LSIT
-            .slice()
-            .sort((a, b) => Number(b.value) - Number(a.value))[0];
+          return EFFECT_WATER_LEVEL_COLOR_CONFIG_LSIT.slice().sort(
+            (a, b) => Number(b.value) - Number(a.value)
+          )[0];
         }
         return cfgList.slice().sort((a, b) => Number(b.value) - Number(a.value))[0];
       };
@@ -78,13 +101,23 @@ export default {
           totalArable += arable;
           breakdown.push(`${name}${houses}栋`);
         });
-        const breakdownText = breakdown.length ? `（${breakdown.join("，")}）` : "";
-        const levelText = (cfg && cfg.name) ? cfg.name : `${aggKey}米`;
-        return `当前水位：${levelText}，影响民房${this.formatValue(totalHouses)}栋${breakdownText}，影响范围${this.formatValue(totalArea)}亩，影响耕地${this.formatValue(totalArable)}亩`;
+        const areaInfo=MODEL_3DTILES_AREA_LIST.find((i) => i.name === effectiveAreaName)||{};
+        const {label:areaLabel} = areaInfo;
+        // 使用按村累计统计的分项输出替换原表格分项，仅限当前乡镇（若当前定位是乡镇级别）
+        const villageSummary = houseData.getAffectedSummaryByVillage(aggKey, areaLabel);
+
+        const levelText = cfg && cfg.name ? cfg.name : `${aggKey}米`;
+        this.descriptionText = `当前水位：${levelText}，${effectiveAreaName}${villageSummary}，影响范围${this.formatValue(
+          totalArea
+        )}亩，影响耕地${this.formatValue(totalArable)}亩`;
+        return;
       }
 
       const areas = MODEL_3DTILES_AREA_LIST || [];
-      if (!areas.length) return "暂无数据";
+      if (!areas.length) {
+        this.descriptionText = "暂无数据";
+        return;
+      }
       areas.forEach((area) => {
         const childNames = (area.children || []).map((c) => c.name);
         if (!childNames.length) return;
@@ -106,19 +139,13 @@ export default {
         totalHouses += sumHouses;
         totalArea += sumArea;
         totalArable += sumArable;
-        breakdown.push(`${labelName}${sumHouses}栋`);
       });
-      const breakdownText = breakdown.length ? `（${breakdown.join("，")}）` : "";
-      const levelText = (cfg && cfg.name) ? cfg.name : `${aggKey}米`;
-      return `当前水位：${levelText}，影响民房${this.formatValue(totalHouses)}栋${breakdownText}，影响范围${this.formatValue(totalArea)}亩，影响耕地${this.formatValue(totalArable)}亩`;
-    },
-  },
-  methods: {
-    formatValue(val) {
-      const num = Number(val);
-      if (!Number.isFinite(num)) return "-";
-      if (Number.isInteger(num)) return String(Math.trunc(num));
-      return parseFloat(num.toFixed(2)).toString();
+      // 使用按乡镇累计统计的分项输出替换原表格分项
+      const townSummary =  houseData.getAffectedSummaryByTown(aggKey);
+      const levelText = cfg && cfg.name ? cfg.name : `${aggKey}米`;
+      this.descriptionText = `当前水位：${levelText}，${townSummary}，影响范围${this.formatValue(
+        totalArea
+      )}亩，影响耕地${this.formatValue(totalArable)}亩`;
     },
   },
   mounted() {
@@ -132,8 +159,10 @@ export default {
         } else {
           this.currentAreaName = "";
         }
+        this.updateDescription();
       });
     }
+    this.updateDescription();
   },
 };
 </script>

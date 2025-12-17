@@ -100,8 +100,8 @@ export default {
 
   .layerSelect {
     position: absolute;
-    top: 0 !important;
-    left: 102px;
+    top: 60px !important;
+    left: 0px;
     color: #fff;
     display: none;
     height: max-content;

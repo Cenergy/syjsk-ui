@@ -41,6 +41,7 @@ const DEFAULT_VIEW_INFO = tflyToData;
 const MODEL_3DTILES_AREA_LIST = [
   {
     name: "上犹县营前镇",
+    label: "营前镇",
     flyToData: {
       destination: {
         x: -2363662.01448374,
@@ -94,6 +95,7 @@ const MODEL_3DTILES_AREA_LIST = [
   },
   {
     name: "上犹县水岩乡",
+    label: "水岩乡",
     flyToData: {
       destination: {
         x: -2364575.5037906775,
@@ -129,6 +131,7 @@ const MODEL_3DTILES_AREA_LIST = [
   },
   {
     name: "崇义县过埠镇",
+    label: "过埠镇",
     flyToData: {
       destination: {
         x: -2360281.8299946846,
@@ -200,6 +203,7 @@ const MODEL_3DTILES_AREA_LIST = [
   },
   {
     name: "崇义县杰坝乡",
+    label: "杰坝乡",
     flyToData: {
       destination: {
         x: -2362264.193262877,

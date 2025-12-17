@@ -407,6 +407,9 @@ class TilesetModelAccuracy extends BaseLayer {
     try {
       // 移除相机监听器
       this.removeCameraListener();
+
+      // 取消所有计划的卸载/重新加载定时器，避免在 hide 后再次触发加载
+      this.cancelAllTimers();
       
       // 清理所有tileset
       this.tilesetFlags.forEach(tileset => {
@@ -420,7 +423,13 @@ class TilesetModelAccuracy extends BaseLayer {
       this.tilesetModels = [];
       this.tilesetFlags = [];
       this.tilesetModel = null;
+      this.modelListCache = null;
+      // 禁用可见性控制，确保不会在隐藏后被动触发显示/加载
+      this.isVisibilityControlEnabled = false;
       this.hasLoaded = false;
+      
+      // 请求一次重绘，确保场景立即反映隐藏结果
+      try { viewer.scene.requestRender(); } catch (e) {}
       
       console.log('✅ All 3D Tiles models hidden and cleaned up');
     } catch (error) {

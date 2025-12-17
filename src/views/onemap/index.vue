@@ -1,6 +1,6 @@
 <template>
   <div style="height: 100%">
-    <div style="position: absolute;z-index: 100;left: 0%;top:10px;width: 30%;padding: 0px 10px;">
+    <div style="position: absolute;z-index: 100;left: 8%;top:60px;width: 30%;padding: 0px 10px;background: rgba(0,0,0,0.5);box-shadow: inset 0 0 5px 1px #56a2f3">
       <FloodSummary></FloodSummary>
     </div>
     <CMap style="position: fixed; top: 0; left: 0" />
@@ -200,6 +200,7 @@ export default {
   top: 5%;
   left: 0%;
   position: absolute;
+  display: none;
   user-select: none;
   font-size: 20px;
   padding: 18px 3px;
