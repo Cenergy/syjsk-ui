@@ -156,6 +156,9 @@ class AffectedHousesLayer extends BaseLayer {
       this.isVisible = true;
       this.hasLoaded = true;
 
+      // 提升半透明/透明几何的拾取稳定性
+      try { this.viewer.scene.pickTranslucentDepth = true; } catch (e) {}
+
       // 初始化悬浮提示与事件
       this._setupHoverTooltip();
 
@@ -371,8 +374,8 @@ class AffectedHousesLayer extends BaseLayer {
           }
 
           props.maxDepth = this.maxDepth;
-          const waterHeight = this.maxDepth - props.fwgc;
-          props.waterHeight = waterHeight ? waterHeight>=0 ? waterHeight.toFixed(2): "--" : "--";
+          const waterHeight = Number(this.maxDepth) - Number(props.fwgc);
+          props.waterHeight = Number.isFinite(waterHeight) && waterHeight >= 0 ? waterHeight.toFixed(2) : "--";
 
           const html = componentToHtml({
             component: common.AffectedHouses,
@@ -392,7 +395,7 @@ class AffectedHousesLayer extends BaseLayer {
         this._turfFeatures.length
       ) {
         if (nowTs - this._lastFallbackTs < this._fallbackThrottleMs) {
-          if (!handled) this._hideTooltip();
+          // 保留现有提示，跳过本次兜底计算以降低频率
           return;
         }
         this._lastFallbackTs = nowTs;
@@ -413,8 +416,8 @@ class AffectedHousesLayer extends BaseLayer {
               if (turf.booleanPointInPolygon(pt, tf)) {
                 const props = tf.properties;
                 props.maxDepth = this.maxDepth;
-                const waterHeight = this.maxDepth - props.fwgc;
-                props.waterHeight = waterHeight ? waterHeight.toFixed(2) : "--";
+                const waterHeight = Number(this.maxDepth) - Number(props.fwgc);
+                props.waterHeight = Number.isFinite(waterHeight) && waterHeight >= 0 ? waterHeight.toFixed(2) : "--";
                 const html = componentToHtml({
                   component: common.AffectedHouses,
                   props: { data: props || {} },
@@ -424,7 +427,17 @@ class AffectedHousesLayer extends BaseLayer {
                   this._showTooltipAt(pos.x, pos.y, html);
                   handled = true;
                 }
-                //  高亮显示
+                // 高亮显示（仅在目标变化时刷新）
+                const currentId =
+                  (tf && tf.properties && (tf.properties.id || tf.properties.ID || tf.properties.Name || tf.properties.name)) || null;
+                if (this._lastHighlightedId !== currentId) {
+                  this.highlight(
+                    { type: "FeatureCollection", features: [tf] },
+                    { needFlyTo: false }
+                  );
+                  this._lastHighlightedId = currentId;
+                }
+                break;
               }
             } catch (e) {}
           }

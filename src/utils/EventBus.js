@@ -73,7 +73,6 @@ class EventBus {
         if (this.debug) {
             console.debug( `[EventBus] emit ${eventName} args ${args}`)
         }
-        console.debug(eventName, ...args)
         const _args = deepCopy(args)
         const eventListenerList = this.getEventListener(eventName)
         if(eventListenerList === null) {

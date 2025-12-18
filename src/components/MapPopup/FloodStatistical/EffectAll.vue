@@ -201,7 +201,6 @@ export default {
       } else {
         aggregatedMap = getStatisticalData();
       }
-      console.log("🚀 ~ aggregatedMap:", aggregatedMap);
       const keys = this.statisticalItems.map((i) => i.key);
 
       levelLabels.forEach((label) => {

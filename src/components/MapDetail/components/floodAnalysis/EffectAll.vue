@@ -115,12 +115,10 @@ export default {
       // 使用聚合统计数据（按水位分组求和）
       // 假如this.areaName有值，则统计这个areaName的值
       let aggregatedMap;
-      console.log("🚀 ~ this.currentAreaName:", this.currentAreaName);
       if (this.currentAreaName) {
         // 若为父区域则聚合其 children；若无 children 则回退为当前区域自身
         const names = getAreaNameFromChildren(this.currentAreaName) || [];
         const tableNameList = names.length ? names : [this.currentAreaName];
-        console.log("🚀 ~ tableNameList:", tableNameList);
 
         // 将多个表的行按水位进行求和聚合：Map<waterLevel, number[]>
         const grouped = new Map();

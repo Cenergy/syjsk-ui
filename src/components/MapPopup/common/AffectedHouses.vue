@@ -25,12 +25,12 @@ export default {
   data() {
     return {
         excludeFields: [
-            "OBJECTID","wz","xz","ID",
+            "OBJECTID","wz","RefName","ID",
         ],
         housesLabel:{
             "hsx":"受影响水位",
             "OBJECTID":"对象ID",
-            "RefName":"所属乡镇",
+            "xz":"所属乡镇",
             "hzm":"户主姓名",
             "ssc":"所属村",
             "fwwz":"房屋地址",

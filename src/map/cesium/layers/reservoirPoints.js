@@ -16,7 +16,7 @@ const sss = showList.map((item, index) => {
       click: (e) => {
         eventBus.emit("openMapDialog", {
           type: "FloodStatistical",
-          data: {name: item.name},
+          data: {name: item.parent},
         });
       },
     },

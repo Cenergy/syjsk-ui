@@ -8,14 +8,14 @@
       <el-col :span="6">
         <div class="leftPanel">
           <div style="height: 100%; width: 100%; display: flex; flex-direction: row">
-            <div style="height: 100%; width: 100%">
+            <!-- <div style="height: 100%; width: 100%">
               <div class="mask left" v-show="isShowLeft"></div>
               <div class="leftPanelContent" v-show="isShowLeft">
                 <FirstContent />
                 <SecondContent style="flex: 1" />
                 <ThirdContent style="flex: 1" />
               </div>
-            </div>
+            </div> -->
             <div>
               <div :class="['toggle', isShowLeft && 'expand']" @click="handleSwitch">
                 {{ isShowLeft ? "⟨" : "⟩" }}

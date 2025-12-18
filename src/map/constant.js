@@ -253,6 +253,7 @@ function buildModelTilesInfoListFromChildren(modelTree = []) {
         height: child.height,
         // 优先使用子级的 flyToData，缺省时回退到父级
         flyToData: child.flyToData || area.flyToData,
+        parent: area.name,
       });
     });
   });

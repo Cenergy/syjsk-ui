@@ -155,7 +155,6 @@ class HourseData{
     townVillageHsxCounts["__总计__"] = { ...overallCum, __总计__: overallTotal };
 
     this.groupedData = { townHsxCounts, townVillageHsxCounts };
-    console.log("🚀 ~ HourseData ~ groupHouses ~ this.groupedData:", this.groupedData);
     return this.groupedData;
   }
   // 获取按乡镇的 hsx 统计
