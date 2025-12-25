@@ -1,6 +1,6 @@
 <template>
   <div class="stat-container">
-    <el-table :data="tableData" style="width: 100%" height="400" border>
+    <el-table :data="tableData" style="width: 100%" height="500" border>
       <el-table-column prop="name" label="典型水位" width="115"></el-table-column>
       <el-table-column
         v-for="(value, key) in mockData"
@@ -14,9 +14,6 @@
       </template>
       </el-table-column>
     </el-table>
-    <div class="description">
-      <p>{{ descriptionText }}</p>
-    </div>
   </div>
 </template>
 
@@ -45,6 +42,7 @@ export default {
         { key: "inundationArea", name: "淹没面积(亩)" },
         { key: "submergedCivilLandArea", name: "淹没农用地面积（亩）" },
         { key: "submergedArableLandArea", name: "淹没耕地（亩）" },
+        { key: "affectedPopulation", name: "影响人口（人）" },
       ],
       mockData: {},
     };

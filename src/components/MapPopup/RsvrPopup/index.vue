@@ -27,6 +27,13 @@
     <el-tab-pane label="基本信息" lazy>
       <BaseInfo />
     </el-tab-pane>
+    <el-tab-pane label="抢险方案" lazy>
+      <ReservePlan :id="id" />
+    </el-tab-pane>
+    <el-tab-pane label="运行计划" lazy>
+      <ReservePlan :id="id" />
+    </el-tab-pane>
+
     <!-- <el-tab-pane
         v-if="hasCamera"
         label="视频监控"
@@ -67,14 +74,19 @@
     <el-tab-pane label="大坝安全" lazy>
       <dam-monitor />
     </el-tab-pane> -->
-    <el-tab-pane label="抢险预案">
+    <!-- <el-tab-pane label="抢险预案">
       <Area1PaperPlan />
     </el-tab-pane>
     <el-tab-pane label="运行计划" lazy>
       <ReservePlan :id="id" />
-    </el-tab-pane>
+    </el-tab-pane> -->
     <!-- 循环showw tabs-->
-    <el-tab-pane v-for="(item, index) in showTabs" :key="index" :label="item" class="my-custom-class">
+    <el-tab-pane
+      v-for="(item, index) in showTabs"
+      :key="index"
+      :label="item"
+      class="my-custom-class"
+    >
       <ImageContainer :imgUrl="getImgUrl(item)" />
     </el-tab-pane>
     <!-- <el-tab-pane label="告警记录" lazy>
@@ -108,17 +120,17 @@ import RainAnalysis from "./RainAnalysis.vue";
 
 const showTabs = [
   // "基本信息",
-  "实时水雨情",
-  "水位过程线",
-  "水位库容",
-  "视频监控",
+  // "实时水雨情",
+  // "水位过程线",
+  // "水位库容",
+  // "视频监控",
   // "CIM",
-  "责任人",
+  // "责任人",
   // "值守人员",
   // "三个责任人",
-  "大坝安全",
-  "人员转移路线",
-  "一页纸预案",
+  // "大坝安全",
+  // "人员转移路线",
+  // "一页纸预案",
   // "街道一页纸",
   // "社区一页纸",
   // "抢险方案",
@@ -167,6 +179,4 @@ export default {
   },
 };
 </script>
-<style scoped>
-
-</style>
+<style scoped></style>

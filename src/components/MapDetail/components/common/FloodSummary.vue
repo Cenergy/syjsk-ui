@@ -46,10 +46,11 @@ export default {
       const num = Number(val);
       if (!Number.isFinite(num)) return "-";
       if (Number.isInteger(num)) return String(Math.trunc(num));
+      console.log("🚀 ~ num:", num);
       return parseFloat(num.toFixed(2)).toString();
     },
     async updateDescription(){
-      try { await houseData.getHouses(); } catch (e) {}
+      // try { await houseData.getHouses(); } catch (e) {}
       const effectiveAreaName = this.areaName || this.currentAreaName;
       const labels =
         this.selectedWaterLevelList && this.selectedWaterLevelList.length
@@ -82,7 +83,8 @@ export default {
       let totalHouses = 0;
       let totalArea = 0;
       let totalArable = 0;
-      const breakdown = [];
+      let totalPopulation  = 0;
+      let breakdown = "";
 
       if (effectiveAreaName) {
         const childNames = getAreaNameFromChildren(effectiveAreaName) || [];
@@ -95,11 +97,13 @@ export default {
           const houses = Number(row[2]) || 0;
           const area = Number(row[3]) || 0;
           const arable = Number(row[5]) || 0;
+          const population = Number(row[6]) || 0;
           totalRoad += road;
           totalHouses += houses;
           totalArea += area;
           totalArable += arable;
-          breakdown.push(`${name}${houses}栋`);
+          totalPopulation += population;
+          breakdown=`${name}受影响的房屋共计${houses}栋${population}人`;
         });
         const areaInfo=MODEL_3DTILES_AREA_LIST.find((i) => i.name === effectiveAreaName)||{};
         const {label:areaLabel} = areaInfo;
@@ -107,7 +111,7 @@ export default {
         const villageSummary = houseData.getAffectedSummaryByVillage(aggKey, areaLabel);
 
         const levelText = cfg && cfg.name ? cfg.name : `${aggKey}米`;
-        this.descriptionText = `当前水位：${levelText}，${effectiveAreaName}${villageSummary}，影响范围${this.formatValue(
+        this.descriptionText = `当前水位：${levelText}，${breakdown}${villageSummary}，影响范围${this.formatValue(
           totalArea
         )}亩，影响耕地${this.formatValue(totalArable)}亩`;
         return;
@@ -118,32 +122,65 @@ export default {
         this.descriptionText = "暂无数据";
         return;
       }
+      
+      const overallData = tables.get("整体") || [];
+      const row = overallData.find((r) => String(r[0]) === String(aggKey));
+      if (row) {
+        totalRoad = Number(row[1]) || 0;
+        totalHouses = Number(row[2]) || 0;
+        totalArea = Number(row[3]) || 0;
+        totalArable = Number(row[5]) || 0;
+        totalPopulation = Number(row[6]) || 0;
+      }
+
+      // areas.forEach((area) => {
+      //   const childNames = (area.children || []).map((c) => c.name);
+      //   if (!childNames.length) return;
+      //   const labelName = childNames.find((n) => /[镇乡]$/.test(n)) || area.name;
+      //   let sumRoad = 0;
+      //   let sumHouses = 0;
+      //   let sumArea = 0;
+      //   let sumArable = 0;
+      //   childNames.forEach((name) => {
+      //     const rows = (tables && tables.get(name)) || [];
+      //     const row = rows.find((r) => String(r[0]) === String(aggKey));
+      //     if (!row) return;
+      //     sumRoad += Number(row[1]) || 0;
+      //     sumHouses += Number(row[2]) || 0;
+      //     sumArea += Number(row[3]) || 0;
+      //     sumArable += Number(row[5]) || 0;
+      //   });
+      //   totalRoad += sumRoad;
+      //   totalHouses += sumHouses;
+      //   totalArea += sumArea;
+      //   totalArable += sumArable;
+      // });
+      // 使用按乡镇累计统计的分项输出替换原表格分项
+      // const townSummary =  houseData.getAffectedSummaryByTown(aggKey);
+
+      // 计算各乡镇的影响民房数
+      const townBreakdown = [];
       areas.forEach((area) => {
         const childNames = (area.children || []).map((c) => c.name);
         if (!childNames.length) return;
         const labelName = childNames.find((n) => /[镇乡]$/.test(n)) || area.name;
-        let sumRoad = 0;
         let sumHouses = 0;
-        let sumArea = 0;
-        let sumArable = 0;
+        let sumPopulation = 0;
         childNames.forEach((name) => {
           const rows = (tables && tables.get(name)) || [];
           const row = rows.find((r) => String(r[0]) === String(aggKey));
           if (!row) return;
-          sumRoad += Number(row[1]) || 0;
           sumHouses += Number(row[2]) || 0;
-          sumArea += Number(row[3]) || 0;
-          sumArable += Number(row[5]) || 0;
+          sumPopulation += Number(row[6]) || 0;
         });
-        totalRoad += sumRoad;
-        totalHouses += sumHouses;
-        totalArea += sumArea;
-        totalArable += sumArable;
+        if (sumHouses > 0 || sumPopulation > 0) {
+          townBreakdown.push(`${labelName}${sumHouses}栋${sumPopulation}人`);
+        }
       });
-      // 使用按乡镇累计统计的分项输出替换原表格分项
-      const townSummary =  houseData.getAffectedSummaryByTown(aggKey);
+      const townBreakdownText = townBreakdown.length ? `（${townBreakdown.join("，")}）` : "";
+
       const levelText = cfg && cfg.name ? cfg.name : `${aggKey}米`;
-      this.descriptionText = `当前水位：${levelText}，${townSummary}，影响范围${this.formatValue(
+      this.descriptionText = `当前水位：${levelText}，影响民房${this.formatValue(totalHouses)}栋${totalPopulation}人${townBreakdownText}，影响范围${this.formatValue(
         totalArea
       )}亩，影响耕地${this.formatValue(totalArable)}亩`;
     },

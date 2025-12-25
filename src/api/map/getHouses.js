@@ -257,8 +257,8 @@ class HourseData{
         }
       });
     });
-    if (allCount <= 0) return '没有受影响的房屋';
-    return `受影响的房屋共计${allCount}栋(${parts.join('，')})`;
+    if (allCount <= 0) return '';
+    return `(${parts.join('，')})`;
   }
   clear(){
     this.setData(null);
